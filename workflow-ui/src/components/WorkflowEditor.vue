@@ -1070,14 +1070,14 @@ export default {
 .workflow-editor {
   display: flex;
   width: 100%;
-  height: calc(100vh - 80px);
+  height: calc(100vh - 10px);
   border: 1px solid #dcdfe6;
   margin: 0 20px 20px 20px;
   overflow: hidden;
 }
 
 .tools-panel {
-  width: 200px;
+  width: 130px;
   background: #f5f7fa;
   border-right: 1px solid #dcdfe6;
   display: flex;
