@@ -452,7 +452,7 @@ export default {
        // 构造目标路由地址
       const routeData = this.$router.resolve({
         name: 'InstanceDetail',
-        params: { instanceId: row.workflowVersionId }
+        params: { instanceId: row.id }
       });
 
       // 使用 window.open 打开新标签页
