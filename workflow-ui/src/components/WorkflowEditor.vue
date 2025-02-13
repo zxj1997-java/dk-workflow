@@ -84,7 +84,9 @@
 
 <script>
 import { Graph } from '@antv/x6'
-import { workflowApi } from '@/api/workflow'
+// 修改导入方式，分别导入需要的 API
+import workflowApi from '@/api/workflow/workflow'
+import { systemApi } from '@/api/workflow/system'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import EdgeContextMenu from './menu/EdgeContextMenu.vue'
 import NodeContextMenu from './menu/NodeContextMenu.vue'
@@ -746,7 +748,7 @@ export default {
         const nodes = this.graph.getNodes()
         const edges = this.graph.getEdges()
         
-        this.flowData = {
+        const flowData = {
           nodes: nodes.map(node => ({
             id: node.id,
             shape: node.shape,
@@ -755,82 +757,38 @@ export default {
             width: node.size().width,
             height: node.size().height,
             label: node.attrs.label.text,
-            // 添加活动配置数据
-            data: node.data || null,  // 如果是活动节点，保存其配置信息
-            type: node.attrs.label.text === '活动' ? 'activity' : 
-                  node.attrs.label.text === '开始' ? 'start' : 'end'
+            data: node.data,
+            type: node.data?.type || 
+                  (node.attrs.label.text === '开始' ? 'start' : 
+                   node.attrs.label.text === '结束' ? 'end' : 'activity')
           })),
           edges: edges.map(edge => ({
-            shape: 'bpmn-edge',
             source: edge.getSourceCell().id,
             target: edge.getTargetCell().id,
             vertices: edge.getVertices() || [],
-            data: edge.data, // 恢复边的数据
-            router: edge.router || {
-              name: 'normal'
+            data: edge.data,
+            router: {
+              name: edge.router?.name || 'normal'
             },
-            connector: edge.connector || {
-              name: 'normal'
+            connector: {
+              name: edge.connector?.name || 'normal'
             }
           }))
         }
 
-        if (this.id) {
-          await this.doSave(this.flowData)
-        } else {
-          this.dialogVisible = true
-        }
-      } catch (error) {
-        console.error('保存失败:', error)
-        ElMessage.error('保存失败: ' + error.message)
-      }
-    },
-    async doSave(flowData) {
-      try {
-        // 如果是编辑模式且没有新的名称，使用原有名称
-        let name = this.form.name
-        if (this.id && !name) {
-          const workflow = await workflowApi.getWorkflowById(this.id)
-          name = workflow.name
-        } else if (!name) {
-          name = '工作流程图'
-        }
-
+        // 获取当前工作流的名称
+        let workflowName = this.workflowData?.name || '新建工作流'
+        
         await workflowApi.saveWorkflow({
           id: this.id,
-          name: name,
+          name: workflowName,
           flowData: JSON.stringify(flowData)
         })
-        
+
         ElMessage.success('保存成功')
-        this.dialogVisible = false
-        
-        // 如果是新建流程，保存成功后跳转到列表页面
-        if (!this.id) {
-          this.$router.push('/workflow/list')
-        }
       } catch (error) {
-        ElMessage.error('保存失败: ' + error.message)
-      }
-    },
-    cancelSave() {
-      this.dialogVisible = false
-      this.form.name = ''
-      this.flowData = null
-    },
-    async confirmSave() {
-      if (!this.form.name.trim()) {
-        ElMessage.warning('请输入流程名称')
-        return
-      }
-      await this.doSave(this.flowData)
-    },
-    async testApi() {
-      try {
-        const result = await workflowApi.test()
-        console.log('API测试结果:', result)
-      } catch (error) {
-        console.error('API测试失败:', error)
+        console.error('保存失败:', error)
+        ElMessage.error('保存失败')
       }
     },
     async loadWorkflowData() {
@@ -995,18 +953,24 @@ export default {
       this.hideContextMenu()
       this.drawerVisible = true
     },
-    handleActivitySave(formData) {
-      if (this.currentNode) {
-        // 更新节点数据
-        this.currentNode.setData(formData)
-        
-        // 更新节点显示的名称
-        this.currentNode.attr('label/text', formData.name)
-        
-        // 关闭抽屉
-        this.drawerVisible = false
-        
-        ElMessage.success('活动配置保存成功')
+    async handleActivitySave(formData) {
+      try {
+        if (this.currentNode) {
+          // 更新节点数据
+          this.currentNode.setData(formData)
+          // 更新节点显示的名称
+          this.currentNode.attr('label/text', formData.name)
+          // 关闭抽屉
+          this.drawerVisible = false
+          
+          // 保存整个工作流
+          await this.saveWorkflow()
+          
+          ElMessage.success('活动配置保存成功')
+        }
+      } catch (error) {
+        console.error('保存活动失败:', error)
+        ElMessage.error('保存失败')
       }
     },
     async deleteNode() {
@@ -1024,10 +988,10 @@ export default {
     },
     async loadOptions() {
       try {
-        // 并行加载用户和部门数据
+        // 修改 API 调用方式
         const [users, departments] = await Promise.all([
-          workflowApi.getUsers(),
-          workflowApi.getDepartments()
+          systemApi.getUsers(),
+          systemApi.getDepartments()
         ])
         this.userOptions = users
         this.departmentOptions = departments
@@ -1055,70 +1019,47 @@ export default {
     },
     async saveTransitionConfig(config) {
       try {
-        // 保存配置到边
-        this.currentEdge.setData(config)
-        // 更新边的显示
-        this.currentEdge.setLabels([{
-          attrs: {
-            text: {
-              text: config.name
-            }
+        if (this.currentEdge) {
+          // 更新边的数据
+          this.currentEdge.setData(config)
+          // 更新连线标签
+          if (config.name) {
+            this.currentEdge.setLabels([{
+              attrs: {
+                text: {
+                  text: config.name,
+                  fill: '#333',
+                  fontSize: 12,
+                  textAnchor: 'middle',
+                  textVerticalAnchor: 'middle'
+                },
+                rect: {
+                  fill: '#fff',
+                  stroke: '#dcdfe6',
+                  strokeWidth: 1,
+                  rx: 3,
+                  ry: 3,
+                  refWidth: '100%',
+                  refHeight: '100%',
+                  refX: 0,
+                  refY: 0
+                }
+              },
+              position: {
+                distance: 0.5
+              }
+            }])
           }
-        }])
-        
-        // 保存整个工作流
-        const nodes = this.graph.getNodes()
-        const edges = this.graph.getEdges()
-        
-        const flowData = {
-          nodes: nodes.map(node => ({
-            id: node.id,
-            shape: node.shape,
-            x: node.position().x,
-            y: node.position().y,
-            width: node.size().width,
-            height: node.size().height,
-            label: node.data?.type === 'activity' ? '活动' : node.attrs.label.text,
-            data: node.data,
-            type: node.data?.type || 
-                  (node.attrs.label.text === '开始' ? 'start' : 
-                   node.attrs.label.text === '结束' ? 'end' : 'activity')
-          })),
-          edges: edges.map(edge => ({
-            shape: 'bpmn-edge',
-            source: edge.getSourceCell().id,
-            target: edge.getTargetCell().id,
-            vertices: edge.getVertices() || [],
-            data: edge.data, // 添加边的配置数据
-            router: {
-              name: edge.router?.name || 'normal',
-              args: edge.router?.args || {}
-            },
-            connector: {
-              name: edge.connector?.name || 'normal',
-              args: edge.connector?.args || {}
-            }
-          }))
+          
+          // 保存整个工作流
+          await this.saveWorkflow()
+          
+          this.transitionDrawerVisible = false
+          ElMessage.success('变迁配置保存成功')
         }
-
-        // 获取当前工作流的名称
-        let workflowName = '工作流程图'
-        if (this.id) {
-          const workflow = await workflowApi.getWorkflowById(this.id)
-          workflowName = workflow.name
-        }
-
-        await workflowApi.saveWorkflow({
-          id: this.id,
-          name: workflowName,
-          flowData: JSON.stringify(flowData)
-        })
-        
-        this.transitionDrawerVisible = false
-        ElMessage.success('变迁配置保存成功')
       } catch (error) {
-        console.error('保存失败:', error)
-        ElMessage.error('保存失败: ' + error.message)
+        console.error('保存变迁失败:', error)
+        ElMessage.error('保存失败')
       }
     },
   }

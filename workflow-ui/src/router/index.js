@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 import WorkflowList from '@/views/workflow/List.vue'
 import WorkflowEditor from '@/components/WorkflowEditor.vue'
 import WorkflowViewer from '@/components/WorkflowViewer.vue'
-import InstanceViewer from '@/views/workflow/InstanceViewer.vue'
 import InstanceList from '@/views/workflow/InstanceList.vue'
 
 const routes = [
@@ -31,13 +30,7 @@ const routes = [
     })
   },
   {
-    path: '/workflow/instance/:instanceId',
-    name: 'InstanceViewer',
-    component: InstanceViewer,
-    props: true
-  },
-  {
-    path: '/workflow/:id/instances',
+    path: '/workflow/instance/:workflowId',
     name: 'InstanceList',
     component: InstanceList,
     props: true

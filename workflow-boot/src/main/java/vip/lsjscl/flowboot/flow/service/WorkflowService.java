@@ -6,7 +6,12 @@ import vip.lsjscl.flowboot.flow.entity.Workflow;
 import vip.lsjscl.flowboot.flow.entity.WorkflowVersion;
 import vip.lsjscl.flowboot.flow.repository.WorkflowRepository;
 import vip.lsjscl.flowboot.flow.repository.WorkflowVersionRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+import vip.lsjscl.flowboot.flow.dto.WorkflowCreateDTO;
+import vip.lsjscl.flowboot.common.exception.BusinessException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -16,6 +21,22 @@ public class WorkflowService {
     private final WorkflowRepository workflowRepository;
     private final WorkflowVersionRepository workflowVersionRepository;
     
+    @Transactional
+    public Workflow createWorkflow(WorkflowCreateDTO dto) {
+        // 检查编码是否已存在
+        if (workflowRepository.existsByCode(dto.getCode())) {
+            throw new BusinessException("工作流编码已存在");
+        }
+        
+        Workflow workflow = new Workflow();
+        workflow.setName(dto.getName());
+        workflow.setCode(dto.getCode());
+        workflow.setCreateTime(LocalDateTime.now());
+        workflow.setStatus("DRAFT");
+        
+        return workflowRepository.save(workflow);
+    }
+
     public Workflow saveWorkflow(String name, String flowData, Long id) {
         Workflow workflow;
         if (id != null) {

@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import { updateTransition, createTransition } from '@/api/workflow'
+import { ElMessage } from 'element-plus'
 
 export default {
   name: 'TransitionDrawer',
@@ -109,33 +109,21 @@ export default {
           return
         }
 
-        if (!this.workflowVersionId) {
-          this.$message.warning('请先保存工作流')
-          return
-        }
-
         const transitionData = {
           id: this.transitionData?.id,
           name: this.form.name,
           code: this.form.code,
+          conditionClass: this.form.conditionClass,
           from: this.transitionData?.from,
           to: this.transitionData?.to,
-          conditionClass: this.form.conditionClass,
-          workflowVersionId: this.workflowVersionId
+          type: 'transition'
         }
 
-        if (this.isEdit) {
-          await updateTransition(transitionData)
-        } else {
-          await createTransition(transitionData)
-        }
-
-        this.$message.success('保存成功')
-        this.$emit('success')
+        this.$emit('save', transitionData)
         this.visible = false
       } catch (error) {
         console.error('保存变迁失败:', error)
-        this.$message.error('保存失败: ' + (error.response?.data?.message || error.message))
+        ElMessage.error('保存失败: ' + error.message)
       }
     }
   }

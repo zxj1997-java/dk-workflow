@@ -117,7 +117,8 @@
 </template>
 
 <script>
-import { createActivity, updateActivity } from '@/api/workflow'
+
+import {ElMessage} from "element-plus";
 
 export default {
   name: 'ActivityDrawer',
@@ -217,12 +218,6 @@ export default {
     async handleSave() {
       try {
         await this.$refs.formRef.validate()
-
-        if (!this.workflowVersionId) {
-          this.$message.warning('请先保存工作流')
-          return
-        }
-
         const activityData = {
           id: this.activityData?.id,
           name: this.form.name,
@@ -231,21 +226,14 @@ export default {
           approvers: this.form.approvers,
           departments: this.form.departments,
           operations: this.form.operations,
-          workflowVersionId: this.workflowVersionId
+          type: 'activity'
         }
 
-        if (this.isEdit) {
-          await updateActivity(activityData)
-        } else {
-          await createActivity(activityData)
-        }
-
-        this.$message.success('保存成功')
-        this.$emit('success')
+        this.$emit('save', activityData)
         this.visible = false
       } catch (error) {
         console.error('保存活动失败:', error)
-        this.$message.error('保存失败: ' + (error.response?.data?.message || error.message))
+        ElMessage.error('保存失败: ' + error.message)
       }
     }
   }

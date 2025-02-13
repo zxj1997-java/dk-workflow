@@ -17,27 +17,27 @@ public class Workflow {
     @Column(nullable = false)
     private String name;
     
-    @Column(columnDefinition = "text")
+    @Column(nullable = false, unique = true)
+    private String code;
+    
+    @Column(name = "flow_data", columnDefinition = "text")
     private String flowData;
     
+    @Column(name = "create_time")
     private LocalDateTime createTime;
     
-    private LocalDateTime updateTime;
+    @Column(nullable = false)
+    private String status;
     
-    @Transient  // 不映射到数据库
+    @Transient
     private Integer currentVersion;
     
-    @Transient  // 不映射到数据库
+    @Transient
+    @OneToMany(mappedBy = "workflowId")
     private List<WorkflowVersion> versions;
     
     @PrePersist
     public void prePersist() {
         createTime = LocalDateTime.now();
-        updateTime = LocalDateTime.now();
-    }
-    
-    @PreUpdate
-    public void preUpdate() {
-        updateTime = LocalDateTime.now();
     }
 } 

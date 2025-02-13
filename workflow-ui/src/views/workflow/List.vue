@@ -2,68 +2,66 @@
   <div class="workflow-list">
     <div class="header">
       <h2>工作流列表</h2>
-      <button class="add-btn" @click="createWorkflow">新建工作流</button>
+      <el-button type="primary" @click="createWorkflow">新建工作流</el-button>
     </div>
     
-    <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>名称</th>
-            <th>创建时间</th>
-            <th>更新时间</th>
-            <th>最新版本</th>
-            <th>操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="item in workflowList" :key="item.id">
-            <td>{{ item.id }}</td>
-            <td>{{ item.name }}</td>
-            <td>{{ formatDate(item.createTime) }}</td>
-            <td>{{ formatDate(item.updateTime) }}</td>
-            <td>v{{ item.currentVersion || 0 }}</td>
-            <td>
-              <button class="edit-btn" @click="editWorkflow(item.id)">配置</button>
-              <button class="publish-btn" @click="publishWorkflow(item.id)">发布</button>
-              <button class="view-btn" @click="viewInstance(item.id)">查看实例</button>
-              <el-dropdown @command="handleVersionCommand" trigger="click">
-                <button class="version-btn">
-                  版本
-                  <el-icon><ArrowDown /></el-icon>
-                </button>
-                <template #dropdown>
-                  <el-dropdown-menu>
-                    <el-dropdown-item 
-                      v-for="version in item.versions" 
-                      :key="version.id"
-                      :command="{ action: 'viewVersion', workflowId: item.id, version: version.version }"
-                    >
-                      v{{ version.version }} ({{ formatDate(version.createTime) }})
-                    </el-dropdown-item>
-                    <el-dropdown-item v-if="!item.versions || item.versions.length === 0" disabled>
-                      暂无版本
-                    </el-dropdown-item>
-                  </el-dropdown-menu>
-                </template>
-              </el-dropdown>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <el-table :data="workflowList" style="width: 100%; margin-top: 20px">
+      <el-table-column prop="name" label="工作流名称" />
+      <el-table-column prop="code" label="工作流编码" />
+      <el-table-column prop="status" label="状态" />
+      <el-table-column prop="createTime" label="创建时间">
+        <template #default="scope">
+          {{ formatDate(scope.row.createTime) }}
+        </template>
+      </el-table-column>
+      <el-table-column label="最新版本">
+        <template #default="scope">
+          v{{ scope.row.currentVersion || 0 }}
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" width="400">
+        <template #default="scope">
+          <el-button type="primary" size="small" @click="editWorkflow(scope.row.id)">配置</el-button>
+          <el-button type="success" size="small" @click="publishWorkflow(scope.row.id)">发布</el-button>
+          <el-button type="info" size="small" @click="viewInstance(scope.row.id)">查看实例</el-button>
+          <el-dropdown @command="handleVersionCommand" trigger="click">
+            <el-button type="warning" size="small">
+              版本
+              <el-icon class="el-icon--right"><arrow-down /></el-icon>
+            </el-button>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item
+                  v-for="version in (scope.row.versions || [])"
+                  :key="version.id"
+                  :command="{ action: 'viewVersion', workflowId: scope.row.id, version: version.version }"
+                >
+                  v{{ version.version }} ({{ formatDate(version.createTime) }})
+                </el-dropdown-item>
+                <el-dropdown-item v-if="!scope.row.versions?.length" disabled>
+                  暂无版本
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </template>
+      </el-table-column>
+    </el-table>
+
+    <CreateDialog ref="createDialog" @created="handleWorkflowCreated" />
   </div>
 </template>
 
 <script>
-import { workflowApi } from '@/api/workflow'
+import CreateDialog from '@/components/workflow/CreateDialog.vue'
+import workflowApi from '@/api/workflow/workflow'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ArrowDown } from '@element-plus/icons-vue'
 
 export default {
   name: 'WorkflowList',
   components: {
+    CreateDialog,
     ArrowDown
   },
   data() {
@@ -77,12 +75,27 @@ export default {
   methods: {
     async getList() {
       try {
-        const data = await workflowApi.getWorkflowList()
-        this.workflowList = data.map(item => ({
-          ...item,
-          versions: item.versions || [],
-          currentVersion: item.currentVersion || 0
-        }))
+        const res = await workflowApi.getWorkflowList()
+        console.log('API返回数据:', res)
+        
+        if (Array.isArray(res)) {
+          this.workflowList = res.map(item => ({
+            ...item,
+            versions: item.versions || [],
+            currentVersion: item.currentVersion || 0
+          }))
+        } else if (res && res.data) {
+          this.workflowList = (Array.isArray(res.data) ? res.data : []).map(item => ({
+            ...item,
+            versions: item.versions || [],
+            currentVersion: item.currentVersion || 0
+          }))
+        } else {
+          console.error('API返回数据格式不符合预期:', res)
+          this.workflowList = []
+        }
+        
+        console.log('处理后的列表数据:', this.workflowList)
       } catch (error) {
         console.error('获取列表失败:', error)
         ElMessage.error('获取列表失败')
@@ -94,10 +107,10 @@ export default {
       return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
     },
     createWorkflow() {
-      const routeUrl = this.$router.resolve({
-        path: '/workflow/editor'
-      })
-      window.open(routeUrl.href, '_blank')
+      this.$refs.createDialog.show()
+    },
+    handleWorkflowCreated() {
+      this.getList()
     },
     editWorkflow(id) {
       const routeUrl = this.$router.resolve({
@@ -158,97 +171,22 @@ export default {
   margin-bottom: 20px;
 }
 
-.add-btn {
-  padding: 8px 16px;
-  background-color: #1890ff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.add-btn:hover {
-  background-color: #40a9ff;
-}
-
-.table-container {
-  background: white;
-  border-radius: 4px;
-  padding: 20px;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th, td {
-  padding: 12px 8px;
-  text-align: left;
-  border-bottom: 1px solid #e8e8e8;
-}
-
-th {
-  background-color: #fafafa;
+.header h2 {
+  margin: 0;
+  font-size: 20px;
   font-weight: 500;
 }
 
-.edit-btn {
-  padding: 4px 12px;
-  background-color: #52c41a;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.edit-btn:hover {
-  background-color: #73d13d;
-}
-
-.publish-btn {
-  padding: 4px 12px;
-  background-color: #67c23a;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+:deep(.el-dropdown) {
   margin-left: 8px;
 }
 
-.publish-btn:hover {
-  background-color: #85ce61;
+:deep(.el-button) {
+  margin-right: 8px;
 }
 
-.view-btn {
-  padding: 4px 12px;
-  background-color: #409eff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-left: 8px;
-}
-
-.view-btn:hover {
-  background-color: #66b1ff;
-}
-
-.version-btn {
-  padding: 4px 12px;
-  background-color: #909399;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-left: 8px;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.version-btn:hover {
-  background-color: #a6a9ad;
+:deep(.el-button):last-child {
+  margin-right: 0;
 }
 
 :deep(.el-dropdown-menu__item) {

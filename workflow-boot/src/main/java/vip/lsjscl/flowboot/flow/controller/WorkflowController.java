@@ -1,22 +1,35 @@
 package vip.lsjscl.flowboot.flow.controller;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import vip.lsjscl.flowboot.common.exception.BusinessException;
+import vip.lsjscl.flowboot.flow.dto.WorkflowCreateDTO;
 import vip.lsjscl.flowboot.flow.dto.WorkflowSaveDTO;
 import vip.lsjscl.flowboot.flow.entity.Workflow;
 import vip.lsjscl.flowboot.flow.entity.WorkflowVersion;
 import vip.lsjscl.flowboot.flow.service.WorkflowService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/workflow")
 @CrossOrigin(origins = "http://localhost:8081")
-@RequiredArgsConstructor
 public class WorkflowController {
 
-    private final WorkflowService workflowService;
+    private static final Logger log = LoggerFactory.getLogger(WorkflowController.class);
+
+    @Autowired
+    private WorkflowService workflowService;
+
+    @PostMapping("/create")
+    public ResponseEntity<Workflow> createWorkflow(@RequestBody @Valid WorkflowCreateDTO dto) {
+        Workflow workflow = workflowService.createWorkflow(dto);
+        return ResponseEntity.ok(workflow);
+    }
 
     @PostMapping("/{id}")
     public ResponseEntity<Workflow> updateWorkflow(@PathVariable Long id, @RequestBody WorkflowSaveDTO request) {
@@ -37,8 +50,13 @@ public class WorkflowController {
 
     @GetMapping("/list")
     public ResponseEntity<List<Workflow>> getWorkflowList() {
-        List<Workflow> workflows = workflowService.findAll();
-        return ResponseEntity.ok(workflows);
+        try {
+            List<Workflow> workflows = workflowService.findAll();
+            return ResponseEntity.ok(workflows);
+        } catch (Exception e) {
+            log.error("获取工作流列表失败", e);
+            throw new BusinessException("获取工作流列表失败: " + e.getMessage());
+        }
     }
 
     @GetMapping("/{id}")
