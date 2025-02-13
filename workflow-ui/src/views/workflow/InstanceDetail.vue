@@ -298,13 +298,57 @@ export default {
         console.warn('无法渲染流程：缺少数据或 graph 为空')
         return
       }
-
+      
       console.log('开始渲染流程')
       this.graph.clearCells()
 
-      // 渲染节点（使用与 WorkflowViewer.vue 一致的样式）
+      // 计算每个节点的状态：completed, pending, notActive
+      const nodeStates = {}
+      this.workflowData.nodes.forEach(node => {
+        let state = 'notActive'
+        // 开始节点直接设为 completed
+        if (node.label === '开始') {
+          state = 'completed'
+        } else {
+          const record = this.approvalRecords.find(r => {
+            // 尝试获取审批记录中关联的活动ID，优先使用 nodeId
+            let actId = null
+            if (r.activity && r.activity.nodeId) {
+              actId = r.activity.nodeId
+            } else if (r.activity && r.activity.id) {
+              actId = r.activity.id
+            } else if (r.activityId) {
+              actId = r.activityId
+            }
+            return actId === node.id
+          })
+          if (record) {
+            if (record.status === 'COMPLETED') {
+              state = 'completed'
+            } else if (record.status === 'PENDING') {
+              state = 'pending'
+            }
+          }
+        }
+        nodeStates[node.id] = state
+      })
+
+      // 渲染节点（使用与 WorkflowViewer.vue 一致的样式，并根据状态设置颜色）
       this.workflowData.nodes.forEach(node => {
         const isEvent = node.label === '开始' || node.label === '结束'
+        // 根据节点状态设置颜色
+        let fillColor, strokeColor
+        const state = nodeStates[node.id] || 'notActive'
+        if (state === 'completed') {
+          fillColor = "#5F95FF"  // 蓝色
+          strokeColor = "#5F95FF"
+        } else if (state === 'pending') {
+          fillColor = "#ffeb99"  // 黄色
+          strokeColor = "#ffcc00"
+        } else {
+          fillColor = "#d3d3d3"  // 灰色
+          strokeColor = "#d3d3d3"
+        }
         const nodeConfig = {
           id: node.id,
           shape: isEvent ? 'event' : 'activity',
@@ -315,8 +359,9 @@ export default {
           data: { ...node.data, type: isEvent ? 'event' : 'activity' },
           attrs: {
             body: {
-              fill: isEvent ? '#fff' : '#EFF4FF',
-              stroke: node.label === '结束' ? '#FF5F5F' : '#5F95FF',
+              // 对于开始和结束节点保持特殊处理
+              fill: isEvent ? (node.label === '开始' ? "#5F95FF" : "#fff") : fillColor,
+              stroke: isEvent ? (node.label === '结束' ? "#FF5F5F" : "#5F95FF") : strokeColor,
               strokeWidth: 2,
               rx: isEvent ? undefined : 6,
               ry: isEvent ? undefined : 6
@@ -334,9 +379,24 @@ export default {
         this.graph.addNode(nodeConfig)
       })
 
-      // 渲染连线（使用与 WorkflowViewer.vue 一致的样式）
+      // 渲染连线（根据两端节点状态设置颜色）
       this.workflowData.edges.forEach(edge => {
-        console.log('绘制连线:', edge)
+        const sourceState = nodeStates[edge.source] || 'notActive'
+        const targetState = nodeStates[edge.target] || 'notActive'
+        
+        // 查找源节点和目标节点数据，用于检测是否为 '结束' 节点
+        const sourceNode = this.workflowData.nodes.find(n => n.id === edge.source)
+        const targetNode = this.workflowData.nodes.find(n => n.id === edge.target)
+  
+        let edgeColor = "#3c4260"  // 默认颜色
+        // 如果连线两端均已激活（即不为未激活状态），或者已完成节点与"结束"节点连接，则设为蓝色
+        if (
+          (sourceState !== 'notActive' && targetState !== 'notActive') ||
+          (sourceState === 'completed' && targetNode && targetNode.label === '结束') ||
+          (targetState === 'completed' && sourceNode && sourceNode.label === '结束')
+        ) {
+          edgeColor = "#5F95FF"
+        }
         const edgeConfig = {
           source: edge.source,
           target: edge.target,
@@ -345,7 +405,7 @@ export default {
           connector: edge.connector || { name: 'rounded', args: { radius: 8 } },
           attrs: {
             line: {
-              stroke: '#3c4260',
+              stroke: edgeColor,
               strokeWidth: 2,
               targetMarker: { name: 'classic', size: 8 }
             }
@@ -374,8 +434,8 @@ export default {
             position: { distance: 0.5 }
           }] : []
         }
-        const createdEdge = this.graph.addEdge(edgeConfig)
-        console.log('创建连线:', createdEdge)
+        console.log('创建连线:', edgeConfig)
+        this.graph.addEdge(edgeConfig)
       })
 
       // 自动布局
