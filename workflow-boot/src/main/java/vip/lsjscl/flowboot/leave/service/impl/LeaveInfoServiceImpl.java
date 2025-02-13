@@ -2,16 +2,20 @@ package vip.lsjscl.flowboot.leave.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import vip.lsjscl.flowboot.flow.config.SpringContextUtil;
 import vip.lsjscl.flowboot.flow.service.WorkflowService;
 import vip.lsjscl.flowboot.leave.common.utils.R;
 import vip.lsjscl.flowboot.leave.entity.LeaveInfo;
 import vip.lsjscl.flowboot.leave.repository.LeaveInfoRepository;
 import vip.lsjscl.flowboot.leave.service.LeaveInfoService;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+@Transactional
 @Service
 public class LeaveInfoServiceImpl implements LeaveInfoService {
 
@@ -48,8 +52,9 @@ public class LeaveInfoServiceImpl implements LeaveInfoService {
             // 设置状态为待处理
             leaveInfo.setStatus("PENDING");
             LeaveInfo saved = leaveInfoRepository.save(leaveInfo);
-            //初始化工作流
-            //workflowService.startWorkflow();
+            // 初始化工作流，传入业务ID
+            Long leave = workflowService.startWorkflow("leave", saved.getId().toString());
+            saved.setWorkflowVersionId(leave);
             return R.ok().put("data", saved);
         } catch (Exception e) {
             return R.error("提交申请失败");
@@ -131,8 +136,13 @@ public class LeaveInfoServiceImpl implements LeaveInfoService {
         }
     }
 
-    public boolean judgment(String id) {
-        System.err.println("111");
-        return true;
+    public boolean judgment(String businessId) {
+        //从Spring容器中获取Bean
+        LeaveInfoRepository leaveInfoRepository = SpringContextUtil.getBean(LeaveInfoRepository.class);
+        Optional<LeaveInfo> optionalLeave = leaveInfoRepository.findById(Long.valueOf(businessId));
+        LeaveInfo leaveInfo = optionalLeave.get();
+        Date leaveDate = leaveInfo.getLeaveDate();
+        //leaveDate是否在两天内
+        return leaveDate == null || !leaveDate.after(new Date(System.currentTimeMillis() + 2 * 24 * 60 * 60 * 1000));
     }
 } 

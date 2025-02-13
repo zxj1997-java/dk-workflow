@@ -6,13 +6,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import vip.lsjscl.flowboot.common.exception.BusinessException;
+import vip.lsjscl.flowboot.flow.dict.TaskStatus;
 import vip.lsjscl.flowboot.flow.dto.WorkflowCreateDTO;
 import vip.lsjscl.flowboot.flow.entity.*;
 import vip.lsjscl.flowboot.flow.model.Edge;
 import vip.lsjscl.flowboot.flow.model.FlowDiagram;
 import vip.lsjscl.flowboot.flow.model.Node;
 import vip.lsjscl.flowboot.flow.repository.*;
-import vip.lsjscl.flowboot.flow.dict.TaskStatus;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -45,13 +45,24 @@ public class WorkflowService {
      * 并在 dk_runtime_task 表中创建一条运行时任务记录，
      * 记录业务ID、创建时间、更新时间等字段。
      *
-     * @param workflowVersionId 流程版本ID
-     * @param businessId        业务ID，用于关联外部系统业务数据
+     * @param workflowCode 流程编码
+     * @param businessId   业务ID，用于关联外部系统业务数据
      */
     @Transactional
-    public void startWorkflow(Long workflowVersionId, String businessId) {
+    public Long startWorkflow(String workflowCode, String businessId) {
+        // 根据流程编码查询工作流定义
+        Workflow workflow = workflowRepository.findByCode(workflowCode)
+                .orElseThrow(() -> new BusinessException("未找到对应的工作流定义"));
+
+        // 查询最新版本的工作流
+        WorkflowVersion latestVersion = workflowVersionRepository
+                .findByWorkflowIdOrderByVersionDesc(workflow.getId())
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new BusinessException("工作流未发布，请先发布工作流"));
+
         // 通过 ActivityService 获取第一个活动节点
-        Activity firstActivity = activityService.getFirstActivity(workflowVersionId);
+        Activity firstActivity = activityService.getFirstActivity(latestVersion.getId());
         if (firstActivity == null) {
             throw new BusinessException("未找到流程中的第一个活动节点");
         }
@@ -65,15 +76,19 @@ public class WorkflowService {
         runtimeTask.setStatus(TaskStatus.COMPLETED);
         runtimeTaskRepository.save(runtimeTask);
 
-        Activity nextActivity = activityService.getNextActivity(firstActivity);
-        // 创建运行时任务记录，并设置业务ID、创建时间、更新时间等信息
-        RuntimeTask pendingTask = new RuntimeTask();
-        pendingTask.setActivity(nextActivity);
-        pendingTask.setBusinessId(businessId);
-        pendingTask.setCreateTime(LocalDateTime.now());
-        pendingTask.setUpdateTime(LocalDateTime.now());
-        pendingTask.setStatus(TaskStatus.PENDING);
-        runtimeTaskRepository.save(pendingTask);
+        // 获取下一个活动节点
+        Activity nextActivity = activityService.getNextActivity(firstActivity, businessId);
+        if (nextActivity != null) {
+            // 创建下一个待处理的任务
+            RuntimeTask pendingTask = new RuntimeTask();
+            pendingTask.setActivity(nextActivity);
+            pendingTask.setBusinessId(businessId);
+            pendingTask.setCreateTime(LocalDateTime.now());
+            pendingTask.setUpdateTime(LocalDateTime.now());
+            pendingTask.setStatus(TaskStatus.PENDING);
+            runtimeTaskRepository.save(pendingTask);
+        }
+        return latestVersion.getId();
     }
 
 
@@ -219,5 +234,4 @@ public class WorkflowService {
     }
 
 
-
-} 
+}

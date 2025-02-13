@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.Comment;
 
+import java.util.Date;
+
 @Data
 @Entity
 @Table(name = "leave_info")
@@ -24,12 +26,16 @@ public class LeaveInfo {
 
     @Comment("离职日期")
     @Column(name = "leave_date")
-    private String leaveDate;
+    private Date leaveDate;
 
 
     @Comment("状态")
     @Column(name = "status")
     private String status;
+
+    @Comment("工作流版本")
+    @Column(name = "workflow_version_id")
+    private Long workflowVersionId;
 
 }
 

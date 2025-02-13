@@ -12,6 +12,8 @@ import vip.lsjscl.flowboot.flow.dict.TaskDecision;
 import vip.lsjscl.flowboot.flow.repository.RuntimeTaskRepository;
 import vip.lsjscl.flowboot.flow.repository.TransitionRepository;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -52,7 +54,7 @@ public class ActivityService {
         Activity newActivity;
         switch (decision) {
             case APPROVED:
-                newActivity = getNextActivity(currentTask.getActivity());
+                newActivity = getNextActivity(currentTask.getActivity(), businessId);
                 break;
             case RETURN_PREVIOUS:
                 newActivity = getPreviousActivity(currentTask.getActivity());
@@ -140,7 +142,7 @@ public class ActivityService {
      * @param currentActivity 当前活动
      * @return 满足条件的下一个活动；如果没有符合条件的活动则返回 null
      */
-    public Activity getNextActivity(Activity currentActivity) {
+    public Activity getNextActivity(Activity currentActivity, String businessId) {
         // 根据当前活动查询所有以当前活动为起点的变迁记录
         List<Transition> transitions = transitionRepository.findByFromActivity(currentActivity);
         if (transitions == null || transitions.isEmpty()) {
@@ -153,7 +155,7 @@ public class ActivityService {
         else {
             // 当存在多个变迁时，根据条件判断哪个变迁符合业务要求
             for (Transition transition : transitions) {
-                if (evaluateTransitionCondition(transition)) {
+                if (evaluateTransitionCondition(transition, businessId)) {
                     return transition.getToActivity();
                 }
             }
@@ -169,42 +171,52 @@ public class ActivityService {
      * @param transition 当前变迁记录
      * @return 如果条件满足返回 true，否则返回 false
      */
-    private boolean evaluateTransitionCondition(Transition transition) {
+    private boolean evaluateTransitionCondition(Transition transition, String businessId) {
         String conditionClass = transition.getConditionClass();
-        // 如果没有设定条件，则默认符合条件
         if (conditionClass == null || conditionClass.isEmpty()) {
             return true;
         }
-        //反射调用conditionClass(class.method) 返回返回值
-        try {
-            // 找到最后一个点的位置
-            int lastDotIndex = conditionClass.lastIndexOf(".");
 
-            // 提取类路径和方法名
+        try {
+            int lastDotIndex = conditionClass.lastIndexOf(".");
+            if (lastDotIndex == -1) {
+                throw new IllegalArgumentException("Invalid condition class format");
+            }
+
             String className = conditionClass.substring(0, lastDotIndex);
             String methodName = conditionClass.substring(lastDotIndex + 1);
 
-
-            // 获取类对象
+            // 加载类并验证方法签名
             Class<?> clazz = Class.forName(className);
-            // 获取方法对象
-            Method method = clazz.getMethod(methodName);
+            Method method = clazz.getMethod(methodName, String.class); // 明确指定参数类型
 
-            // 判断返回类型是否为 Boolean 或 boolean
-            Class<?> returnType = method.getReturnType();
-            if (!Boolean.class.equals(returnType) && !boolean.class.equals(returnType)) {
-                throw new IllegalArgumentException("Method return type must be Boolean or boolean");
+
+            // 验证返回类型
+            if (!method.getReturnType().equals(boolean.class) &&
+                    !method.getReturnType().equals(Boolean.class)) {
+                throw new IllegalArgumentException("Method must return boolean");
             }
-
-            // 调用方法并获取返回值
-            return (Boolean) method.invoke(null);
+            // 获取无参构造方法
+            Constructor<?> constructor = clazz.getDeclaredConstructor();
+            // 如果构造方法是私有的，设置可访问
+            constructor.setAccessible(true);
+            // 创建实例
+            Object instance = constructor.newInstance();
+            // 调用静态方法并传入参数
+            return (Boolean) method.invoke(instance, businessId);
+        }
+        catch (ClassNotFoundException e) {
+            throw new RuntimeException("Condition class not found: " + conditionClass, e);
+        }
+        catch (NoSuchMethodException e) {
+            throw new RuntimeException("Method with String parameter not found in: " + conditionClass, e);
+        }
+        catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException("Failed to invoke condition method", e);
         }
         catch (Exception e) {
-            e.printStackTrace();
-            return false;
+            throw new RuntimeException("Unexpected error evaluating condition", e);
         }
-
-        // 根据其他业务规则进行判断...
     }
 
 } 
