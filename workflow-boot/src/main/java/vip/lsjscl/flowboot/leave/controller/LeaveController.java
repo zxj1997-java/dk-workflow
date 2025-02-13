@@ -1,9 +1,9 @@
-package vip.lsjscl.flowboot.task.controller;
+package vip.lsjscl.flowboot.leave.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import vip.lsjscl.flowboot.task.service.LeaveService;
-import vip.lsjscl.flowboot.task.common.utils.R;
+import vip.lsjscl.flowboot.leave.service.LeaveService;
+import vip.lsjscl.flowboot.leave.common.utils.R;
 import java.util.Map;
 
 @RestController

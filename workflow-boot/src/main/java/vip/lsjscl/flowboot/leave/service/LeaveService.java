@@ -1,6 +1,6 @@
-package vip.lsjscl.flowboot.task.service;
+package vip.lsjscl.flowboot.leave.service;
 
-import vip.lsjscl.flowboot.task.common.utils.R;
+import vip.lsjscl.flowboot.leave.common.utils.R;
 import java.util.Map;
 
 public interface LeaveService {
