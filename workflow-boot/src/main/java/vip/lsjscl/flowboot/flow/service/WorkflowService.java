@@ -34,7 +34,6 @@ public class WorkflowService {
     private final ActivityRepository activityRepository;
     private final TransitionRepository transitionRepository;
     private final RuntimeTaskRepository runtimeTaskRepository;
-    private final PersonnelAuditRepository personnelAuditRepository;
     private final ActivityService activityService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
