@@ -13,8 +13,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jakarta.validation.Valid;
+
 import java.util.List;
 
+/**
+ * 工作流定义控制器
+ *
+ * @author zhangxingju
+ * @date 2025/02/13
+ */
 @RestController
 @RequestMapping("/api/workflow")
 @CrossOrigin(origins = "http://localhost:8081")
@@ -25,18 +32,34 @@ public class WorkflowController {
     @Autowired
     private WorkflowService workflowService;
 
+    /**
+     * 创建工作流
+     *
+     * @param dto DTO
+     */
     @PostMapping("/create")
     public ResponseEntity<Workflow> createWorkflow(@RequestBody @Valid WorkflowCreateDTO dto) {
         Workflow workflow = workflowService.createWorkflow(dto);
         return ResponseEntity.ok(workflow);
     }
 
+    /**
+     * 更新工作流
+     *
+     * @param id      主键
+     * @param request 工作流dto对象
+     */
     @PostMapping("/{id}")
     public ResponseEntity<Workflow> updateWorkflow(@PathVariable Long id, @RequestBody WorkflowSaveDTO request) {
         Workflow saved = workflowService.saveWorkflow(request.getName(), request.getFlowData(), id);
         return ResponseEntity.ok(saved);
     }
 
+    /**
+     * 保存工作流
+     *
+     * @param request 工作流dto对象
+     */
     @PostMapping("/save")
     public ResponseEntity<Workflow> saveWorkflow(@RequestBody WorkflowSaveDTO request) {
         Workflow saved = workflowService.saveWorkflow(request.getName(), request.getFlowData(), null);
@@ -48,35 +71,60 @@ public class WorkflowController {
         return ResponseEntity.ok("API is working");
     }
 
+    /**
+     * 获取工作流列表
+     */
     @GetMapping("/list")
     public ResponseEntity<List<Workflow>> getWorkflowList() {
         try {
             List<Workflow> workflows = workflowService.findAll();
             return ResponseEntity.ok(workflows);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             log.error("获取工作流列表失败", e);
             throw new BusinessException("获取工作流列表失败: " + e.getMessage());
         }
     }
 
+    /**
+     * 按 ID 获取工作流
+     *
+     * @param id 主键
+     */
     @GetMapping("/{id}")
     public ResponseEntity<Workflow> getWorkflowById(@PathVariable Long id) {
         Workflow workflow = workflowService.findById(id);
         return ResponseEntity.ok(workflow);
     }
 
+    /**
+     * 发布工作流程
+     *
+     * @param id 主键
+     */
     @PostMapping("/{id}/publish")
     public ResponseEntity<WorkflowVersion> publishWorkflow(@PathVariable Long id) {
         WorkflowVersion version = workflowService.publishWorkflow(id);
         return ResponseEntity.ok(version);
     }
 
+    /**
+     * 获取工作流版本
+     *
+     * @param id 主键
+     */
     @GetMapping("/{id}/versions")
     public ResponseEntity<List<WorkflowVersion>> getWorkflowVersions(@PathVariable Long id) {
         List<WorkflowVersion> versions = workflowService.getWorkflowVersions(id);
         return ResponseEntity.ok(versions);
     }
 
+    /**
+     * 获取工作流版本
+     *
+     * @param id      主键
+     * @param version 版本Id
+     */
     @GetMapping("/{id}/version/{version}")
     public ResponseEntity<WorkflowVersion> getWorkflowVersion(
             @PathVariable Long id,
