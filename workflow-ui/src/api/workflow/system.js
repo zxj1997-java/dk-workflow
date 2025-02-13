@@ -1,21 +1,18 @@
 import request from '@/utils/request'
 
-export const systemApi = {
-  // 获取用户列表
-  getUsers() {
+// 获取用户列表
+export function getUsers() {
     return request({
-      url: '/api/system/users',
-      method: 'get'
+        url: '/api/system/users',
+        method: 'get'
     })
-  },
-
-  // 获取部门列表
-  getDepartments() {
-    return request({
-      url: '/api/system/departments',
-      method: 'get'
-    })
-  }
 }
 
-export default systemApi 
+
+// 获取部门列表
+export function getDepartments() {
+    return request({
+        url: '/api/system/departments',
+        method: 'get'
+    })
+}

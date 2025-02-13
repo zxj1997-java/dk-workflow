@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vip.lsjscl.flowboot.flow.service.SystemService;
+import vip.lsjscl.flowboot.leave.common.utils.R;
 
 import java.util.List;
 import java.util.Map;
@@ -26,17 +27,17 @@ public class SystemController {
      * 获取用户
      */
     @GetMapping("/users")
-    public ResponseEntity<List<Map<String, Object>>> getUsers() {
+    public R getUsers() {
         List<Map<String, Object>> users = systemService.getUsers();
-        return ResponseEntity.ok(users);
+        return R.ok(users);
     }
 
     /**
      * 获取部门
      */
     @GetMapping("/departments")
-    public ResponseEntity<List<Map<String, Object>>> getDepartments() {
+    public R getDepartments() {
         List<Map<String, Object>> departments = systemService.getDepartments();
-        return ResponseEntity.ok(departments);
+        return R.ok(departments);
     }
 } 

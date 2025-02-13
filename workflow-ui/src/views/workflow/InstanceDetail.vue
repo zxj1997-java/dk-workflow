@@ -77,9 +77,9 @@
 <script>
 // eslint-disable-next-line no-unused-vars
 import { Graph } from '@antv/x6'
-import { workflowApi } from '@/api/workflow'
 import { ElMessage } from 'element-plus'
 import { Close } from '@element-plus/icons-vue'
+import {getRuntimeTasks, getWorkflowByCode} from "@/api/workflow/workflow";
 
 // 注册节点类型
 Graph.registerNode(
@@ -189,12 +189,12 @@ export default {
       try {
         console.log('加载运行时任务，业务ID:', this.instanceId)
         // 查询运行时任务（即审批记录），这里 businessId 为离职申请的记录ID
-        const res = await workflowApi.getRuntimeTasks(this.instanceId)
+        const res = await getRuntimeTasks(this.instanceId)
         console.log('运行时任务数据:', res)
-        this.approvalRecords = res.data || []
+        this.approvalRecords = res || []
         // 获取流程定义（假设通过流程编码获取，此处为 leave 工作流）
-        const wfRes = await workflowApi.getWorkflowByCode('leave')
-        this.workflow = wfRes.data
+        const wfRes = await getWorkflowByCode('leave')
+        this.workflow = wfRes;
         console.log('获取流程定义:', this.workflow)
         if (this.workflow.flowData) {
           this.workflowData = JSON.parse(this.workflow.flowData)

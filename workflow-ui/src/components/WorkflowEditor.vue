@@ -85,8 +85,8 @@
 <script>
 import { Graph } from '@antv/x6'
 // 修改导入方式，分别导入需要的 API
-import workflowApi from '@/api/workflow/workflow'
-import { systemApi } from '@/api/workflow/system'
+import {getWorkflowById,saveWorkflow} from '@/api/workflow/workflow'
+import { getUsers,getDepartments } from '@/api/workflow/system'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import EdgeContextMenu from './menu/EdgeContextMenu.vue'
 import NodeContextMenu from './menu/NodeContextMenu.vue'
@@ -779,7 +779,7 @@ export default {
         // 获取当前工作流的名称
         let workflowName = this.workflowData?.name || '新建工作流'
         
-        await workflowApi.saveWorkflow({
+        await saveWorkflow({
           id: this.id,
           name: workflowName,
           flowData: JSON.stringify(flowData)
@@ -793,7 +793,8 @@ export default {
     },
     async loadWorkflowData() {
       try {
-        const data = await workflowApi.getWorkflowById(this.id)
+        const data = await getWorkflowById(this.id)
+        console.log("工作流数据为空",data)
         if (!data.flowData) {
           throw new Error('工作流数据为空')
         }
@@ -992,8 +993,8 @@ export default {
       try {
         // 修改 API 调用方式
         const [users, departments] = await Promise.all([
-          systemApi.getUsers(),
-          systemApi.getDepartments()
+          getUsers(),
+          getDepartments()
         ])
         this.userOptions = users
         this.departmentOptions = departments

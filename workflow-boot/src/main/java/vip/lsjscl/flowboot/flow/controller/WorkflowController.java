@@ -39,9 +39,9 @@ public class WorkflowController {
      * @param dto DTO
      */
     @PostMapping("/create")
-    public ResponseEntity<Workflow> createWorkflow(@RequestBody @Valid WorkflowCreateDTO dto) {
+    public R createWorkflow(@RequestBody @Valid WorkflowCreateDTO dto) {
         Workflow workflow = workflowService.createWorkflow(dto);
-        return ResponseEntity.ok(workflow);
+        return R.ok(workflow);
     }
 
     /**
@@ -51,9 +51,9 @@ public class WorkflowController {
      * @param request 工作流dto对象
      */
     @PostMapping("/{id}")
-    public ResponseEntity<Workflow> updateWorkflow(@PathVariable Long id, @RequestBody WorkflowSaveDTO request) {
+    public R updateWorkflow(@PathVariable Long id, @RequestBody WorkflowSaveDTO request) {
         Workflow saved = workflowService.saveWorkflow(request.getName(), request.getFlowData(), id);
-        return ResponseEntity.ok(saved);
+        return R.ok(saved);
     }
 
     /**
@@ -62,9 +62,9 @@ public class WorkflowController {
      * @param request 工作流dto对象
      */
     @PostMapping("/save")
-    public ResponseEntity<Workflow> saveWorkflow(@RequestBody WorkflowSaveDTO request) {
+    public R saveWorkflow(@RequestBody WorkflowSaveDTO request) {
         Workflow saved = workflowService.saveWorkflow(request.getName(), request.getFlowData(), null);
-        return ResponseEntity.ok(saved);
+        return R.ok(saved);
     }
 
     @GetMapping("/test")
@@ -76,10 +76,10 @@ public class WorkflowController {
      * 获取工作流列表
      */
     @GetMapping("/list")
-    public ResponseEntity<List<Workflow>> getWorkflowList() {
+    public R getWorkflowList() {
         try {
             List<Workflow> workflows = workflowService.findAll();
-            return ResponseEntity.ok(workflows);
+            return R.ok(workflows);
         }
         catch (Exception e) {
             log.error("获取工作流列表失败", e);
@@ -93,9 +93,9 @@ public class WorkflowController {
      * @param id 主键
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Workflow> getWorkflowById(@PathVariable Long id) {
+    public R getWorkflowById(@PathVariable Long id) {
         Workflow workflow = workflowService.findById(id);
-        return ResponseEntity.ok(workflow);
+        return R.ok(workflow);
     }
 
     /**
@@ -115,9 +115,9 @@ public class WorkflowController {
      * @param id 主键
      */
     @PostMapping("/{id}/publish")
-    public ResponseEntity<WorkflowVersion> publishWorkflow(@PathVariable Long id) {
+    public R publishWorkflow(@PathVariable Long id) {
         WorkflowVersion version = workflowService.publishWorkflow(id);
-        return ResponseEntity.ok(version);
+        return R.ok(version);
     }
 
     /**
@@ -126,9 +126,9 @@ public class WorkflowController {
      * @param id 主键
      */
     @GetMapping("/{id}/versions")
-    public ResponseEntity<List<WorkflowVersion>> getWorkflowVersions(@PathVariable Long id) {
+    public R getWorkflowVersions(@PathVariable Long id) {
         List<WorkflowVersion> versions = workflowService.getWorkflowVersions(id);
-        return ResponseEntity.ok(versions);
+        return R.ok(versions);
     }
 
     /**
@@ -138,11 +138,8 @@ public class WorkflowController {
      * @param version 版本Id
      */
     @GetMapping("/{id}/version/{version}")
-    public ResponseEntity<WorkflowVersion> getWorkflowVersion(
-            @PathVariable Long id,
-            @PathVariable Integer version
-    ) {
+    public R getWorkflowVersion(@PathVariable Long id, @PathVariable Integer version) {
         WorkflowVersion workflowVersion = workflowService.getWorkflowVersion(id, version);
-        return ResponseEntity.ok(workflowVersion);
+        return R.ok(workflowVersion);
     }
 }

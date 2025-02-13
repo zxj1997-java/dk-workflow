@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import workflowApi from '@/api/workflow/workflow'
+import {createWorkflow} from '@/api/workflow/workflow'
 import { ElMessage } from 'element-plus'
 
 export default {
@@ -63,7 +63,7 @@ export default {
       try {
         await this.$refs.formRef.validate()
         this.loading = true
-        const res = await workflowApi.createWorkflow(this.form)
+        const res = await createWorkflow(this.form)
         ElMessage.success('创建成功')
         this.dialogVisible = false
         this.$emit('created', res)

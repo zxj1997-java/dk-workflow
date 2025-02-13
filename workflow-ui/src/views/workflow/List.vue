@@ -4,11 +4,11 @@
       <h2>工作流列表</h2>
       <el-button type="primary" @click="createWorkflow">新建工作流</el-button>
     </div>
-    
+
     <el-table :data="workflowList" style="width: 100%; margin-top: 20px">
-      <el-table-column prop="name" label="工作流名称" />
-      <el-table-column prop="code" label="工作流编码" />
-      <el-table-column prop="status" label="状态" />
+      <el-table-column prop="name" label="工作流名称"/>
+      <el-table-column prop="code" label="工作流编码"/>
+      <el-table-column prop="status" label="状态"/>
       <el-table-column prop="createTime" label="创建时间">
         <template #default="scope">
           {{ formatDate(scope.row.createTime) }}
@@ -26,14 +26,16 @@
           <el-dropdown @command="handleVersionCommand" trigger="click">
             <el-button type="warning" size="small">
               版本
-              <el-icon class="el-icon--right"><arrow-down /></el-icon>
+              <el-icon class="el-icon--right">
+                <arrow-down/>
+              </el-icon>
             </el-button>
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item
-                  v-for="version in (scope.row.versions || [])"
-                  :key="version.id"
-                  :command="{ action: 'viewVersion', workflowId: scope.row.id, version: version.version }"
+                    v-for="version in (scope.row.versions || [])"
+                    :key="version.id"
+                    :command="{ action: 'viewVersion', workflowId: scope.row.id, version: version.version }"
                 >
                   v{{ version.version }} ({{ formatDate(version.createTime) }})
                 </el-dropdown-item>
@@ -47,15 +49,15 @@
       </el-table-column>
     </el-table>
 
-    <CreateDialog ref="createDialog" @created="handleWorkflowCreated" />
+    <CreateDialog ref="createDialog" @created="handleWorkflowCreated"/>
   </div>
 </template>
 
 <script>
 import CreateDialog from '@/components/workflow/CreateDialog.vue'
-import workflowApi from '@/api/workflow/workflow'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { ArrowDown } from '@element-plus/icons-vue'
+import {getWorkflowList, publishWorkflow} from '@/api/workflow/workflow'
+import {ElMessage, ElMessageBox} from 'element-plus'
+import {ArrowDown} from '@element-plus/icons-vue'
 
 export default {
   name: 'WorkflowList',
@@ -74,17 +76,17 @@ export default {
   methods: {
     async getList() {
       try {
-        const res = await workflowApi.getWorkflowList()
+        const res = await getWorkflowList()
         console.log('API返回数据:', res)
-        
+
         if (Array.isArray(res)) {
           this.workflowList = res.map(item => ({
             ...item,
             versions: item.versions || [],
             currentVersion: item.currentVersion || 0
           }))
-        } else if (res && res.data) {
-          this.workflowList = (Array.isArray(res.data) ? res.data : []).map(item => ({
+        } else if (res && res) {
+          this.workflowList = (Array.isArray(res) ? res : []).map(item => ({
             ...item,
             versions: item.versions || [],
             currentVersion: item.currentVersion || 0
@@ -93,7 +95,7 @@ export default {
           console.error('API返回数据格式不符合预期:', res)
           this.workflowList = []
         }
-        
+
         console.log('处理后的列表数据:', this.workflowList)
       } catch (error) {
         console.error('获取列表失败:', error)
@@ -120,16 +122,16 @@ export default {
     async publishWorkflow(id) {
       try {
         await ElMessageBox.confirm(
-          '发布后将生成新的版本，确定要发布吗？',
-          '发布确认',
-          {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning'
-          }
+            '发布后将生成新的版本，确定要发布吗？',
+            '发布确认',
+            {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
+            }
         )
-        
-        await workflowApi.publishWorkflow(id)
+
+        await publishWorkflow(id)
         ElMessage.success('发布成功')
         this.getList()
       } catch (error) {
@@ -139,11 +141,11 @@ export default {
         }
       }
     },
-    async handleVersionCommand({ action, workflowId, version }) {
+    async handleVersionCommand({action, workflowId, version}) {
       if (action === 'viewVersion') {
         const routeUrl = this.$router.resolve({
           path: `/workflow/viewer/${workflowId}`,
-          query: { version }
+          query: {version}
         })
         window.open(routeUrl.href, '_blank')
       }

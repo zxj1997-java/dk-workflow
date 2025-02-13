@@ -210,8 +210,8 @@ import {
   getLeaveDetail,
   deleteLeave
 } from '@/api/leave'
-import workflowApi from '@/api/workflow/workflow'
 import {ElMessage, ElMessageBox} from 'element-plus'
+import {processTasks} from "@/api/workflow/workflow";
 
 export default {
   name: 'LeaveApplication',
@@ -282,7 +282,7 @@ export default {
     async loadApplyList() {
       try {
         const res = await getMyApplications()
-        this.applyList = res.data || []
+        this.applyList = res || []
       } catch (error) {
         console.error('加载申请列表失败:', error)
         ElMessage.error('加载申请列表失败')
@@ -293,7 +293,7 @@ export default {
     async loadTodoList() {
       try {
         const res = await getTodoTasks()
-        this.todoList = res.data || []
+        this.todoList = res || []
       } catch (error) {
         console.error('加载待办列表失败:', error)
         ElMessage.error('加载待办列表失败')
@@ -304,7 +304,7 @@ export default {
     async loadDoneList() {
       try {
         const res = await getDoneTasks()
-        this.doneList = res.data || []
+        this.doneList = res || []
       } catch (error) {
         console.error('加载已办列表失败:', error)
         ElMessage.error('加载已办列表失败')
@@ -350,7 +350,7 @@ export default {
       try {
         const res = await getLeaveDetail(id)
         if (res.code === 0) {  // 假设成功状态码为0
-          this.detailInfo = res.data
+          this.detailInfo = res
           this.detailDialogVisible = true
         } else {
           ElMessage.error(res.msg || '获取详情失败')
@@ -376,7 +376,7 @@ export default {
       this.$refs.processForm.validate(async (valid) => {
         if (valid) {
           try {
-            await workflowApi.processTasks(this.processForm)
+            await processTasks(this.processForm)
             ElMessage.success('处理成功')
             this.processDialogVisible = false
             this.loadData()
