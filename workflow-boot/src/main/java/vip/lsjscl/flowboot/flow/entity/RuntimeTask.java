@@ -4,6 +4,8 @@ package vip.lsjscl.flowboot.flow.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.Comment;
+import vip.lsjscl.flowboot.flow.dict.TaskStatus;
+
 import java.time.LocalDateTime;
 
 /**

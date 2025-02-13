@@ -1,6 +1,5 @@
-package vip.lsjscl.flowboot.flow.entity;
+package vip.lsjscl.flowboot.flow.dict;
 
-import lombok.Data;
 import lombok.Getter;
 
 /**
@@ -11,7 +10,8 @@ import lombok.Getter;
 @Getter
 public enum TaskStatus {
     PENDING(10, "待办理"),
-    COMPLETED(20, "已办理");
+    COMPLETED(20, "已办理"),
+    TERMINATED(30, "流程停止");
 
     private final int code;
     private final String desc;

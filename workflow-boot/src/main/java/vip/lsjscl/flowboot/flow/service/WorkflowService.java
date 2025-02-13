@@ -12,11 +12,9 @@ import vip.lsjscl.flowboot.flow.model.Edge;
 import vip.lsjscl.flowboot.flow.model.FlowDiagram;
 import vip.lsjscl.flowboot.flow.model.Node;
 import vip.lsjscl.flowboot.flow.repository.*;
-import vip.lsjscl.flowboot.flow.service.ActivityService;
-import vip.lsjscl.flowboot.flow.entity.TaskStatus;
+import vip.lsjscl.flowboot.flow.dict.TaskStatus;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -220,6 +218,7 @@ public class WorkflowService {
     private String listToString(List<String> list) {
         return CollectionUtils.isEmpty(list) ? "" : String.join(",", list);
     }
+
 
 
 } 

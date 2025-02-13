@@ -2,7 +2,7 @@ package vip.lsjscl.flowboot.flow.converter;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
-import vip.lsjscl.flowboot.flow.entity.TaskStatus;
+import vip.lsjscl.flowboot.flow.dict.TaskStatus;
 
 @Converter(autoApply = true)
 public class TaskStatusConverter implements AttributeConverter<TaskStatus, Integer> {

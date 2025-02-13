@@ -2,13 +2,19 @@ package vip.lsjscl.flowboot.flow.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import vip.lsjscl.flowboot.common.exception.BusinessException;
 import vip.lsjscl.flowboot.flow.entity.Activity;
+import vip.lsjscl.flowboot.flow.entity.RuntimeTask;
+import vip.lsjscl.flowboot.flow.dict.TaskStatus;
 import vip.lsjscl.flowboot.flow.entity.Transition;
+import vip.lsjscl.flowboot.flow.dict.TaskDecision;
+import vip.lsjscl.flowboot.flow.repository.RuntimeTaskRepository;
 import vip.lsjscl.flowboot.flow.repository.TransitionRepository;
 
 import java.lang.reflect.Method;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -26,6 +32,77 @@ public class ActivityService {
 
     private final TransitionRepository transitionRepository;
 
+    private final RuntimeTaskRepository runtimeTaskRepository;
+
+    /**
+     * 根据决策更新办件记录的当前活动节点：
+     * 如果决策为 "APPROVED"，则激活下一个活动；
+     * 如果决策为 "RETURN_PREVIOUS"，则激活上一个活动；
+     * 如果决策为 "RETURN_APPLICANT"，则退回到第一个活动；
+     * 如果决策为 "DISAPPROVED"，则流程停止，不创建新的任务记录。
+     *
+     * @param businessId 业务ID
+     * @param decision   决策类型，取值："APPROVED", "RETURN_PREVIOUS", "RETURN_APPLICANT", "DISAPPROVED"
+     */
+    @Transactional
+    public void updateCurrentTaskActivity(String businessId, TaskDecision decision) {
+        RuntimeTask currentTask = runtimeTaskRepository.findByBusinessIdAndStatus(businessId, TaskStatus.PENDING)
+                .orElseThrow(() -> new BusinessException("未找到业务ID为 " + businessId + " 的待办理任务记录"));
+
+        Activity newActivity;
+        switch (decision) {
+            case APPROVED:
+                newActivity = getNextActivity(currentTask.getActivity());
+                break;
+            case RETURN_PREVIOUS:
+                newActivity = getPreviousActivity(currentTask.getActivity());
+                break;
+            case RETURN_APPLICANT:
+                newActivity = getFirstActivity(currentTask.getActivity().getWorkflowVersionId());
+                break;
+            case DISAPPROVED:
+                // 直接将当前任务更新为终止状态，流程停止，不创建新任务
+                currentTask.setStatus(TaskStatus.TERMINATED);
+                currentTask.setUpdateTime(LocalDateTime.now());
+                runtimeTaskRepository.save(currentTask);
+                return;
+            default:
+                throw new BusinessException("未知决策: " + decision);
+        }
+
+        if (newActivity == null) {
+            throw new BusinessException("无法确定新的活动节点");
+        }
+
+        // 完成当前任务
+        currentTask.setStatus(TaskStatus.COMPLETED);
+        currentTask.setUpdateTime(LocalDateTime.now());
+        runtimeTaskRepository.save(currentTask);
+
+        // 创建新的待办理任务记录
+        RuntimeTask newTask = new RuntimeTask();
+        newTask.setActivity(newActivity);
+        newTask.setBusinessId(businessId);
+        newTask.setCreateTime(LocalDateTime.now());
+        newTask.setUpdateTime(LocalDateTime.now());
+        newTask.setStatus(TaskStatus.PENDING);
+        runtimeTaskRepository.save(newTask);
+    }
+
+    /**
+     * 获取上一个活动节点
+     * 通过查询所有以当前活动作为目标的变迁记录，返回对应的起始活动（假设只有一条记录）。
+     *
+     * @param currentActivity 当前活动
+     * @return 上一个活动节点，如果不存在则返回 null
+     */
+    public Activity getPreviousActivity(Activity currentActivity) {
+        List<Transition> transitions = transitionRepository.findByToActivity(currentActivity);
+        if (transitions == null || transitions.isEmpty()) {
+            return null;
+        }
+        return transitions.get(0).getFromActivity();
+    }
 
     /**
      * 获取第一个活动
