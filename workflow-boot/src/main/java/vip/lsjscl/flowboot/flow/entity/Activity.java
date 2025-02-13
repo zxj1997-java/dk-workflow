@@ -20,7 +20,7 @@ public class Activity {
     private Long id;
     
     // 用于关联前端 JSON 中的节点 ID
-    @Column(name = "node_id", unique = true)
+    @Column(name = "node_id")
     private String nodeId;
     
     @Column(name = "name")

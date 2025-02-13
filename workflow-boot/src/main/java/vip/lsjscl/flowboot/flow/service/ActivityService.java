@@ -177,10 +177,13 @@ public class ActivityService {
         }
         //反射调用conditionClass(class.method) 返回返回值
         try {
-            // 分割类名和方法名
-            String[] parts = conditionClass.split("\\.");
-            String className = parts[0];
-            String methodName = parts[1];
+            // 找到最后一个点的位置
+            int lastDotIndex = conditionClass.lastIndexOf(".");
+
+            // 提取类路径和方法名
+            String className = conditionClass.substring(0, lastDotIndex);
+            String methodName = conditionClass.substring(lastDotIndex + 1);
+
 
             // 获取类对象
             Class<?> clazz = Class.forName(className);

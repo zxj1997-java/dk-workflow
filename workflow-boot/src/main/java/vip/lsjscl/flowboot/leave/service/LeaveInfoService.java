@@ -3,7 +3,7 @@ package vip.lsjscl.flowboot.leave.service;
 import vip.lsjscl.flowboot.leave.common.utils.R;
 import java.util.Map;
 
-public interface LeaveService {
+public interface LeaveInfoService {
     /**
      * 获取我的申请列表
      */

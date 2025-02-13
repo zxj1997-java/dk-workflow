@@ -2,16 +2,17 @@ package vip.lsjscl.flowboot.leave.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import vip.lsjscl.flowboot.leave.service.LeaveService;
 import vip.lsjscl.flowboot.leave.common.utils.R;
+import vip.lsjscl.flowboot.leave.service.LeaveInfoService;
+
 import java.util.Map;
 
 @RestController
 @RequestMapping("/workflow/leave")
-public class LeaveController {
+public class LeaveInfoController {
     
     @Autowired
-    private LeaveService leaveService;
+    private LeaveInfoService leaveService;
 
     /**
      * 获取我的申请列表

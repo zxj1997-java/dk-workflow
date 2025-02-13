@@ -1,13 +1,14 @@
 package vip.lsjscl.flowboot.leave.service.impl;
 
 import org.springframework.stereotype.Service;
-import vip.lsjscl.flowboot.leave.service.LeaveService;
 import vip.lsjscl.flowboot.leave.common.utils.R;
+import vip.lsjscl.flowboot.leave.service.LeaveInfoService;
+
 import java.util.ArrayList;
 import java.util.Map;
 
 @Service
-public class LeaveServiceImpl implements LeaveService {
+public class LeaveInfoServiceImpl implements LeaveInfoService {
 
     @Override
     public R getMyApplications(Map<String, Object> params) {
@@ -37,5 +38,10 @@ public class LeaveServiceImpl implements LeaveService {
     public R processLeaveApplication(Map<String, Object> params) {
         // TODO: 实现处理请假申请逻辑
         return R.ok("处理成功");
+    }
+
+    public boolean judgment(String id) {
+        System.err.println("111");
+        return true;
     }
 } 

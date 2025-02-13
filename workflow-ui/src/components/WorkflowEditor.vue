@@ -794,6 +794,9 @@ export default {
     async loadWorkflowData() {
       try {
         const data = await workflowApi.getWorkflowById(this.id)
+        if (!data.flowData) {
+          throw new Error('工作流数据为空')
+        }
         this.workflowData = JSON.parse(data.flowData)
         // 确保在数据加载后立即渲染
         this.$nextTick(() => {
@@ -801,7 +804,6 @@ export default {
         })
       } catch (error) {
         console.error('加载工作流数据失败:', error)
-        alert('加载工作流数据失败')
       }
     },
     renderWorkflow() {
