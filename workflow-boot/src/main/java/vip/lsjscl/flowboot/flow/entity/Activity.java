@@ -2,6 +2,7 @@ package vip.lsjscl.flowboot.flow.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.Comment;
 
 /**
  * 活动
@@ -43,4 +44,8 @@ public class Activity {
     
     @Column(name = "operations")
     private String operations;
+
+    @Comment("流程版本ID")
+    @Column(name = "workflow_version_id")
+    private Long workflowVersionId;
 } 

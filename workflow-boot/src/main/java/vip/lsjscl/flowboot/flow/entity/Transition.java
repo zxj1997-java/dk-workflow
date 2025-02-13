@@ -2,6 +2,7 @@ package vip.lsjscl.flowboot.flow.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.Comment;
 
 /**
  * 变迁
@@ -37,4 +38,9 @@ public class Transition {
 
     @Column(name = "after_class")
     private String afterClass;
+
+    // 新增字段：流程版本ID，用于标识该变迁记录所属的流程版本
+    @Comment("流程版本ID")
+    @Column(name = "workflow_version_id")
+    private Long workflowVersionId;
 } 

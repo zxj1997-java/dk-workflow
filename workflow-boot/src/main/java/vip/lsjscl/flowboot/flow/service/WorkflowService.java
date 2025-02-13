@@ -54,7 +54,8 @@ public class WorkflowService {
         if (id != null) {
             workflow = workflowRepository.findById(id)
                     .orElseThrow(() -> new BusinessException("工作流不存在"));
-        } else {
+        }
+        else {
             workflow = new Workflow();
         }
         workflow.setName(name);
@@ -100,7 +101,8 @@ public class WorkflowService {
         FlowDiagram flowDiagram;
         try {
             flowDiagram = objectMapper.readValue(workflow.getFlowData(), FlowDiagram.class);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new BusinessException("解析流程图JSON失败: " + e.getMessage(), e);
         }
 
@@ -120,6 +122,8 @@ public class WorkflowService {
                         activity.setApprovers(listToString(node.getData().getApprovers()));
                         activity.setDepartments(listToString(node.getData().getDepartments()));
                         activity.setOperations(listToString(node.getData().getOperations()));
+                        // 设置该活动记录所属的流程版本ID，以便后续查询
+                        activity.setWorkflowVersionId(workflowVersion.getId());
                     }
                     Activity savedActivity = activityRepository.save(activity);
                     activityMap.put(node.getId(), savedActivity);
@@ -142,6 +146,8 @@ public class WorkflowService {
                         transition.setConditionClass(edge.getData().getConditionClass());
                         transition.setAfterClass(edge.getData().getAfterClass());
                     }
+                    // 设置该变迁记录所属的流程版本ID，以便后续查询
+                    transition.setWorkflowVersionId(workflowVersion.getId());
                     transitionRepository.save(transition);
                 }
             }
