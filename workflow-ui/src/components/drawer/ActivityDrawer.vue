@@ -1,0 +1,292 @@
+<template>
+  <el-drawer
+    v-model="visible"
+    title="活动配置"
+    size="400px"
+    :destroy-on-close="true"
+    :append-to-body="true"
+    :with-header="true"
+    :close-on-click-modal="true"
+    :show-close="true"
+    :before-close="handleClose"
+  >
+    <div class="drawer-container">
+      <el-form 
+        ref="formRef"
+        :model="form"
+        label-width="100px"
+        class="activity-form"
+        :rules="rules"
+      >
+        <el-form-item label="活动名称" prop="name">
+          <el-input v-model="form.name" placeholder="请输入活动名称"></el-input>
+        </el-form-item>
+        
+        <el-form-item label="活动编码" prop="code">
+          <el-input v-model="form.code" placeholder="请输入活动编码"></el-input>
+        </el-form-item>
+
+        <el-form-item label="跳转页面" prop="pageUrl">
+          <el-input v-model="form.pageUrl" placeholder="请输入页面路径，例如：/form/apply"></el-input>
+        </el-form-item>
+
+        <el-form-item label="审核人员">
+          <div class="select-container">
+            <el-select
+              v-model="form.approvers"
+              multiple
+              filterable
+              placeholder="请选择审核人员"
+              :teleported="true"
+              :popper-append-to-body="true"
+              :reserve-keyword="true"
+              :popper-options="{
+                modifiers: [
+                  {
+                    name: 'computeStyles',
+                    options: {
+                      adaptive: false,
+                      gpuAcceleration: false
+                    }
+                  }
+                ]
+              }"
+            >
+              <el-option
+                v-for="item in userOptions"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              >
+              </el-option>
+            </el-select>
+          </div>
+        </el-form-item>
+
+        <el-form-item label="审核部门">
+          <div class="select-container">
+            <el-select
+              v-model="form.departments"
+              multiple
+              filterable
+              placeholder="请选择审核部门"
+              :teleported="true"
+              :popper-append-to-body="true"
+              :reserve-keyword="true"
+              :popper-options="{
+                modifiers: [
+                  {
+                    name: 'computeStyles',
+                    options: {
+                      adaptive: false,
+                      gpuAcceleration: false
+                    }
+                  }
+                ]
+              }"
+            >
+              <el-option
+                v-for="item in departmentOptions"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              >
+              </el-option>
+            </el-select>
+          </div>
+        </el-form-item>
+
+        <el-form-item label="操作按钮" prop="operations">
+          <el-checkbox-group v-model="form.operations">
+            <el-checkbox label="approve">通过</el-checkbox>
+            <el-checkbox label="returnToApplicant">退回申请人</el-checkbox>
+            <el-checkbox label="returnToPrevious">退回上一步</el-checkbox>
+            <el-checkbox label="reject">不通过</el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
+      </el-form>
+    </div>
+
+    <template #footer>
+      <div class="drawer-footer">
+        <el-button @click="visible = false">取消</el-button>
+        <el-button type="primary" @click="handleSave">确定</el-button>
+      </div>
+    </template>
+  </el-drawer>
+</template>
+
+<script>
+import { createActivity, updateActivity } from '@/api/workflow'
+
+export default {
+  name: 'ActivityDrawer',
+  props: {
+    modelValue: Boolean,
+    activityData: {
+      type: Object,
+      default: () => ({})
+    },
+    userOptions: {
+      type: Array,
+      default: () => []
+    },
+    departmentOptions: {
+      type: Array,
+      default: () => []
+    },
+    workflowVersionId: {
+      type: String,
+      default: ''
+    },
+    isEdit: {
+      type: Boolean,
+      default: false
+    }
+  },
+  emits: ['update:modelValue', 'save', 'success'],
+  data() {
+    return {
+      form: {
+        name: '',
+        code: '',
+        pageUrl: '',
+        approvers: [],
+        departments: [],
+        operations: ['approve', 'returnToApplicant', 'returnToPrevious', 'reject']
+      },
+      rules: {
+        name: [
+          { required: true, message: '请输入活动名称', trigger: 'blur' }
+        ],
+        code: [
+          { required: true, message: '请输入活动编码', trigger: 'blur' }
+        ],
+        pageUrl: [
+          { required: true, message: '请输入跳转页面路径', trigger: 'blur' }
+        ],
+        operations: [
+          { type: 'array', required: true, message: '请至少选择一个操作按钮', trigger: 'change' }
+        ]
+      }
+    }
+  },
+  computed: {
+    visible: {
+      get() {
+        return this.modelValue
+      },
+      set(value) {
+        this.$emit('update:modelValue', value)
+      }
+    }
+  },
+  watch: {
+    modelValue(val) {
+      if (val) {
+        this.initForm()
+      }
+    }
+  },
+  methods: {
+    initForm() {
+      if (this.activityData) {
+        this.form = { ...this.activityData }
+      } else {
+        this.form = {
+          name: '',
+          code: '',
+          pageUrl: '',
+          approvers: [],
+          departments: [],
+          operations: []
+        }
+      }
+    },
+    handleClose(done) {
+      this.form = {
+        name: '',
+        code: '',
+        pageUrl: '',
+        approvers: [],
+        departments: [],
+        operations: []
+      }
+      done()
+    },
+    async handleSave() {
+      try {
+        await this.$refs.formRef.validate()
+
+        if (!this.workflowVersionId) {
+          this.$message.warning('请先保存工作流')
+          return
+        }
+
+        const activityData = {
+          id: this.activityData?.id,
+          name: this.form.name,
+          code: this.form.code,
+          pageUrl: this.form.pageUrl,
+          approvers: this.form.approvers,
+          departments: this.form.departments,
+          operations: this.form.operations,
+          workflowVersionId: this.workflowVersionId
+        }
+
+        if (this.isEdit) {
+          await updateActivity(activityData)
+        } else {
+          await createActivity(activityData)
+        }
+
+        this.$message.success('保存成功')
+        this.$emit('success')
+        this.visible = false
+      } catch (error) {
+        console.error('保存活动失败:', error)
+        this.$message.error('保存失败: ' + (error.response?.data?.message || error.message))
+      }
+    }
+  }
+}
+</script>
+
+<style scoped>
+.drawer-container {
+  height: 100%;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.drawer-footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px 20px;
+  background: #fff;
+  border-top: 1px solid #dcdfe6;
+  text-align: right;
+}
+
+:deep(.el-drawer__body) {
+  height: calc(100% - 120px);
+  padding: 0;
+  overflow: hidden;
+}
+
+:deep(.el-drawer__header) {
+  margin-bottom: 0;
+  padding: 16px 20px;
+  border-bottom: 1px solid #dcdfe6;
+}
+
+.select-container {
+  width: 100%;
+}
+
+:deep(.el-select) {
+  width: 100%;
+}
+</style> 
