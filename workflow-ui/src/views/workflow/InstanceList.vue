@@ -104,11 +104,10 @@ export default {
       }
       return statusMap[status] || status
     },
-    viewInstance(instanceId, version) {
-      console.log(instanceId, version)
+    viewInstance(instanceId) {
       const routeUrl = this.$router.resolve({
-
-
+        name: 'InstanceDetail',
+        params: {instanceId}
       })
       window.open(routeUrl.href, '_blank')
     }
