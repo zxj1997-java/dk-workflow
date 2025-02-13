@@ -158,8 +158,19 @@ export default {
   },
   computed: {
     nodeApprovalRecords() {
-      if (!this.selectedNode || !this.approvalRecords) return []
-      return this.approvalRecords.filter(record => record.activity && record.activity.id === this.selectedNode.id)
+      if (!this.selectedNode || !this.approvalRecords) return [];
+      return this.approvalRecords.filter(record => {
+        // 尝试获取审批记录中关联的活动ID，优先使用 nodeId 字段
+        let actId = null;
+        if (record.activity && record.activity.nodeId) {
+          actId = record.activity.nodeId;
+        } else if (record.activity && record.activity.id) {
+          actId = record.activity.id;
+        } else if (record.activityId) {
+          actId = record.activityId;
+        }
+        return actId === this.selectedNode.id;
+      });
     }
   },
   async created() {
@@ -253,11 +264,18 @@ export default {
 
       console.log('Graph initialized:', this.graph)
 
-      // 添加节点点击事件
+      // 添加节点点击事件，设置高亮效果并更新选中节点数据
       this.graph.on('node:click', ({ node }) => {
         const nodeData = node.getData()
         console.log('Node clicked:', nodeData)
         if (nodeData && nodeData.type !== 'event') {  // 排除开始和结束节点
+          // 清除所有节点的高亮效果（恢复 strokeWidth 为 2）
+          this.graph.getNodes().forEach(n => {
+            n.setAttrs({ body: { strokeWidth: 2 } })
+          })
+          // 高亮当前点击的节点
+          node.setAttrs({ body: { strokeWidth: 4 } })
+          // 更新选中节点数据
           this.selectedNode = {
             id: node.id,
             data: nodeData
@@ -294,7 +312,7 @@ export default {
           y: node.y,
           width: node.width,
           height: node.height,
-          data: node.data,
+          data: { ...node.data, type: isEvent ? 'event' : 'activity' },
           attrs: {
             body: {
               fill: isEvent ? '#fff' : '#EFF4FF',
