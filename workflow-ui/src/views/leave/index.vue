@@ -127,10 +127,91 @@
         </span>
       </template>
     </el-dialog>
+
+    <!-- 添加处理任务对话框 -->
+    <el-dialog 
+      title="处理申请" 
+      v-model="processDialogVisible" 
+      width="500px"
+    >
+      <el-form 
+        ref="processForm" 
+        :model="processForm" 
+        :rules="processRules" 
+        label-width="100px"
+      >
+        <el-form-item label="处理结果" prop="action">
+          <el-radio-group v-model="processForm.action">
+            <el-radio label="approve">同意</el-radio>
+            <el-radio label="reject">拒绝</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        
+        <el-form-item label="处理意见" prop="comment">
+          <el-input
+            v-model="processForm.comment"
+            type="textarea"
+            :rows="4"
+            placeholder="请输入处理意见"
+          />
+        </el-form-item>
+      </el-form>
+      
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="processDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="submitProcess">确定</el-button>
+        </span>
+      </template>
+    </el-dialog>
+
+    <!-- 添加详情对话框 -->
+    <el-dialog 
+      title="申请详情" 
+      v-model="detailDialogVisible" 
+      width="500px"
+    >
+      <div class="detail-content" v-if="detailInfo">
+        <el-descriptions :column="1" border>
+          <el-descriptions-item label="申请人">
+            {{ detailInfo.name }}
+          </el-descriptions-item>
+          <el-descriptions-item label="离职日期">
+            {{ detailInfo.leaveDate }}
+          </el-descriptions-item>
+          <el-descriptions-item label="离职原因">
+            {{ detailInfo.reason }}
+          </el-descriptions-item>
+          <el-descriptions-item label="状态">
+            <el-tag :type="getStatusType(detailInfo.status)">
+              {{ getStatusText(detailInfo.status) }}
+            </el-tag>
+          </el-descriptions-item>
+        </el-descriptions>
+      </div>
+      
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="detailDialogVisible = false">关闭</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+import { 
+  getMyApplications, 
+  getTodoTasks, 
+  getDoneTasks,
+  saveDraft,
+  submitLeave,
+  getLeaveDetail,
+  processLeave,
+  deleteLeave
+} from '@/api/leave'
+import { ElMessage, ElMessageBox } from 'element-plus'
+
 export default {
   name: 'LeaveApplication',
   data() {
@@ -140,11 +221,17 @@ export default {
       todoList: [], // 待办理列表
       doneList: [], // 已办理列表
       dialogVisible: false,
+      processDialogVisible: false,
       leaveForm: {
         name: '',
         leaveDate: '',
         reason: '',
         status: 'DRAFT' // DRAFT-草稿, PENDING-待审批
+      },
+      processForm: {
+        id: null,
+        action: 'approve',
+        comment: ''
       },
       rules: {
         name: [
@@ -156,10 +243,167 @@ export default {
         reason: [
           { required: true, message: '请输入离职原因', trigger: 'blur' }
         ]
-      }
+      },
+      processRules: {
+        action: [
+          { required: true, message: '请选择处理结果', trigger: 'change' }
+        ],
+        comment: [
+          { required: true, message: '请输入处理意见', trigger: 'blur' }
+        ]
+      },
+      loading: false,
+      detailDialogVisible: false,
+      detailInfo: null
     }
   },
+  created() {
+    this.loadData()
+  },
   methods: {
+    // 加载所有数据
+    async loadData() {
+      this.loading = true
+      try {
+        await Promise.all([
+          this.loadApplyList(),
+          this.loadTodoList(),
+          this.loadDoneList()
+        ])
+      } catch (error) {
+        console.error('加载数据失败:', error)
+      } finally {
+        this.loading = false
+      }
+    },
+
+    // 加载申请列表
+    async loadApplyList() {
+      try {
+        const res = await getMyApplications()
+        this.applyList = res.data || []
+      } catch (error) {
+        console.error('加载申请列表失败:', error)
+        ElMessage.error('加载申请列表失败')
+      }
+    },
+
+    // 加载待办列表
+    async loadTodoList() {
+      try {
+        const res = await getTodoTasks()
+        this.todoList = res.data || []
+      } catch (error) {
+        console.error('加载待办列表失败:', error)
+        ElMessage.error('加载待办列表失败')
+      }
+    },
+
+    // 加载已办列表
+    async loadDoneList() {
+      try {
+        const res = await getDoneTasks()
+        this.doneList = res.data || []
+      } catch (error) {
+        console.error('加载已办列表失败:', error)
+        ElMessage.error('加载已办列表失败')
+      }
+    },
+
+    // 暂存为草稿
+    saveAsDraft() {
+      this.$refs.leaveForm.validate(async (valid) => {
+        if (valid) {
+          try {
+            await saveDraft(this.leaveForm)
+            ElMessage.success('暂存成功')
+            this.dialogVisible = false
+            this.loadApplyList()
+          } catch (error) {
+            console.error('暂存失败:', error)
+            ElMessage.error('暂存失败')
+          }
+        }
+      })
+    },
+
+    // 提交申请
+    submitForm() {
+      this.$refs.leaveForm.validate(async (valid) => {
+        if (valid) {
+          try {
+            await submitLeave(this.leaveForm)
+            ElMessage.success('提交成功')
+            this.dialogVisible = false
+            this.loadApplyList()
+          } catch (error) {
+            console.error('提交失败:', error)
+            ElMessage.error('提交失败')
+          }
+        }
+      })
+    },
+
+    // 查看详情
+    async viewDetail(id) {
+      try {
+        const res = await getLeaveDetail(id)
+        if (res.code === 0) {  // 假设成功状态码为0
+          this.detailInfo = res.data
+          this.detailDialogVisible = true
+        } else {
+          ElMessage.error(res.msg || '获取详情失败')
+        }
+      } catch (error) {
+        console.error('获取详情失败:', error)
+        ElMessage.error('获取详情失败')
+      }
+    },
+
+    // 处理任务
+    async handleTask(id) {
+      this.processForm = {
+        id,
+        action: 'approve',
+        comment: ''
+      }
+      this.processDialogVisible = true
+    },
+
+    // 提交处理结果
+    async submitProcess() {
+      this.$refs.processForm.validate(async (valid) => {
+        if (valid) {
+          try {
+            await processLeave(this.processForm)
+            ElMessage.success('处理成功')
+            this.processDialogVisible = false
+            this.loadData()
+          } catch (error) {
+            console.error('处理失败:', error)
+            ElMessage.error('处理失败')
+          }
+        }
+      })
+    },
+
+    // 删除申请
+    async deleteApplication(id) {
+      try {
+        await ElMessageBox.confirm('确定要删除该申请吗？', '提示', {
+          type: 'warning'
+        })
+        await deleteLeave(id)
+        ElMessage.success('删除成功')
+        this.loadApplyList()
+      } catch (error) {
+        if (error !== 'cancel') {
+          console.error('删除失败:', error)
+          ElMessage.error('删除失败')
+        }
+      }
+    },
+
     createApplication() {
       this.leaveForm = {
         name: '',
@@ -169,14 +413,7 @@ export default {
       }
       this.dialogVisible = true
     },
-    viewDetail(id) {
-      // TODO: 实现查看详情逻辑
-      console.log('查看详情:', id)
-    },
-    handleTask(id) {
-      // TODO: 实现任务处理逻辑
-      console.log('处理任务:', id)
-    },
+
     getStatusType(status) {
       const typeMap = {
         'PENDING': 'warning',
@@ -186,6 +423,7 @@ export default {
       }
       return typeMap[status] || 'info'
     },
+
     getStatusText(status) {
       const textMap = {
         'PENDING': '待处理',
@@ -195,54 +433,11 @@ export default {
       }
       return textMap[status] || status
     },
+
     formatDate(dateStr) {
       if (!dateStr) return ''
       const date = new Date(dateStr)
       return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
-    },
-    // 暂存为草稿
-    saveAsDraft() {
-      this.$refs.leaveForm.validate(async (valid) => {
-        if (valid) {
-          try {
-            // TODO: 调用保存草稿API
-            console.log('暂存表单数据:', { ...this.leaveForm, status: 'DRAFT' })
-            this.$message.success('暂存成功')
-            this.dialogVisible = false
-            this.loadApplyList() // 重新加载列表
-          } catch (error) {
-            console.error('暂存失败:', error)
-            this.$message.error('暂存失败')
-          }
-        }
-      })
-    },
-    // 提交申请
-    submitForm() {
-      this.$refs.leaveForm.validate(async (valid) => {
-        if (valid) {
-          try {
-            // TODO: 调用提交API
-            console.log('提交表单数据:', { ...this.leaveForm, status: 'PENDING' })
-            this.$message.success('提交成功')
-            this.dialogVisible = false
-            this.loadApplyList() // 重新加载列表
-          } catch (error) {
-            console.error('提交失败:', error)
-            this.$message.error('提交失败')
-          }
-        }
-      })
-    },
-    // 加载申请列表
-    async loadApplyList() {
-      try {
-        // TODO: 调用获取列表API
-        this.applyList = []
-      } catch (error) {
-        console.error('加载列表失败:', error)
-        this.$message.error('加载列表失败')
-      }
     }
   }
 }
@@ -288,5 +483,18 @@ export default {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
+}
+
+.detail-content {
+  padding: 20px;
+}
+
+:deep(.el-descriptions__label) {
+  width: 120px;
+  justify-content: flex-end;
+}
+
+:deep(.el-descriptions__content) {
+  padding: 12px;
 }
 </style> 

@@ -1,6 +1,8 @@
 package vip.lsjscl.flowboot.leave.service;
 
 import vip.lsjscl.flowboot.leave.common.utils.R;
+import vip.lsjscl.flowboot.leave.entity.LeaveInfo;
+
 import java.util.Map;
 
 public interface LeaveInfoService {
@@ -22,10 +24,16 @@ public interface LeaveInfoService {
     /**
      * 提交请假申请
      */
-    R submitLeaveApplication(Map<String, Object> params);
+    R submitLeaveApplication(LeaveInfo leaveInfo);
 
     /**
      * 处理请假申请
      */
     R processLeaveApplication(Map<String, Object> params);
-} 
+
+    R saveOrUpdate(LeaveInfo leaveInfo);
+
+    R getLeaveDetail(Long id);
+
+    R deleteLeaveApplication(Long id);
+}
