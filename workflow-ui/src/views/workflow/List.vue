@@ -23,7 +23,6 @@
         <template #default="scope">
           <el-button type="primary" size="small" @click="editWorkflow(scope.row.id)">配置</el-button>
           <el-button type="success" size="small" @click="publishWorkflow(scope.row.id)">发布</el-button>
-          <el-button type="info" size="small" @click="viewInstance(scope.row.id)">查看实例</el-button>
           <el-dropdown @command="handleVersionCommand" trigger="click">
             <el-button type="warning" size="small">
               版本
@@ -148,12 +147,6 @@ export default {
         })
         window.open(routeUrl.href, '_blank')
       }
-    },
-    viewInstance(workflowId) {
-      const routeUrl = this.$router.resolve({
-        path: `/workflow/instance/${workflowId}`
-      })
-      window.open(routeUrl.href, '_blank')
     }
   }
 }
