@@ -81,6 +81,52 @@
         </div>
       </el-tab-pane>
     </el-tabs>
+
+    <!-- 添加离职申请对话框 -->
+    <el-dialog 
+      title="离职申请" 
+      v-model="dialogVisible" 
+      width="500px"
+    >
+      <el-form 
+        ref="leaveForm" 
+        :model="leaveForm" 
+        :rules="rules" 
+        label-width="100px"
+      >
+        <el-form-item label="姓名" prop="name">
+          <el-input v-model="leaveForm.name" placeholder="请输入姓名" />
+        </el-form-item>
+        
+        <el-form-item label="离职日期" prop="leaveDate">
+          <el-date-picker
+            v-model="leaveForm.leaveDate"
+            type="date"
+            placeholder="选择离职日期"
+            format="YYYY-MM-DD"
+            value-format="YYYY-MM-DD"
+            style="width: 100%"
+          />
+        </el-form-item>
+        
+        <el-form-item label="离职原因" prop="reason">
+          <el-input
+            v-model="leaveForm.reason"
+            type="textarea"
+            :rows="4"
+            placeholder="请输入离职原因"
+          />
+        </el-form-item>
+      </el-form>
+      
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="dialogVisible = false">取消</el-button>
+          <el-button type="info" @click="saveAsDraft">暂存</el-button>
+          <el-button type="primary" @click="submitForm">提交</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -93,12 +139,35 @@ export default {
       applyList: [], // 离职申请列表
       todoList: [], // 待办理列表
       doneList: [], // 已办理列表
+      dialogVisible: false,
+      leaveForm: {
+        name: '',
+        leaveDate: '',
+        reason: '',
+        status: 'DRAFT' // DRAFT-草稿, PENDING-待审批
+      },
+      rules: {
+        name: [
+          { required: true, message: '请输入姓名', trigger: 'blur' }
+        ],
+        leaveDate: [
+          { required: true, message: '请选择离职日期', trigger: 'change' }
+        ],
+        reason: [
+          { required: true, message: '请输入离职原因', trigger: 'blur' }
+        ]
+      }
     }
   },
   methods: {
     createApplication() {
-      // TODO: 实现新建申请逻辑
-      console.log('创建新申请')
+      this.leaveForm = {
+        name: '',
+        leaveDate: '',
+        reason: '',
+        status: 'DRAFT'
+      }
+      this.dialogVisible = true
     },
     viewDetail(id) {
       // TODO: 实现查看详情逻辑
@@ -130,6 +199,50 @@ export default {
       if (!dateStr) return ''
       const date = new Date(dateStr)
       return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
+    },
+    // 暂存为草稿
+    saveAsDraft() {
+      this.$refs.leaveForm.validate(async (valid) => {
+        if (valid) {
+          try {
+            // TODO: 调用保存草稿API
+            console.log('暂存表单数据:', { ...this.leaveForm, status: 'DRAFT' })
+            this.$message.success('暂存成功')
+            this.dialogVisible = false
+            this.loadApplyList() // 重新加载列表
+          } catch (error) {
+            console.error('暂存失败:', error)
+            this.$message.error('暂存失败')
+          }
+        }
+      })
+    },
+    // 提交申请
+    submitForm() {
+      this.$refs.leaveForm.validate(async (valid) => {
+        if (valid) {
+          try {
+            // TODO: 调用提交API
+            console.log('提交表单数据:', { ...this.leaveForm, status: 'PENDING' })
+            this.$message.success('提交成功')
+            this.dialogVisible = false
+            this.loadApplyList() // 重新加载列表
+          } catch (error) {
+            console.error('提交失败:', error)
+            this.$message.error('提交失败')
+          }
+        }
+      })
+    },
+    // 加载申请列表
+    async loadApplyList() {
+      try {
+        // TODO: 调用获取列表API
+        this.applyList = []
+      } catch (error) {
+        console.error('加载列表失败:', error)
+        this.$message.error('加载列表失败')
+      }
     }
   }
 }
@@ -169,5 +282,11 @@ export default {
 
 :deep(.el-table) {
   margin-top: 20px;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
 }
 </style> 
