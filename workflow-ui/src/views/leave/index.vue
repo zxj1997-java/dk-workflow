@@ -23,6 +23,7 @@
             <el-table-column label="操作" width="150">
               <template #default="{ row }">
                 <el-button type="primary" size="small" @click="viewDetail(row.id)">查看</el-button>
+                <el-button type="success" size="small" style="margin-left: 5px" @click="viewProgress(row)">进度查询</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -438,6 +439,24 @@ export default {
       if (!dateStr) return ''
       const date = new Date(dateStr)
       return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
+    },
+
+    // 进度查询：跳转到流程图页面（实例详情页面）
+    viewProgress(row) {
+      // 判断是否存在工作流实例ID（workflowVersionId字段保存了流程启动后返回的ID）
+      if (!row.workflowVersionId) {
+        ElMessage.info('当前申请尚未提交或流程实例未生成')
+        return
+      }
+      // 使用路由跳转到实例详情页面，实例详情页面由 InstanceDetail.vue 实现
+       // 构造目标路由地址
+      const routeData = this.$router.resolve({
+        name: 'InstanceDetail',
+        params: { instanceId: row.workflowVersionId }
+      });
+
+      // 使用 window.open 打开新标签页
+      window.open(routeData.href, '_blank');
     }
   }
 }

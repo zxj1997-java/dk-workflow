@@ -1,13 +1,10 @@
-import workflowApi from './workflow'
-import {instanceApi} from './instance'
 import {systemApi} from './system'
 import {versionApi} from './version'
+import workflowApi from "@/api/workflow/workflow";
+
 
 export {
-    workflowApi,
-    instanceApi,
     versionApi,
-    systemApi
+    systemApi,
+    workflowApi
 }
-
-export default workflowApi 

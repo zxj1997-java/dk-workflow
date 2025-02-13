@@ -42,4 +42,8 @@ public class RuntimeTask {
     @Comment("任务状态，如待办理(10)或已办理(20)")
     @Column(name = "status")
     private TaskStatus status;
+
+    @Column(name = "comment")
+    @Comment("审批意见")
+    private String comment;
 } 

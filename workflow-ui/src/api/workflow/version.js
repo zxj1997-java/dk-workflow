@@ -1,5 +1,4 @@
 import request from '@/utils/request'
-import instanceApi from "@/api/workflow/instance";
 
 export const versionApi={
     // 获取工作流版本
@@ -10,4 +9,3 @@ export const versionApi={
         })
     }
 }
-export default instanceApi

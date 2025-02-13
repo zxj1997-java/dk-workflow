@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jakarta.validation.Valid;
+import vip.lsjscl.flowboot.leave.common.utils.R;
 
 import java.util.List;
 
@@ -95,6 +96,17 @@ public class WorkflowController {
     public ResponseEntity<Workflow> getWorkflowById(@PathVariable Long id) {
         Workflow workflow = workflowService.findById(id);
         return ResponseEntity.ok(workflow);
+    }
+
+    /**
+     * 按 code 获取工作流
+     *
+     * @param code 工作流编码
+     */
+    @GetMapping("/code/{code}")
+    public R getWorkflowById(@PathVariable String code) {
+        WorkflowVersion workflow = workflowService.findByCode(code);
+        return R.ok(workflow);
     }
 
     /**

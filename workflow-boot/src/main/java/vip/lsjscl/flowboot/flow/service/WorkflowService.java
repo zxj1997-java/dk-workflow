@@ -137,6 +137,20 @@ public class WorkflowService {
                 .orElseThrow(() -> new BusinessException("工作流不存在"));
     }
 
+    public WorkflowVersion findByCode(String workflowCode) {
+        // 根据流程编码查询工作流定义
+        Workflow workflow = workflowRepository.findByCode(workflowCode)
+                .orElseThrow(() -> new BusinessException("未找到对应的工作流定义"));
+
+        // 查询最新版本的工作流
+        WorkflowVersion latestVersion = workflowVersionRepository
+                .findByWorkflowIdOrderByVersionDesc(workflow.getId())
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new BusinessException("工作流未发布，请先发布工作流"));
+        return latestVersion;
+    }
+
     @Transactional
     public WorkflowVersion publishWorkflow(Long id) {
         // 查找对应的工作流定义

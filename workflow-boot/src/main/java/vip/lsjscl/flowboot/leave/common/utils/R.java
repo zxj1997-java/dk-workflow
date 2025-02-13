@@ -27,6 +27,12 @@ public class R extends HashMap<String, Object> {
         return r;
     }
 
+    public static R ok(Object data) {
+        R r = new R();
+        r.put("data", data);
+        return r;
+    }
+
     public static R error() {
         return error(500, "未知异常，请联系管理员");
     }

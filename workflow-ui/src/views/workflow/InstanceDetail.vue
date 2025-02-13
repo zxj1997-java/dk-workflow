@@ -3,7 +3,9 @@
     <div class="header">
       <h2>{{ workflow?.name }} - 流程实例</h2>
       <div class="status-tag">
-        <el-tag :type="getStatusType(instance?.status)">{{ getStatusText(instance?.status) }}</el-tag>
+        <el-tag :type="getStatusType(approvalRecords[0]?.status)">
+          {{ getStatusText(approvalRecords[0]?.status) }}
+        </el-tag>
       </div>
     </div>
 
@@ -20,12 +22,12 @@
             <h3>审批历史</h3>
           </div>
           <el-table :data="approvalRecords" stripe style="width: 100%" @row-click="handleRowClick">
-            <el-table-column prop="nodeName" label="节点" width="150" />
+            <el-table-column prop="activity.name" label="节点" width="150" />
             <el-table-column prop="approver" label="审批人" width="120" />
-            <el-table-column prop="action" label="操作" width="120">
+            <el-table-column prop="status" label="操作" width="120">
               <template #default="{ row }">
-                <el-tag :type="getTimelineItemType(row.action)">
-                  {{ getActionText(row.action) }}
+                <el-tag :type="getTimelineItemType(row.status)">
+                  {{ getActionText(row.status) }}
                 </el-tag>
               </template>
             </el-table-column>
@@ -56,11 +58,11 @@
               v-for="record in nodeApprovalRecords"
               :key="record.id"
               :timestamp="formatDate(record.createTime)"
-              :type="getTimelineItemType(record.action)"
+              :type="getTimelineItemType(record.status)"
             >
               <div class="timeline-content">
                 <div class="approver">审批人：{{ record.approver }}</div>
-                <div class="action">操作：{{ getActionText(record.action) }}</div>
+                <div class="action">操作：{{ getActionText(record.status) }}</div>
                 <div class="comment">意见：{{ record.comment }}</div>
               </div>
             </el-timeline-item>
@@ -75,7 +77,7 @@
 <script>
 // eslint-disable-next-line no-unused-vars
 import { Graph } from '@antv/x6'
-import { workflowApi,instanceApi } from '@/api/workflow'
+import { workflowApi } from '@/api/workflow'
 import { ElMessage } from 'element-plus'
 import { Close } from '@element-plus/icons-vue'
 
@@ -149,7 +151,6 @@ export default {
     return {
       graph: null,
       workflow: null,
-      instance: null,
       workflowData: null,
       approvalRecords: [],
       selectedNode: null
@@ -158,7 +159,7 @@ export default {
   computed: {
     nodeApprovalRecords() {
       if (!this.selectedNode || !this.approvalRecords) return []
-      return this.approvalRecords.filter(record => record.nodeId === this.selectedNode.id)
+      return this.approvalRecords.filter(record => record.activity && record.activity.id === this.selectedNode.id)
     }
   },
   async created() {
@@ -175,27 +176,17 @@ export default {
   methods: {
     async loadInstanceData() {
       try {
-        console.log('Loading instance data for ID:', this.instanceId)
-        // 加载实例数据和审批记录
-        const [instance, records] = await Promise.all([
-          instanceApi.getWorkflowInstance(this.instanceId),
-          instanceApi.getApprovalRecords(this.instanceId)
-        ])
-        
-        console.log('Instance data:', instance)
-        console.log('Approval records:', records)
-        
-        this.instance = instance
-        this.approvalRecords = records
-        
-        // 加载工作流定义
-        this.workflow = await workflowApi.getWorkflowById(instance.workflowId)
-        console.log('Workflow data:', this.workflow)
-
-        // 解析流程数据
+        console.log('加载运行时任务，业务ID:', this.instanceId)
+        // 查询运行时任务（即审批记录），这里 businessId 为离职申请的记录ID
+        const res = await workflowApi.getRuntimeTasks(this.instanceId)
+        console.log('运行时任务数据:', res)
+        this.approvalRecords = res.data || []
+        // 获取流程定义（假设通过流程编码获取，此处为 leave 工作流）
+        const wfRes = await workflowApi.getWorkflowByCode('leave')
+        this.workflow = wfRes.data
+        console.log('获取流程定义:', this.workflow)
         if (this.workflow.flowData) {
           this.workflowData = JSON.parse(this.workflow.flowData)
-          console.log('Parsed flow data:', this.workflowData)
           if (this.graph) {
             this.renderWorkflow()
           }
@@ -286,82 +277,87 @@ export default {
     
     renderWorkflow() {
       if (!this.workflowData || !this.graph) {
-        console.warn('Cannot render workflow: missing data or graph')
+        console.warn('无法渲染流程：缺少数据或 graph 为空')
         return
       }
 
-      console.log('Rendering workflow')
+      console.log('开始渲染流程')
       this.graph.clearCells()
 
-      // 渲染节点
+      // 渲染节点（使用与 WorkflowViewer.vue 一致的样式）
       this.workflowData.nodes.forEach(node => {
         const isEvent = node.label === '开始' || node.label === '结束'
-        const hasApprovals = this.approvalRecords.some(record => record.nodeId === node.id)
-        const isCurrentNode = this.instance.currentNode === node.id
-        
-        console.log('Rendering node:', node)
-        
         const nodeConfig = {
           id: node.id,
           shape: isEvent ? 'event' : 'activity',
-          x: node.x || 100,  // 提供默认值
-          y: node.y || 100,  // 提供默认值
-          width: node.width || (isEvent ? 40 : 120),  // 提供默认值
-          height: node.height || (isEvent ? 40 : 60),  // 提供默认值
-          data: {
-            ...node.data,
-            type: isEvent ? 'event' : 'activity',
-            hasApprovals,
-            isCurrentNode
-          },
+          x: node.x,
+          y: node.y,
+          width: node.width,
+          height: node.height,
+          data: node.data,
           attrs: {
             body: {
-              fill: isCurrentNode ? '#E6F7FF' : (hasApprovals ? '#F6FFED' : '#EFF4FF'),
-              stroke: isCurrentNode ? '#1890FF' : (hasApprovals ? '#52C41A' : '#5F95FF'),
+              fill: isEvent ? '#fff' : '#EFF4FF',
+              stroke: node.label === '结束' ? '#FF5F5F' : '#5F95FF',
               strokeWidth: 2,
-              cursor: isEvent ? 'default' : 'pointer'
+              rx: isEvent ? undefined : 6,
+              ry: isEvent ? undefined : 6
             },
             label: {
-              text: node.data?.name || node.label,
+              text: node.data && node.data.name ? node.data.name : node.label,
               fill: '#333',
               fontSize: 12,
-              cursor: isEvent ? 'default' : 'pointer'
+              textAnchor: 'middle',
+              textVerticalAnchor: 'middle'
             }
           }
         }
-
-        const createdNode = this.graph.addNode(nodeConfig)
-        console.log('Node created:', createdNode)
+        console.log('添加节点:', nodeConfig)
+        this.graph.addNode(nodeConfig)
       })
 
-      // 渲染连线
+      // 渲染连线（使用与 WorkflowViewer.vue 一致的样式）
       this.workflowData.edges.forEach(edge => {
-        console.log('Rendering edge:', edge)
+        console.log('绘制连线:', edge)
         const edgeConfig = {
           source: edge.source,
           target: edge.target,
-          router: {
-            name: 'manhattan'
-          },
-          connector: {
-            name: 'rounded',
-            args: {
-              radius: 8
-            }
-          },
+          vertices: edge.vertices || [],
+          router: edge.router || { name: 'manhattan' },
+          connector: edge.connector || { name: 'rounded', args: { radius: 8 } },
           attrs: {
             line: {
               stroke: '#3c4260',
               strokeWidth: 2,
-              targetMarker: {
-                name: 'classic',
-                size: 8
-              }
+              targetMarker: { name: 'classic', size: 8 }
             }
-          }
+          },
+          labels: edge.data && edge.data.name ? [{
+            attrs: {
+              text: {
+                text: edge.data.name,
+                fill: '#333',
+                fontSize: 12,
+                textAnchor: 'middle',
+                textVerticalAnchor: 'middle'
+              },
+              rect: {
+                fill: '#fff',
+                stroke: '#dcdfe6',
+                strokeWidth: 1,
+                rx: 3,
+                ry: 3,
+                refWidth: '100%',
+                refHeight: '100%',
+                refX: 0,
+                refY: 0
+              }
+            },
+            position: { distance: 0.5 }
+          }] : []
         }
         const createdEdge = this.graph.addEdge(edgeConfig)
-        console.log('Edge created:', createdEdge)
+        console.log('创建连线:', createdEdge)
       })
 
       // 自动布局
@@ -369,54 +365,25 @@ export default {
       this.graph.centerContent()
     },
     
-    getNodeFillColor(nodeId) {
-      const record = this.approvalRecords.find(r => r.nodeId === nodeId)
-      if (!record) return '#EFF4FF'
-      return nodeId === this.instance.currentNode ? '#E6F7FF' : '#F6FFED'
-    },
-    
-    getNodeStrokeColor(nodeId) {
-      const record = this.approvalRecords.find(r => r.nodeId === nodeId)
-      if (!record) return '#5F95FF'
-      return nodeId === this.instance.currentNode ? '#1890FF' : '#52C41A'
-    },
-    
     getStatusType(status) {
-      const typeMap = {
-        'RUNNING': 'primary',
-        'COMPLETED': 'success',
-        'TERMINATED': 'danger'
-      }
+      const typeMap = { 'PENDING': 'warning', 'COMPLETED': 'success', 'TERMINATED': 'danger' }
       return typeMap[status] || 'info'
     },
     
     getStatusText(status) {
-      const textMap = {
-        'RUNNING': '进行中',
-        'COMPLETED': '已完成',
-        'TERMINATED': '已终止'
-      }
+      const textMap = { 'PENDING': '待处理', 'COMPLETED': '已完成', 'TERMINATED': '已终止' }
       return textMap[status] || status
     },
     
-    getTimelineItemType(action) {
-      const typeMap = {
-        'approve': 'success',
-        'reject': 'danger',
-        'returnToApplicant': 'warning',
-        'returnToPrevious': 'warning'
-      }
-      return typeMap[action] || 'info'
+    getTimelineItemType(status) {
+      // 使用运行时任务状态决定时间轴项目颜色
+      const typeMap = { 'PENDING': 'warning', 'COMPLETED': 'success', 'TERMINATED': 'danger' }
+      return typeMap[status] || 'info'
     },
     
-    getActionText(action) {
-      const textMap = {
-        'approve': '通过',
-        'reject': '不通过',
-        'returnToApplicant': '退回申请人',
-        'returnToPrevious': '退回上一步'
-      }
-      return textMap[action] || action
+    getActionText(status) {
+      const textMap = { 'PENDING': '待处理', 'COMPLETED': '通过', 'TERMINATED': '不通过' }
+      return textMap[status] || status
     },
     
     formatDate(dateStr) {
@@ -426,7 +393,7 @@ export default {
     },
 
     handleRowClick(row) {
-      const node = this.graph.getCellById(row.nodeId)
+      const node = this.graph.getCellById(row.activity.id)
       if (node) {
         // 清除之前的高亮
         this.graph.getNodes().forEach(n => {
