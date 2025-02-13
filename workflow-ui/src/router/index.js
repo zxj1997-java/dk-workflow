@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import AppLayout from '@/layout'
 import WorkflowList from '@/views/workflow/List.vue'
 import WorkflowEditor from '@/components/WorkflowEditor.vue'
 import WorkflowViewer from '@/components/WorkflowViewer.vue'
@@ -41,6 +42,39 @@ const routes = [
     name: 'InstanceDetail',
     component: InstanceDetail,
     props: true
+  },
+  {
+    path: '/leave',
+    component: AppLayout,
+    meta: { title: '离职申请', icon: 'document' },
+    children: [
+      {
+        path: 'index',
+        name: 'Leave',
+        component: () => import('@/views/leave/index.vue'),
+        meta: { title: '离职申请' }
+      }
+    ]
+  },
+  {
+    path: '/workflow',
+    component: AppLayout,
+    meta: { title: '工作流管理', icon: 'setting' },
+    children: [
+      {
+        path: 'list',
+        name: 'WorkflowList',
+        component: WorkflowList,
+        meta: { title: '流程列表' }
+      },
+      {
+        path: 'instance/:workflowId',
+        name: 'InstanceList',
+        component: InstanceList,
+        meta: { title: '实例列表', hidden: true },
+        props: true
+      }
+    ]
   }
 ]
 
