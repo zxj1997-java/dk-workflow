@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.lsjscl.flowboot.common.exception.BusinessException;
+import vip.lsjscl.flowboot.flow.dto.ProcessDataDto;
 import vip.lsjscl.flowboot.flow.entity.Activity;
 import vip.lsjscl.flowboot.flow.entity.RuntimeTask;
 import vip.lsjscl.flowboot.flow.dict.TaskStatus;
@@ -42,12 +43,11 @@ public class ActivityService {
      * 如果决策为 "RETURN_PREVIOUS"，则激活上一个活动；
      * 如果决策为 "RETURN_APPLICANT"，则退回到第一个活动；
      * 如果决策为 "DISAPPROVED"，则流程停止，不创建新的任务记录。
-     *
-     * @param businessId 业务ID
-     * @param decision   决策类型，取值："APPROVED", "RETURN_PREVIOUS", "RETURN_APPLICANT", "DISAPPROVED"
      */
     @Transactional
-    public void updateCurrentTaskActivity(String businessId, TaskDecision decision) {
+    public void updateCurrentTaskActivity(ProcessDataDto processDataDto) {
+        String businessId = String.valueOf(processDataDto.getId());
+        TaskDecision decision = processDataDto.getAction();
         RuntimeTask currentTask = runtimeTaskRepository.findByBusinessIdAndStatus(businessId, TaskStatus.PENDING)
                 .orElseThrow(() -> new BusinessException("未找到业务ID为 " + businessId + " 的待办理任务记录"));
 
@@ -72,23 +72,31 @@ public class ActivityService {
                 throw new BusinessException("未知决策: " + decision);
         }
 
-        if (newActivity == null) {
-            throw new BusinessException("无法确定新的活动节点");
-        }
-
         // 完成当前任务
         currentTask.setStatus(TaskStatus.COMPLETED);
         currentTask.setUpdateTime(LocalDateTime.now());
         runtimeTaskRepository.save(currentTask);
 
-        // 创建新的待办理任务记录
-        RuntimeTask newTask = new RuntimeTask();
-        newTask.setActivity(newActivity);
-        newTask.setBusinessId(businessId);
-        newTask.setCreateTime(LocalDateTime.now());
-        newTask.setUpdateTime(LocalDateTime.now());
-        newTask.setStatus(TaskStatus.PENDING);
-        runtimeTaskRepository.save(newTask);
+        activateNextActiveNode(newActivity, businessId);
+    }
+
+    /**
+     * 激活下一个活动节点
+     *
+     * @param newActivity 新活动
+     * @param businessId  企业 ID
+     */
+    public void activateNextActiveNode(Activity newActivity, String businessId) {
+        if (newActivity != null) {
+            // 创建新的待办理任务记录
+            RuntimeTask newTask = new RuntimeTask();
+            newTask.setActivity(newActivity);
+            newTask.setBusinessId(businessId);
+            newTask.setCreateTime(LocalDateTime.now());
+            newTask.setUpdateTime(LocalDateTime.now());
+            newTask.setStatus(TaskStatus.PENDING);
+            runtimeTaskRepository.save(newTask);
+        }
     }
 
     /**

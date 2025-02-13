@@ -53,15 +53,6 @@ export function getLeaveDetail(id) {
   })
 }
 
-// 处理申请
-export function processLeave(data) {
-  return request({
-    url: '/workflow/leave/process',
-    method: 'post',
-    data
-  })
-}
-
 // 删除申请
 export function deleteLeave(id) {
   return request({

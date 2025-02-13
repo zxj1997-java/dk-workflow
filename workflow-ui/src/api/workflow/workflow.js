@@ -73,7 +73,17 @@ const workflowApi = {
             url: `/api/workflow/runtime-tasks/${businessId}`,
             method: 'get'
         })
+    },
+
+    // 处理任务
+    processTasks(data) {
+        return request({
+            url: `/api/workflow/runtime-tasks/process/${data.id}`,
+            method: 'POST',
+            data: data
+        })
     }
+
 }
 
 export default workflowApi 

@@ -61,36 +61,6 @@ public class LeaveInfoServiceImpl implements LeaveInfoService {
         }
     }
 
-    @Override
-    public R processLeaveApplication(Map<String, Object> params) {
-        try {
-            Long id = Long.parseLong(params.get("id").toString());
-            String action = params.get("action").toString();
-            
-            Optional<LeaveInfo> optionalLeave = leaveInfoRepository.findById(id);
-            if (optionalLeave.isEmpty()) {
-                return R.error("申请不存在");
-            }
-
-            LeaveInfo leaveInfo = optionalLeave.get();
-            // 根据操作更新状态
-            switch (action) {
-                case "approve":
-                    leaveInfo.setStatus("APPROVED");
-                    break;
-                case "reject":
-                    leaveInfo.setStatus("REJECTED");
-                    break;
-                default:
-                    return R.error("无效的操作");
-            }
-
-            leaveInfoRepository.save(leaveInfo);
-            return R.ok();
-        } catch (Exception e) {
-            return R.error("处理申请失败");
-        }
-    }
 
     @Override
     public R saveOrUpdate(LeaveInfo leaveInfo) {

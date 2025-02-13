@@ -72,13 +72,6 @@ public class LeaveInfoController {
         return leaveService.getLeaveDetail(id);
     }
 
-    /**
-     * 处理申请
-     */
-    @PostMapping("/process")
-    public R process(@RequestBody Map<String, Object> params) {
-        return leaveService.processLeaveApplication(params);
-    }
 
     /**
      * 删除申请

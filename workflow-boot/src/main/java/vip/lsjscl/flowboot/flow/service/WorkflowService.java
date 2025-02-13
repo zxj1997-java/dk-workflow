@@ -78,16 +78,7 @@ public class WorkflowService {
 
         // 获取下一个活动节点
         Activity nextActivity = activityService.getNextActivity(firstActivity, businessId);
-        if (nextActivity != null) {
-            // 创建下一个待处理的任务
-            RuntimeTask pendingTask = new RuntimeTask();
-            pendingTask.setActivity(nextActivity);
-            pendingTask.setBusinessId(businessId);
-            pendingTask.setCreateTime(LocalDateTime.now());
-            pendingTask.setUpdateTime(LocalDateTime.now());
-            pendingTask.setStatus(TaskStatus.PENDING);
-            runtimeTaskRepository.save(pendingTask);
-        }
+        activityService.activateNextActiveNode(nextActivity, businessId);
         return latestVersion.getId();
     }
 

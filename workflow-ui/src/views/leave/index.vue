@@ -8,8 +8,8 @@
             <el-button type="primary" @click="createApplication">新建申请</el-button>
           </div>
           <el-table :data="applyList" style="width: 100%; margin-top: 20px">
-            <el-table-column prop="id" label="申请编号" width="180" />
-            <el-table-column prop="reason" label="离职原因" />
+            <el-table-column prop="id" label="申请编号" width="180"/>
+            <el-table-column prop="reason" label="离职原因"/>
             <el-table-column prop="status" label="状态">
               <template #default="{ row }">
                 <el-tag :type="getStatusType(row.status)">{{ getStatusText(row.status) }}</el-tag>
@@ -36,10 +36,10 @@
             <h3>待办理</h3>
           </div>
           <el-table :data="todoList" style="width: 100%; margin-top: 20px">
-            <el-table-column prop="id" label="申请编号" width="180" />
-            <el-table-column prop="applicant" label="申请人" />
-            <el-table-column prop="reason" label="离职原因" />
-            <el-table-column prop="nodeName" label="当前节点" />
+            <el-table-column prop="id" label="申请编号" width="180"/>
+            <el-table-column prop="name" label="申请人"/>
+            <el-table-column prop="reason" label="离职原因"/>
+            <el-table-column prop="nodeName" label="当前节点"/>
             <el-table-column prop="createTime" label="申请时间">
               <template #default="{ row }">
                 {{ formatDate(row.createTime) }}
@@ -47,7 +47,7 @@
             </el-table-column>
             <el-table-column label="操作" width="150">
               <template #default="{ row }">
-                <el-button type="primary" size="small" @click="handleTask(row.id)">处理</el-button>
+                <el-button type="primary" size="small" @click="handleTask(row.id,row.workflowVersionId)">处理</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -60,9 +60,9 @@
             <h3>已办理</h3>
           </div>
           <el-table :data="doneList" style="width: 100%; margin-top: 20px">
-            <el-table-column prop="id" label="申请编号" width="180" />
-            <el-table-column prop="applicant" label="申请人" />
-            <el-table-column prop="reason" label="离职原因" />
+            <el-table-column prop="id" label="申请编号" width="180"/>
+            <el-table-column prop="name" label="申请人"/>
+            <el-table-column prop="reason" label="离职原因"/>
             <el-table-column prop="status" label="状态">
               <template #default="{ row }">
                 <el-tag :type="getStatusType(row.status)">{{ getStatusText(row.status) }}</el-tag>
@@ -84,42 +84,42 @@
     </el-tabs>
 
     <!-- 添加离职申请对话框 -->
-    <el-dialog 
-      title="离职申请" 
-      v-model="dialogVisible" 
-      width="500px"
+    <el-dialog
+        title="离职申请"
+        v-model="dialogVisible"
+        width="500px"
     >
-      <el-form 
-        ref="leaveForm" 
-        :model="leaveForm" 
-        :rules="rules" 
-        label-width="100px"
+      <el-form
+          ref="leaveForm"
+          :model="leaveForm"
+          :rules="rules"
+          label-width="100px"
       >
         <el-form-item label="姓名" prop="name">
-          <el-input v-model="leaveForm.name" placeholder="请输入姓名" />
+          <el-input v-model="leaveForm.name" placeholder="请输入姓名"/>
         </el-form-item>
-        
+
         <el-form-item label="离职日期" prop="leaveDate">
           <el-date-picker
-            v-model="leaveForm.leaveDate"
-            type="date"
-            placeholder="选择离职日期"
-            format="YYYY-MM-DD"
-            value-format="YYYY-MM-DD"
-            style="width: 100%"
+              v-model="leaveForm.leaveDate"
+              type="date"
+              placeholder="选择离职日期"
+              format="YYYY-MM-DD"
+              value-format="YYYY-MM-DD"
+              style="width: 100%"
           />
         </el-form-item>
-        
+
         <el-form-item label="离职原因" prop="reason">
           <el-input
-            v-model="leaveForm.reason"
-            type="textarea"
-            :rows="4"
-            placeholder="请输入离职原因"
+              v-model="leaveForm.reason"
+              type="textarea"
+              :rows="4"
+              placeholder="请输入离职原因"
           />
         </el-form-item>
       </el-form>
-      
+
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="dialogVisible = false">取消</el-button>
@@ -130,34 +130,34 @@
     </el-dialog>
 
     <!-- 添加处理任务对话框 -->
-    <el-dialog 
-      title="处理申请" 
-      v-model="processDialogVisible" 
-      width="500px"
+    <el-dialog
+        title="处理申请"
+        v-model="processDialogVisible"
+        width="500px"
     >
-      <el-form 
-        ref="processForm" 
-        :model="processForm" 
-        :rules="processRules" 
-        label-width="100px"
+      <el-form
+          ref="processForm"
+          :model="processForm"
+          :rules="processRules"
+          label-width="100px"
       >
         <el-form-item label="处理结果" prop="action">
           <el-radio-group v-model="processForm.action">
-            <el-radio label="approve">同意</el-radio>
-            <el-radio label="reject">拒绝</el-radio>
+            <el-radio label="APPROVED">同意</el-radio>
+            <el-radio label="DISAPPROVED">拒绝</el-radio>
           </el-radio-group>
         </el-form-item>
-        
+
         <el-form-item label="处理意见" prop="comment">
           <el-input
-            v-model="processForm.comment"
-            type="textarea"
-            :rows="4"
-            placeholder="请输入处理意见"
+              v-model="processForm.comment"
+              type="textarea"
+              :rows="4"
+              placeholder="请输入处理意见"
           />
         </el-form-item>
       </el-form>
-      
+
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="processDialogVisible = false">取消</el-button>
@@ -167,10 +167,10 @@
     </el-dialog>
 
     <!-- 添加详情对话框 -->
-    <el-dialog 
-      title="申请详情" 
-      v-model="detailDialogVisible" 
-      width="500px"
+    <el-dialog
+        title="申请详情"
+        v-model="detailDialogVisible"
+        width="500px"
     >
       <div class="detail-content" v-if="detailInfo">
         <el-descriptions :column="1" border>
@@ -190,7 +190,7 @@
           </el-descriptions-item>
         </el-descriptions>
       </div>
-      
+
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="detailDialogVisible = false">关闭</el-button>
@@ -201,17 +201,17 @@
 </template>
 
 <script>
-import { 
-  getMyApplications, 
-  getTodoTasks, 
+import {
+  getMyApplications,
+  getTodoTasks,
   getDoneTasks,
   saveDraft,
   submitLeave,
   getLeaveDetail,
-  processLeave,
   deleteLeave
 } from '@/api/leave'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import workflowApi from '@/api/workflow/workflow'
+import {ElMessage, ElMessageBox} from 'element-plus'
 
 export default {
   name: 'LeaveApplication',
@@ -231,26 +231,26 @@ export default {
       },
       processForm: {
         id: null,
-        action: 'approve',
-        comment: ''
+        action: 'APPROVED',
+        comment: '',
       },
       rules: {
         name: [
-          { required: true, message: '请输入姓名', trigger: 'blur' }
+          {required: true, message: '请输入姓名', trigger: 'blur'}
         ],
         leaveDate: [
-          { required: true, message: '请选择离职日期', trigger: 'change' }
+          {required: true, message: '请选择离职日期', trigger: 'change'}
         ],
         reason: [
-          { required: true, message: '请输入离职原因', trigger: 'blur' }
+          {required: true, message: '请输入离职原因', trigger: 'blur'}
         ]
       },
       processRules: {
         action: [
-          { required: true, message: '请选择处理结果', trigger: 'change' }
+          {required: true, message: '请选择处理结果', trigger: 'change'}
         ],
         comment: [
-          { required: true, message: '请输入处理意见', trigger: 'blur' }
+          {required: true, message: '请输入处理意见', trigger: 'blur'}
         ]
       },
       loading: false,
@@ -366,7 +366,7 @@ export default {
       this.processForm = {
         id,
         action: 'approve',
-        comment: ''
+        comment: '',
       }
       this.processDialogVisible = true
     },
@@ -376,7 +376,7 @@ export default {
       this.$refs.processForm.validate(async (valid) => {
         if (valid) {
           try {
-            await processLeave(this.processForm)
+            await workflowApi.processTasks(this.processForm)
             ElMessage.success('处理成功')
             this.processDialogVisible = false
             this.loadData()
@@ -449,10 +449,10 @@ export default {
         return
       }
       // 使用路由跳转到实例详情页面，实例详情页面由 InstanceDetail.vue 实现
-       // 构造目标路由地址
+      // 构造目标路由地址
       const routeData = this.$router.resolve({
         name: 'InstanceDetail',
-        params: { instanceId: row.id }
+        params: {instanceId: row.id}
       });
 
       // 使用 window.open 打开新标签页
