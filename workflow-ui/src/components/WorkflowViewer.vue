@@ -75,7 +75,7 @@
 
 <script>
 import { Graph } from '@antv/x6'
-import { workflowApi } from '@/api/workflow'
+import { workflowApi,versionApi } from '@/api/workflow'
 import { ElMessage } from 'element-plus'
 
 // 注册节点类型
@@ -178,7 +178,7 @@ export default {
         this.workflow = await workflowApi.getWorkflowById(this.id)
         
         // 获取指定版本的数据
-        const versionData = await workflowApi.getWorkflowVersion(this.id, this.version)
+        const versionData = await versionApi.getWorkflowVersion(this.id, this.version)
         if (versionData && versionData.flowData) {
           this.workflowData = JSON.parse(versionData.flowData)
           console.log('加载的工作流数据:', this.workflowData)

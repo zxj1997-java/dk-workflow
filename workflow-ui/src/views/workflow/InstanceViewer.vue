@@ -75,7 +75,7 @@
 <script>
 // eslint-disable-next-line no-unused-vars
 import { Graph } from '@antv/x6'
-import { workflowApi } from '@/api/workflow'
+import { workflowApi,instanceApi } from '@/api/workflow'
 import { ElMessage } from 'element-plus'
 import { Close } from '@element-plus/icons-vue'
 
@@ -178,8 +178,8 @@ export default {
         console.log('Loading instance data for ID:', this.instanceId)
         // 加载实例数据和审批记录
         const [instance, records] = await Promise.all([
-          workflowApi.getWorkflowInstance(this.instanceId),
-          workflowApi.getApprovalRecords(this.instanceId)
+          instanceApi.getWorkflowInstance(this.instanceId),
+          instanceApi.getApprovalRecords(this.instanceId)
         ])
         
         console.log('Instance data:', instance)
