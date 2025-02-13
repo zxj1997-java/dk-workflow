@@ -1,6 +1,7 @@
 package vip.lsjscl.flowboot.flow.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 /**
  * 变迁
@@ -8,6 +9,7 @@ import jakarta.persistence.*;
  * @author zhangxingju
  * @date 2025/02/13
  */
+@Data
 @Entity
 @Table(name = "dk_transition")
 public class Transition {
@@ -35,61 +37,4 @@ public class Transition {
 
     @Column(name = "after_class")
     private String afterClass;
-
-    // getters and setters ...
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Activity getFromActivity() {
-        return fromActivity;
-    }
-
-    public void setFromActivity(Activity fromActivity) {
-        this.fromActivity = fromActivity;
-    }
-
-    public Activity getToActivity() {
-        return toActivity;
-    }
-
-    public void setToActivity(Activity toActivity) {
-        this.toActivity = toActivity;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public String getConditionClass() {
-        return conditionClass;
-    }
-
-    public void setConditionClass(String conditionClass) {
-        this.conditionClass = conditionClass;
-    }
-
-    public String getAfterClass() {
-        return afterClass;
-    }
-
-    public void setAfterClass(String afterClass) {
-        this.afterClass = afterClass;
-    }
 } 
