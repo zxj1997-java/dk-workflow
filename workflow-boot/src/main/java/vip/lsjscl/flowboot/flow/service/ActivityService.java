@@ -55,12 +55,15 @@ public class ActivityService {
         switch (decision) {
             case APPROVED:
                 newActivity = getNextActivity(currentTask.getActivity(), businessId);
+                currentTask.setStatus(TaskStatus.COMPLETED);
                 break;
             case RETURN_PREVIOUS:
                 newActivity = getPreviousActivity(currentTask.getActivity());
+                currentTask.setStatus(TaskStatus.RETURNED);
                 break;
             case RETURN_APPLICANT:
                 newActivity = getFirstActivity(currentTask.getActivity().getWorkflowVersionId());
+                currentTask.setStatus(TaskStatus.RETURNED);
                 break;
             case DISAPPROVED:
                 // 直接将当前任务更新为终止状态，流程停止，不创建新任务
@@ -73,10 +76,10 @@ public class ActivityService {
         }
 
         // 完成当前任务
-        currentTask.setStatus(TaskStatus.COMPLETED);
         currentTask.setUpdateTime(LocalDateTime.now());
         runtimeTaskRepository.save(currentTask);
 
+        // 激活下一个活动
         activateNextActiveNode(newActivity, businessId);
     }
 

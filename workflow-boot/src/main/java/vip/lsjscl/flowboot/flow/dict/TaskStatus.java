@@ -11,7 +11,8 @@ import lombok.Getter;
 public enum TaskStatus {
     PENDING(10, "待办理"),
     COMPLETED(20, "已办理"),
-    TERMINATED(30, "流程停止");
+    TERMINATED(30, "流程终止"),
+    RETURNED(40, "已退回");
 
     private final int code;
     private final String desc;
