@@ -178,7 +178,8 @@ export default {
         this.workflow = await workflowApi.getWorkflowById(this.id)
         
         // 获取指定版本的数据
-        const versionData = await versionApi.getWorkflowVersion(this.id, this.version)
+        const versionData = await versionApi.getWorkflowVersionByWorkflowIdId(this.id, this.version)
+        console.log(versionData)
         if (versionData && versionData.flowData) {
           this.workflowData = JSON.parse(versionData.flowData)
           console.log('加载的工作流数据:', this.workflowData)
