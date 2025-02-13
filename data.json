@@ -1,0 +1,183 @@
+{
+  "nodes": [
+    {
+      "id": "58642eae-5a4c-4aab-a088-8c5a19e1871b",
+      "shape": "event",
+      "x": 220,
+      "y": 240,
+      "width": 40,
+      "height": 40,
+      "label": "开始",
+      "type": "start"
+    },
+    {
+      "id": "6d3bae81-5eca-400e-873e-a6185cad4d6c",
+      "shape": "activity",
+      "x": 460,
+      "y": 240,
+      "width": 80,
+      "height": 40,
+      "label": "信息填报",
+      "data": {
+        "name": "信息填报",
+        "code": "信息填报",
+        "pageUrl": "/page",
+        "afterClass": "c.m",
+        "approvers": [
+          "1",
+          "2"
+        ],
+        "departments": [
+          "2",
+          "1"
+        ],
+        "operations": [
+          "approve",
+          "returnToPrevious"
+        ],
+        "type": "activity"
+      },
+      "type": "activity"
+    },
+    {
+      "id": "36357ed1-593f-4c6d-877f-f7014b27c0cc",
+      "shape": "activity",
+      "x": 700,
+      "y": 280,
+      "width": 80,
+      "height": 40,
+      "label": "经理审核",
+      "data": {
+        "name": "经理审核",
+        "code": "经理审核",
+        "pageUrl": "/page",
+        "afterClass": "c.m",
+        "approvers": [
+          "1",
+          "2"
+        ],
+        "departments": [
+          "1",
+          "2"
+        ],
+        "operations": [
+          "approve",
+          "returnToApplicant",
+          "returnToPrevious"
+        ],
+        "type": "activity"
+      },
+      "type": "activity"
+    },
+    {
+      "id": "1564afcc-22ee-4107-bbbd-a7a4d91cc6fd",
+      "shape": "event",
+      "x": 930,
+      "y": 240,
+      "width": 40,
+      "height": 40,
+      "label": "结束",
+      "type": "end"
+    },
+    {
+      "id": "e214da43-6ad5-4cdf-b3ad-bccbd0d6f203",
+      "shape": "activity",
+      "x": 700,
+      "y": 160,
+      "width": 80,
+      "height": 40,
+      "label": "组长审核",
+      "data": {
+        "name": "组长审核",
+        "code": "组长审核",
+        "pageUrl": "/page",
+        "afterClass": "",
+        "approvers": [
+          "1"
+        ],
+        "departments": [
+          "1"
+        ],
+        "operations": [
+          "approve",
+          "returnToPrevious",
+          "returnToApplicant",
+          "reject"
+        ],
+        "type": "activity"
+      },
+      "type": "activity"
+    }
+  ],
+  "edges": [
+    {
+      "source": "58642eae-5a4c-4aab-a088-8c5a19e1871b",
+      "target": "6d3bae81-5eca-400e-873e-a6185cad4d6c",
+      "vertices": [],
+      "router": {
+        "name": "normal"
+      },
+      "connector": {
+        "name": "normal"
+      }
+    },
+    {
+      "source": "6d3bae81-5eca-400e-873e-a6185cad4d6c",
+      "target": "36357ed1-593f-4c6d-877f-f7014b27c0cc",
+      "vertices": [],
+      "data": {
+        "name": "学士",
+        "code": "学士",
+        "conditionClass": "c.m",
+        "afterClass": "c.m",
+        "type": "transition"
+      },
+      "router": {
+        "name": "normal"
+      },
+      "connector": {
+        "name": "normal"
+      }
+    },
+    {
+      "source": "36357ed1-593f-4c6d-877f-f7014b27c0cc",
+      "target": "1564afcc-22ee-4107-bbbd-a7a4d91cc6fd",
+      "vertices": [],
+      "router": {
+        "name": "normal"
+      },
+      "connector": {
+        "name": "normal"
+      }
+    },
+    {
+      "source": "6d3bae81-5eca-400e-873e-a6185cad4d6c",
+      "target": "e214da43-6ad5-4cdf-b3ad-bccbd0d6f203",
+      "vertices": [],
+      "data": {
+        "name": "博士",
+        "code": "博士",
+        "conditionClass": "c.m",
+        "afterClass": "c.m",
+        "type": "transition"
+      },
+      "router": {
+        "name": "normal"
+      },
+      "connector": {
+        "name": "normal"
+      }
+    },
+    {
+      "source": "e214da43-6ad5-4cdf-b3ad-bccbd0d6f203",
+      "target": "1564afcc-22ee-4107-bbbd-a7a4d91cc6fd",
+      "vertices": [],
+      "router": {
+        "name": "normal"
+      },
+      "connector": {
+        "name": "normal"
+      }
+    }
+  ]
+}
