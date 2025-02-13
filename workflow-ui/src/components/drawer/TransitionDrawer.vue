@@ -23,6 +23,10 @@
         <el-form-item label="条件class" required>
           <el-input v-model="form.conditionClass" placeholder="类名.方法名"></el-input>
         </el-form-item>
+
+        <el-form-item label="执行后class">
+          <el-input v-model="form.afterClass" placeholder="类名.方法名"></el-input>
+        </el-form-item>
       </el-form>
     </div>
 
@@ -61,7 +65,8 @@ export default {
       form: {
         name: '',
         code: '',
-        conditionClass: ''
+        conditionClass: '',
+        afterClass: ''
       }
     }
   },
@@ -90,7 +95,8 @@ export default {
         this.form = {
           name: '',
           code: '',
-          conditionClass: ''
+          conditionClass: '',
+          afterClass: ''
         }
       }
     },
@@ -98,7 +104,8 @@ export default {
       this.form = {
         name: '',
         code: '',
-        conditionClass: ''
+        conditionClass: '',
+        afterClass: ''
       }
       done()
     },
@@ -114,6 +121,7 @@ export default {
           name: this.form.name,
           code: this.form.code,
           conditionClass: this.form.conditionClass,
+          afterClass: this.form.afterClass,
           from: this.transitionData?.from,
           to: this.transitionData?.to,
           type: 'transition'

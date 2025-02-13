@@ -1,27 +1,11 @@
 <template>
-  <el-drawer
-    v-model="visible"
-    title="活动配置"
-    size="400px"
-    :destroy-on-close="true"
-    :append-to-body="true"
-    :with-header="true"
-    :close-on-click-modal="true"
-    :show-close="true"
-    :before-close="handleClose"
-  >
+  <el-drawer v-model="visible" title="活动配置" size="400px" :destroy-on-close="true" :append-to-body="true" :with-header="true" :close-on-click-modal="true" :show-close="true" :before-close="handleClose">
     <div class="drawer-container">
-      <el-form 
-        ref="formRef"
-        :model="form"
-        label-width="100px"
-        class="activity-form"
-        :rules="rules"
-      >
+      <el-form ref="formRef" :model="form" label-width="100px" class="activity-form" :rules="rules">
         <el-form-item label="活动名称" prop="name">
           <el-input v-model="form.name" placeholder="请输入活动名称"></el-input>
         </el-form-item>
-        
+
         <el-form-item label="活动编码" prop="code">
           <el-input v-model="form.code" placeholder="请输入活动编码"></el-input>
         </el-form-item>
@@ -30,17 +14,13 @@
           <el-input v-model="form.pageUrl" placeholder="请输入页面路径，例如：/form/apply"></el-input>
         </el-form-item>
 
+        <el-form-item label="执行后class">
+          <el-input v-model="form.afterClass" placeholder="类名.方法名"></el-input>
+        </el-form-item>
+
         <el-form-item label="审核人员">
           <div class="select-container">
-            <el-select
-              v-model="form.approvers"
-              multiple
-              filterable
-              placeholder="请选择审核人员"
-              :teleported="true"
-              :popper-append-to-body="true"
-              :reserve-keyword="true"
-              :popper-options="{
+            <el-select v-model="form.approvers" multiple filterable placeholder="请选择审核人员" :teleported="true" :popper-append-to-body="true" :reserve-keyword="true" :popper-options="{
                 modifiers: [
                   {
                     name: 'computeStyles',
@@ -50,30 +30,15 @@
                     }
                   }
                 ]
-              }"
-            >
-              <el-option
-                v-for="item in userOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              >
-              </el-option>
+              }">
+              <el-option v-for="item in userOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
             </el-select>
           </div>
         </el-form-item>
 
         <el-form-item label="审核部门">
           <div class="select-container">
-            <el-select
-              v-model="form.departments"
-              multiple
-              filterable
-              placeholder="请选择审核部门"
-              :teleported="true"
-              :popper-append-to-body="true"
-              :reserve-keyword="true"
-              :popper-options="{
+            <el-select v-model="form.departments" multiple filterable placeholder="请选择审核部门" :teleported="true" :popper-append-to-body="true" :reserve-keyword="true" :popper-options="{
                 modifiers: [
                   {
                     name: 'computeStyles',
@@ -83,15 +48,8 @@
                     }
                   }
                 ]
-              }"
-            >
-              <el-option
-                v-for="item in departmentOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              >
-              </el-option>
+              }">
+              <el-option v-for="item in departmentOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
             </el-select>
           </div>
         </el-form-item>
@@ -158,16 +116,16 @@ export default {
       },
       rules: {
         name: [
-          { required: true, message: '请输入活动名称', trigger: 'blur' }
+          {required: true, message: '请输入活动名称', trigger: 'blur'}
         ],
         code: [
-          { required: true, message: '请输入活动编码', trigger: 'blur' }
+          {required: true, message: '请输入活动编码', trigger: 'blur'}
         ],
         pageUrl: [
-          { required: true, message: '请输入跳转页面路径', trigger: 'blur' }
+          {required: true, message: '请输入跳转页面路径', trigger: 'blur'}
         ],
         operations: [
-          { type: 'array', required: true, message: '请至少选择一个操作按钮', trigger: 'change' }
+          {type: 'array', required: true, message: '请至少选择一个操作按钮', trigger: 'change'}
         ]
       }
     }
@@ -192,12 +150,13 @@ export default {
   methods: {
     initForm() {
       if (this.activityData) {
-        this.form = { ...this.activityData }
+        this.form = {...this.activityData}
       } else {
         this.form = {
           name: '',
           code: '',
           pageUrl: '',
+          afterClass: '',
           approvers: [],
           departments: [],
           operations: []
@@ -209,6 +168,7 @@ export default {
         name: '',
         code: '',
         pageUrl: '',
+        afterClass: '',
         approvers: [],
         departments: [],
         operations: []
@@ -223,6 +183,7 @@ export default {
           name: this.form.name,
           code: this.form.code,
           pageUrl: this.form.pageUrl,
+          afterClass: this.form.afterClass,
           approvers: this.form.approvers,
           departments: this.form.departments,
           operations: this.form.operations,
