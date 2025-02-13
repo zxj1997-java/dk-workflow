@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import vip.lsjscl.flowboot.common.exception.BusinessException;
 import vip.lsjscl.flowboot.flow.dto.WorkflowCreateDTO;
 import vip.lsjscl.flowboot.flow.entity.*;
@@ -11,8 +12,11 @@ import vip.lsjscl.flowboot.flow.model.Edge;
 import vip.lsjscl.flowboot.flow.model.FlowDiagram;
 import vip.lsjscl.flowboot.flow.model.Node;
 import vip.lsjscl.flowboot.flow.repository.*;
+import vip.lsjscl.flowboot.flow.service.ActivityService;
+import vip.lsjscl.flowboot.flow.entity.TaskStatus;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +37,48 @@ public class WorkflowService {
     private final TransitionRepository transitionRepository;
     private final RuntimeTaskRepository runtimeTaskRepository;
     private final PersonnelAuditRepository personnelAuditRepository;
+    private final ActivityService activityService;
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+
+    /**
+     * 启动工作流
+     * <p>
+     * 根据传入的流程版本ID获取流程中的第一个活动节点，
+     * 并在 dk_runtime_task 表中创建一条运行时任务记录，
+     * 记录业务ID、创建时间、更新时间等字段。
+     *
+     * @param workflowVersionId 流程版本ID
+     * @param businessId        业务ID，用于关联外部系统业务数据
+     */
+    @Transactional
+    public void startWorkflow(Long workflowVersionId, String businessId) {
+        // 通过 ActivityService 获取第一个活动节点
+        Activity firstActivity = activityService.getFirstActivity(workflowVersionId);
+        if (firstActivity == null) {
+            throw new BusinessException("未找到流程中的第一个活动节点");
+        }
+
+        // 创建运行时任务记录，并设置业务ID、创建时间、更新时间等信息
+        RuntimeTask runtimeTask = new RuntimeTask();
+        runtimeTask.setActivity(firstActivity);
+        runtimeTask.setBusinessId(businessId);
+        runtimeTask.setCreateTime(LocalDateTime.now());
+        runtimeTask.setUpdateTime(LocalDateTime.now());
+        runtimeTask.setStatus(TaskStatus.COMPLETED);
+        runtimeTaskRepository.save(runtimeTask);
+
+        Activity nextActivity = activityService.getNextActivity(firstActivity);
+        // 创建运行时任务记录，并设置业务ID、创建时间、更新时间等信息
+        RuntimeTask pendingTask = new RuntimeTask();
+        pendingTask.setActivity(nextActivity);
+        pendingTask.setBusinessId(businessId);
+        pendingTask.setCreateTime(LocalDateTime.now());
+        pendingTask.setUpdateTime(LocalDateTime.now());
+        pendingTask.setStatus(TaskStatus.PENDING);
+        runtimeTaskRepository.save(pendingTask);
+    }
+
 
     public Workflow createWorkflow(WorkflowCreateDTO dto) {
         // 检查工作流编码是否已存在
@@ -173,6 +218,8 @@ public class WorkflowService {
 
     // 辅助方法：将 List 转为逗号分隔字符串
     private String listToString(List<String> list) {
-        return (list == null || list.isEmpty()) ? "" : String.join(",", list);
+        return CollectionUtils.isEmpty(list) ? "" : String.join(",", list);
     }
+
+
 } 

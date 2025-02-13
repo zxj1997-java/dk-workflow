@@ -10,7 +10,7 @@ public interface TransitionRepository extends JpaRepository<Transition, Long> {
     List<Transition> findByFromActivity(Activity fromActivity);
 
     // 根据流程版本id查询变迁记录
-    List<Transition> findByWorkflowVersionId(String workflowVersionId);
+    List<Transition> findByWorkflowVersionId(long workflowVersionId);
 
     // 其它方法
 } 
