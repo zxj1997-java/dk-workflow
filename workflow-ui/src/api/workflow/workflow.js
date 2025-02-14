@@ -66,21 +66,5 @@ export const workflowApi = {
             url: `/api/workflow/code/${code}`,
             method: 'get'
         })
-    },
-    // 新增：通过业务ID查询运行时任务（审批记录）
-    getRuntimeTasks(businessId) {
-        return request({
-            url: `/api/workflow/runtime-tasks/${businessId}`,
-            method: 'get'
-        })
-    },
-
-    // 处理任务
-    processTasks(data) {
-        return request({
-            url: `/api/workflow/runtime-tasks/process/${data.id}`,
-            method: 'POST',
-            data: data
-        })
     }
 }

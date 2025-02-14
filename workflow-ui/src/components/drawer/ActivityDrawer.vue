@@ -56,10 +56,10 @@
 
         <el-form-item label="操作按钮" prop="operations">
           <el-checkbox-group v-model="form.operations">
-            <el-checkbox label="approve">通过</el-checkbox>
-            <el-checkbox label="returnToApplicant">退回申请人</el-checkbox>
-            <el-checkbox label="returnToPrevious">退回上一步</el-checkbox>
-            <el-checkbox label="reject">不通过</el-checkbox>
+            <el-checkbox label="APPROVED">通过</el-checkbox>
+            <el-checkbox label="RETURN_APPLICANT">退回申请人</el-checkbox>
+            <el-checkbox label="RETURN_PREVIOUS">退回上一步</el-checkbox>
+            <el-checkbox label="DISAPPROVED">不通过</el-checkbox>
           </el-checkbox-group>
         </el-form-item>
       </el-form>
@@ -112,7 +112,7 @@ export default {
         pageUrl: '',
         approvers: [],
         departments: [],
-        operations: ['approve', 'returnToApplicant', 'returnToPrevious', 'reject']
+        operations: ['APPROVED', 'RETURN_APPLICANT', 'RETURN_PREVIOUS', 'DISAPPROVED']
       },
       rules: {
         name: [

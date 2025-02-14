@@ -47,7 +47,7 @@
             </el-table-column>
             <el-table-column label="操作" width="150">
               <template #default="{ row }">
-                <el-button type="primary" size="small" @click="handleTask(row.id,row.workflowVersionId)">处理</el-button>
+                <el-button type="primary" size="small" @click="handleTask(row.id)">处理</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -143,8 +143,9 @@
       >
         <el-form-item label="处理结果" prop="action">
           <el-radio-group v-model="processForm.action">
-            <el-radio label="APPROVED">同意</el-radio>
-            <el-radio label="DISAPPROVED">拒绝</el-radio>
+            <el-radio v-for="item in operationOptions" :key="item.value" :label="item.value">
+              {{ item.label }}
+            </el-radio>
           </el-radio-group>
         </el-form-item>
 
@@ -201,17 +202,10 @@
 </template>
 
 <script>
-import {
-  getMyApplications,
-  getTodoTasks,
-  getDoneTasks,
-  saveDraft,
-  submitLeave,
-  getLeaveDetail,
-  deleteLeave
-} from '@/api/leave'
-import {workflowApi} from '@/api/workflow'
+
+import {taskApi} from '@/api/workflow'
 import {ElMessage, ElMessageBox} from 'element-plus'
+import {leaveApi} from "@/api/leave";
 
 export default {
   name: 'LeaveApplication',
@@ -223,17 +217,12 @@ export default {
       doneList: [], // 已办理列表
       dialogVisible: false,
       processDialogVisible: false,
-      leaveForm: {
-        name: '',
-        leaveDate: '',
-        reason: '',
-        status: 'DRAFT' // DRAFT-草稿, PENDING-待审批
-      },
       processForm: {
         id: null,
-        action: 'APPROVED',
+        action: '', // 后续默认赋值为接口返回的第一个操作
         comment: '',
       },
+      operationOptions: [],
       rules: {
         name: [
           {required: true, message: '请输入姓名', trigger: 'blur'}
@@ -281,7 +270,7 @@ export default {
     // 加载申请列表
     async loadApplyList() {
       try {
-        const res = await getMyApplications()
+        const res = await leaveApi.getMyApplications()
         this.applyList = res || []
       } catch (error) {
         console.error('加载申请列表失败:', error)
@@ -292,7 +281,7 @@ export default {
     // 加载待办列表
     async loadTodoList() {
       try {
-        const res = await getTodoTasks()
+        const res = await leaveApi.getTodoTasks()
         this.todoList = res || []
       } catch (error) {
         console.error('加载待办列表失败:', error)
@@ -303,7 +292,7 @@ export default {
     // 加载已办列表
     async loadDoneList() {
       try {
-        const res = await getDoneTasks()
+        const res = await leaveApi.getDoneTasks()
         this.doneList = res || []
       } catch (error) {
         console.error('加载已办列表失败:', error)
@@ -316,7 +305,7 @@ export default {
       this.$refs.leaveForm.validate(async (valid) => {
         if (valid) {
           try {
-            await saveDraft(this.leaveForm)
+            await leaveApi.saveDraft(this.leaveForm)
             ElMessage.success('暂存成功')
             this.dialogVisible = false
             this.loadApplyList()
@@ -333,7 +322,7 @@ export default {
       this.$refs.leaveForm.validate(async (valid) => {
         if (valid) {
           try {
-            await submitLeave(this.leaveForm)
+            await leaveApi.submitLeave(this.leaveForm)
             ElMessage.success('提交成功')
             this.dialogVisible = false
             this.loadApplyList()
@@ -348,7 +337,7 @@ export default {
     // 查看详情
     async viewDetail(id) {
       try {
-        const res = await getLeaveDetail(id)
+        const res = await leaveApi.getLeaveDetail(id)
         if (res.code === 0) {  // 假设成功状态码为0
           this.detailInfo = res
           this.detailDialogVisible = true
@@ -361,14 +350,23 @@ export default {
       }
     },
 
-    // 处理任务
+    // 处理任务：点击处理按钮时获取该任务目前活动的操作配置
     async handleTask(id) {
-      this.processForm = {
-        id,
-        action: 'approve',
-        comment: '',
+      try {
+        // 调用 API 获取操作选项（假设返回 [{value:"APPROVED", label:"同意"}, ...]）
+        const res = await taskApi.getTaskOperations(id);
+        this.operationOptions = res || [];
+        // 默认选中第一个操作（如果存在）
+        this.processForm = {
+          id,
+          action: this.operationOptions.length > 0 ? this.operationOptions[0].value : '',
+          comment: '',
+        }
+        this.processDialogVisible = true;
+      } catch (error) {
+        console.error('获取操作配置失败', error);
+        ElMessage.error('获取流程操作配置失败');
       }
-      this.processDialogVisible = true
     },
 
     // 提交处理结果
@@ -376,7 +374,7 @@ export default {
       this.$refs.processForm.validate(async (valid) => {
         if (valid) {
           try {
-            await workflowApi.processTasks(this.processForm)
+            await taskApi.processTasks(this.processForm)
             ElMessage.success('处理成功')
             this.processDialogVisible = false
             this.loadData()
@@ -394,7 +392,7 @@ export default {
         await ElMessageBox.confirm('确定要删除该申请吗？', '提示', {
           type: 'warning'
         })
-        await deleteLeave(id)
+        await leaveApi.deleteLeave(id)
         ElMessage.success('删除成功')
         this.loadApplyList()
       } catch (error) {
