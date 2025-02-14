@@ -223,6 +223,11 @@ export default {
           connector: {
             name: 'normal'
           }
+        },
+        autoResize: true,
+        panning: true,
+        mousewheel: {
+          enabled: true
         }
       })
 

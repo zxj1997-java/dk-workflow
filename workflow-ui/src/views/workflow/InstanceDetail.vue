@@ -252,8 +252,7 @@ export default {
         autoResize: true,
         panning: true,
         mousewheel: {
-          enabled: true,
-          modifiers: ['ctrl', 'meta']
+          enabled: true
         }
       })
 

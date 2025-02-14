@@ -304,6 +304,11 @@ export default {
             width: this.containerWidth,
             height: this.containerHeight
           }
+        },
+        autoResize: true,
+        panning: true,
+        mousewheel: {
+          enabled: true
         }
       })
 
