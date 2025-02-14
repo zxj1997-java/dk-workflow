@@ -97,11 +97,10 @@ export default {
           return;
         }
         // 将任务ID赋值到处理表单
-        this.processForm.id = pendingTask.id;
+        this.processForm.id = this.businessId;
         // 根据任务ID获取操作配置
         const opRes = await taskApi.getTaskOperations(pendingTask.id);
         this.operationOptions = opRes || [];
-        console.log(this.operationOptions)
         if (this.operationOptions.length > 0) {
           // 默认选择第一个操作项
           this.processForm.action = this.operationOptions[0].value;

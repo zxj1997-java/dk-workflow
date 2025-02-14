@@ -128,6 +128,8 @@ Graph.registerNode(
     },
     true,
 )
+const typeMap = {'PENDING': 'warning', 'COMPLETED': 'success', 'TERMINATED': 'danger', 'RETURNED': 'danger'}
+const textMap = {'PENDING': '待处理', 'COMPLETED': '已完成', 'TERMINATED': '已终止', "RETURNED": "已退回"}
 
 export default {
   name: 'InstanceViewer',
@@ -428,23 +430,19 @@ export default {
     },
 
     getStatusType(status) {
-      const typeMap = {'PENDING': 'warning', 'COMPLETED': 'success', 'TERMINATED': 'danger'}
       return typeMap[status] || 'info'
     },
 
     getStatusText(status) {
-      const textMap = {'PENDING': '待处理', 'COMPLETED': '已完成', 'TERMINATED': '已终止'}
       return textMap[status] || status
     },
 
     getTimelineItemType(status) {
       // 使用运行时任务状态决定时间轴项目颜色
-      const typeMap = {'PENDING': 'warning', 'COMPLETED': 'success', 'TERMINATED': 'danger'}
       return typeMap[status] || 'info'
     },
 
     getActionText(status) {
-      const textMap = {'PENDING': '待处理', 'COMPLETED': '通过', 'TERMINATED': '不通过'}
       return textMap[status] || status
     },
 
