@@ -1,6 +1,6 @@
 <template>
-  <el-dialog title="新建工作流" v-model="dialogVisible" width="30%" :close-on-click-modal="false" :destroy-on-close="true">
-    <el-form :model="form" :rules="rules" ref="formRef" label-width="100px">
+  <el-dialog v-model="dialogVisible" :close-on-click-modal="false" :destroy-on-close="true" title="新建工作流" width="30%">
+    <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
       <el-form-item label="工作流名称" prop="name">
         <el-input v-model="form.name" placeholder="请输入工作流名称"></el-input>
       </el-form-item>
@@ -11,7 +11,7 @@
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" :loading="loading" @click="handleSubmit">确定</el-button>
+        <el-button :loading="loading" type="primary" @click="handleSubmit">确定</el-button>
       </span>
     </template>
   </el-dialog>

@@ -56,7 +56,8 @@ public class LeaveInfoServiceImpl implements LeaveInfoService {
             Long leave = workflowService.startWorkflow("leave", saved.getId().toString());
             saved.setWorkflowVersionId(leave);
             return R.ok().put("data", saved);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             return R.error("提交申请失败");
         }
     }
@@ -67,7 +68,8 @@ public class LeaveInfoServiceImpl implements LeaveInfoService {
         try {
             LeaveInfo saved = leaveInfoRepository.save(leaveInfo);
             return R.ok().put("data", saved);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             return R.error("保存失败");
         }
     }
@@ -80,7 +82,8 @@ public class LeaveInfoServiceImpl implements LeaveInfoService {
                 return R.error("申请不存在");
             }
             return R.ok().put("data", optionalLeave.get());
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             return R.error("获取详情失败");
         }
     }
@@ -92,16 +95,17 @@ public class LeaveInfoServiceImpl implements LeaveInfoService {
             if (optionalLeave.isEmpty()) {
                 return R.error("申请不存在");
             }
-            
+
             LeaveInfo leaveInfo = optionalLeave.get();
             // 只能删除草稿状态的申请
             if (!"DRAFT".equals(leaveInfo.getStatus())) {
                 return R.error("只能删除草稿状态的申请");
             }
-            
+
             leaveInfoRepository.deleteById(id);
             return R.ok();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             return R.error("删除失败");
         }
     }

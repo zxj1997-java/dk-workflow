@@ -1,18 +1,22 @@
 <template>
-  <div v-show="visible" class="edge-context-menu" :style="position">
+  <div v-show="visible" :style="position" class="edge-context-menu">
     <div class="menu-item" @click="$emit('configure')">
-      <el-icon><Setting /></el-icon>
+      <el-icon>
+        <Setting/>
+      </el-icon>
       配置变迁属性
     </div>
     <div class="menu-item delete" @click="$emit('delete')">
-      <el-icon><Delete /></el-icon>
+      <el-icon>
+        <Delete/>
+      </el-icon>
       删除
     </div>
   </div>
 </template>
 
 <script>
-import { Setting, Delete } from '@element-plus/icons-vue'
+import {Setting, Delete} from '@element-plus/icons-vue'
 
 export default {
   name: 'EdgeContextMenu',
@@ -42,7 +46,7 @@ export default {
   background: white;
   border: 1px solid #dcdfe6;
   border-radius: 4px;
-  box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
   z-index: 1000;
 }
 

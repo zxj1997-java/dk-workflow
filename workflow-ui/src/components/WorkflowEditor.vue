@@ -25,14 +25,7 @@
     </div>
 
     <!-- 添加名称输入对话框 -->
-    <el-dialog
-      v-model="dialogVisible"
-      title="保存工作流"
-      width="30%"
-      :close-on-click-modal="false"
-      :close-on-press-escape="false"
-      :show-close="false"
-    >
+    <el-dialog v-model="dialogVisible" :close-on-click-modal="false" :close-on-press-escape="false" :show-close="false" title="保存工作流" width="30%">
       <el-form :model="form" label-width="80px">
         <el-form-item label="流程名称" required>
           <el-input v-model="form.name" placeholder="请输入流程名称"></el-input>
@@ -47,46 +40,24 @@
     </el-dialog>
 
     <!-- 替换原来的右键菜单 -->
-    <node-context-menu
-      :visible="contextMenuVisible"
-      :x="Number(contextMenuStyle.left.replace('px', ''))"
-      :y="Number(contextMenuStyle.top.replace('px', ''))"
-      @configure="openActivityDrawer"
-      @delete="deleteNode"
-    />
+    <node-context-menu :visible="contextMenuVisible" :x="Number(contextMenuStyle.left.replace('px', ''))" :y="Number(contextMenuStyle.top.replace('px', ''))" @configure="openActivityDrawer" @delete="deleteNode"/>
 
     <!-- 添加右侧抽屉 -->
-    <activity-drawer
-      v-model="drawerVisible"
-      :activity-data="currentNode?.data"
-      :user-options="userOptions"
-      :department-options="departmentOptions"
-      @save="handleActivitySave"
-    />
+    <activity-drawer v-model="drawerVisible" :activity-data="currentNode?.data" :department-options="departmentOptions" :user-options="userOptions" @save="handleActivitySave"/>
 
     <!-- 添加边的右键菜单 -->
-    <edge-context-menu
-      :visible="edgeMenuVisible"
-      :x="Number(contextMenuStyle.left.replace('px', ''))"
-      :y="Number(contextMenuStyle.top.replace('px', ''))"
-      @configure="openTransitionDrawer"
-      @delete="deleteEdge"
-    />
+    <edge-context-menu :visible="edgeMenuVisible" :x="Number(contextMenuStyle.left.replace('px', ''))" :y="Number(contextMenuStyle.top.replace('px', ''))" @configure="openTransitionDrawer" @delete="deleteEdge"/>
 
     <!-- 添加变迁配置抽屉 -->
-    <transition-drawer
-      v-model="transitionDrawerVisible"
-      :transition-data="currentEdge?.data"
-      @save="saveTransitionConfig"
-    />
+    <transition-drawer v-model="transitionDrawerVisible" :transition-data="currentEdge?.data" @save="saveTransitionConfig"/>
   </div>
 </template>
 
 <script>
-import { Graph } from '@antv/x6'
+import {Graph} from '@antv/x6'
 // 修改导入方式，分别导入需要的 API
-import { systemApi,workflowApi } from '@/api/workflow'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import {systemApi, workflowApi} from '@/api/workflow'
+import {ElMessage, ElMessageBox} from 'element-plus'
 import EdgeContextMenu from './menu/EdgeContextMenu.vue'
 import NodeContextMenu from './menu/NodeContextMenu.vue'
 import TransitionDrawer from './drawer/TransitionDrawer.vue'
@@ -94,49 +65,49 @@ import ActivityDrawer from './drawer/ActivityDrawer.vue'
 
 // 注册节点类型
 Graph.registerNode(
-  'event',
-  {
-    inherit: 'circle',
-    attrs: {
-      body: {
-        strokeWidth: 2,
-        stroke: '#5F95FF',
-        fill: '#FFF',
+    'event',
+    {
+      inherit: 'circle',
+      attrs: {
+        body: {
+          strokeWidth: 2,
+          stroke: '#5F95FF',
+          fill: '#FFF',
+        },
       },
     },
-  },
-  true,
+    true,
 )
 
 Graph.registerNode(
-  'activity',
-  {
-    inherit: 'rect',
-    markup: [
-      {
-        tagName: 'rect',
-        selector: 'body',
-      },
-      {
-        tagName: 'text',
-        selector: 'label',
-      },
-    ],
-    attrs: {
-      body: {
-        rx: 6,
-        ry: 6,
-        stroke: '#5F95FF',
-        fill: '#EFF4FF',
-        strokeWidth: 1,
-      },
-      label: {
-        fontSize: 12,
-        fill: '#262626',
+    'activity',
+    {
+      inherit: 'rect',
+      markup: [
+        {
+          tagName: 'rect',
+          selector: 'body',
+        },
+        {
+          tagName: 'text',
+          selector: 'label',
+        },
+      ],
+      attrs: {
+        body: {
+          rx: 6,
+          ry: 6,
+          stroke: '#5F95FF',
+          fill: '#EFF4FF',
+          strokeWidth: 1,
+        },
+        label: {
+          fontSize: 12,
+          fill: '#262626',
+        },
       },
     },
-  },
-  true,
+    true,
 )
 
 export default {
@@ -215,7 +186,7 @@ export default {
       const container = this.$refs.container
       if (container && this.graph) {
         // 获取容器的新尺寸
-        const { width, height } = container.getBoundingClientRect()
+        const {width, height} = container.getBoundingClientRect()
         this.containerWidth = width
         this.containerHeight = height
         // 更新画布大小
@@ -239,7 +210,7 @@ export default {
     },
     initGraph() {
       const container = this.$refs.container
-      const { width, height } = container.getBoundingClientRect()
+      const {width, height} = container.getBoundingClientRect()
       this.containerWidth = width
       this.containerHeight = height
 
@@ -274,7 +245,7 @@ export default {
           snap: {
             radius: 20
           },
-          validateConnection: ({ sourceView, targetView, sourceCell }) => {
+          validateConnection: ({sourceView, targetView, sourceCell}) => {
             if (!sourceView || !targetView) {
               return false
             }
@@ -337,13 +308,13 @@ export default {
       })
 
       // 添加连接完成的事件处理
-      this.graph.on('edge:connected', ({ edge, isNew }) => {
+      this.graph.on('edge:connected', ({edge, isNew}) => {
         if (isNew) {
           const sourceCell = edge.getSourceCell()
 
           // 只检查开始节点的连接数量限制
           if (sourceCell.attrs.label.text === '开始') {
-            const edges = this.graph.getConnectedEdges(sourceCell, { outgoing: true })
+            const edges = this.graph.getConnectedEdges(sourceCell, {outgoing: true})
             if (edges.length > 1) {
               alert('开始节点只能连接一个活动')
               this.graph.removeCell(edge)
@@ -354,25 +325,25 @@ export default {
       })
 
       // 添加连接点
-      this.graph.on('node:added', ({ node }) => {
+      this.graph.on('node:added', ({node}) => {
         if (node.shape === 'circle') {
           // 开始节点只有输出点，结束节点只有输入点
           const ports = node.attrs.label.text === '开始' ?
-            [{ group: 'out', position: { name: 'right' } }] :
-            [{ group: 'in', position: { name: 'left' } }]
+              [{group: 'out', position: {name: 'right'}}] :
+              [{group: 'in', position: {name: 'left'}}]
 
           node.addPorts(ports)
         } else if (node.shape === 'rect') {
           // 活动节点四边各添加一个中间连接桩
           const ports = [
             // 左边连接桩
-            { group: 'in', args: { x: 0, y: '50%' } },
+            {group: 'in', args: {x: 0, y: '50%'}},
             // 右边连接桩
-            { group: 'in', args: { x: '100%', y: '50%' } },
+            {group: 'in', args: {x: '100%', y: '50%'}},
             // 上边连接桩
-            { group: 'in', args: { x: '50%', y: 0 } },
+            {group: 'in', args: {x: '50%', y: 0}},
             // 下边连接桩
-            { group: 'in', args: { x: '50%', y: '100%' } }
+            {group: 'in', args: {x: '50%', y: '100%'}}
           ]
           node.addPorts(ports)
         }
@@ -396,7 +367,7 @@ export default {
       })
 
       // 修改节点选择功能
-      this.graph.on('node:click', ({ node }) => {
+      this.graph.on('node:click', ({node}) => {
         this.clearSelection()
         // 选择当前点击的节点
         node.addTools({
@@ -417,14 +388,14 @@ export default {
         if (nodeText === '结束') {
           node.attr('body/stroke', '#ff4d4f')
         } else {
-        node.attr('body/stroke', '#1890ff')
+          node.attr('body/stroke', '#1890ff')
         }
 
         this.selectedCell = node
       })
 
       // 修改边选择功能
-      this.graph.on('edge:click', ({ edge }) => {
+      this.graph.on('edge:click', ({edge}) => {
         this.clearSelection()
         // 添加边的工具
         edge.addTools([
@@ -475,7 +446,7 @@ export default {
       this.$refs.container.addEventListener('drop', this.onDrop)
 
       // 添加连线顶点变化的事件处理
-      this.graph.on('edge:changed', ({ edge }) => {
+      this.graph.on('edge:changed', ({edge}) => {
         // 当连线的路由点发生变化时，可以在这里处理
         console.log('连线更新:', {
           vertices: edge.getVertices(),
@@ -485,11 +456,11 @@ export default {
       })
 
       // 添加节点右键菜单事件
-      this.graph.on('node:contextmenu', ({ e, node }) => {
+      this.graph.on('node:contextmenu', ({e, node}) => {
         // 修改判断条件：检查节点类型而不是标签文本
         const nodeType = node.data?.type ||
-                        (node.attrs.label.text === '开始' ? 'start' :
-                         node.attrs.label.text === '结束' ? 'end' : 'activity')
+            (node.attrs.label.text === '开始' ? 'start' :
+                node.attrs.label.text === '结束' ? 'end' : 'activity')
 
         if (nodeType === 'activity') {
           e.preventDefault()
@@ -502,18 +473,18 @@ export default {
       })
 
       // 添加边的右键菜单事件
-      this.graph.on('edge:contextmenu', ({ e, edge }) => {
+      this.graph.on('edge:contextmenu', ({e, edge}) => {
         // 检查是否是活动之间的连线
         const sourceCell = edge.getSourceCell()
         const targetCell = edge.getTargetCell()
 
         // 修改类型判断逻辑
         const sourceType = sourceCell.data?.type ||
-                          (sourceCell.attrs.label.text === '开始' ? 'start' :
-                           sourceCell.attrs.label.text === '结束' ? 'end' : 'activity')
+            (sourceCell.attrs.label.text === '开始' ? 'start' :
+                sourceCell.attrs.label.text === '结束' ? 'end' : 'activity')
         const targetType = targetCell.data?.type ||
-                          (targetCell.attrs.label.text === '开始' ? 'start' :
-                           targetCell.attrs.label.text === '结束' ? 'end' : 'activity')
+            (targetCell.attrs.label.text === '开始' ? 'start' :
+                targetCell.attrs.label.text === '结束' ? 'end' : 'activity')
 
         if (sourceType === 'activity' && targetType === 'activity') {
           e.preventDefault()
@@ -581,7 +552,7 @@ export default {
         return
       }
 
-      switch(type) {
+      switch (type) {
         case 'start':
           this.graph.addNode({
             shape: 'circle',
@@ -645,13 +616,13 @@ export default {
               },
               items: [
                 // 左边连接桩
-                { group: 'in', args: { x: 0, y: '50%' } },
+                {group: 'in', args: {x: 0, y: '50%'}},
                 // 右边连接桩
-                { group: 'in', args: { x: '100%', y: '50%' } },
+                {group: 'in', args: {x: '100%', y: '50%'}},
                 // 上边连接桩
-                { group: 'in', args: { x: '50%', y: 0 } },
+                {group: 'in', args: {x: '50%', y: 0}},
                 // 下边连接桩
-                { group: 'in', args: { x: '50%', y: '100%' } }
+                {group: 'in', args: {x: '50%', y: '100%'}}
               ]
             },
             attrs: {
@@ -733,7 +704,7 @@ export default {
           if (nodeText === '结束') {
             this.selectedCell.attr('body/stroke', '#FF5F5F')
           } else {
-          this.selectedCell.attr('body/stroke', '#5F95FF')
+            this.selectedCell.attr('body/stroke', '#5F95FF')
           }
         } else if (this.selectedCell.isEdge()) {
           // 恢复边的默认样式
@@ -758,8 +729,8 @@ export default {
             label: node.attrs.label.text,
             data: node.data,
             type: node.data?.type ||
-                  (node.attrs.label.text === '开始' ? 'start' :
-                   node.attrs.label.text === '结束' ? 'end' : 'activity')
+                (node.attrs.label.text === '开始' ? 'start' :
+                    node.attrs.label.text === '结束' ? 'end' : 'activity')
           })),
           edges: edges.map(edge => ({
             source: edge.getSourceCell().id,
@@ -851,14 +822,14 @@ export default {
               }
             },
             items: node.label === '开始' ? [
-              { group: 'out', args: { x: '100%', y: '50%' } }
+              {group: 'out', args: {x: '100%', y: '50%'}}
             ] : node.label === '结束' ? [
-              { group: 'in', args: { x: 0, y: '50%' } }
+              {group: 'in', args: {x: 0, y: '50%'}}
             ] : [
-              { group: 'in', args: { x: 0, y: '50%' } },
-              { group: 'in', args: { x: '100%', y: '50%' } },
-              { group: 'in', args: { x: '50%', y: 0 } },
-              { group: 'in', args: { x: '50%', y: '100%' } }
+              {group: 'in', args: {x: 0, y: '50%'}},
+              {group: 'in', args: {x: '100%', y: '50%'}},
+              {group: 'in', args: {x: '50%', y: 0}},
+              {group: 'in', args: {x: '50%', y: '100%'}}
             ]
           },
           attrs: {

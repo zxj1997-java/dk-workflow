@@ -8,22 +8,22 @@
             <el-button type="primary" @click="createApplication">新建申请</el-button>
           </div>
           <el-table :data="applyList" style="width: 100%; margin-top: 20px">
-            <el-table-column prop="id" label="申请编号" width="180"/>
-            <el-table-column prop="reason" label="离职原因"/>
-            <el-table-column prop="status" label="状态">
+            <el-table-column label="申请编号" prop="id" width="180"/>
+            <el-table-column label="离职原因" prop="reason"/>
+            <el-table-column label="状态" prop="status">
               <template #default="{ row }">
                 <el-tag :type="getStatusType(row.status)">{{ getStatusText(row.status) }}</el-tag>
               </template>
             </el-table-column>
-            <el-table-column prop="createTime" label="申请时间">
+            <el-table-column label="申请时间" prop="createTime">
               <template #default="{ row }">
                 {{ formatDate(row.createTime) }}
               </template>
             </el-table-column>
             <el-table-column label="操作" width="150">
               <template #default="{ row }">
-                <el-button type="primary" size="small" @click="viewDetail(row.id)">查看</el-button>
-                <el-button type="success" size="small" style="margin-left: 5px" @click="viewProgress(row)">进度查询</el-button>
+                <el-button size="small" type="primary" @click="viewDetail(row.id)">查看</el-button>
+                <el-button size="small" style="margin-left: 5px" type="success" @click="viewProgress(row)">进度查询</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -36,18 +36,18 @@
             <h3>待办理</h3>
           </div>
           <el-table :data="todoList" style="width: 100%; margin-top: 20px">
-            <el-table-column prop="id" label="申请编号" width="180"/>
-            <el-table-column prop="name" label="申请人"/>
-            <el-table-column prop="reason" label="离职原因"/>
-            <el-table-column prop="nodeName" label="当前节点"/>
-            <el-table-column prop="createTime" label="申请时间">
+            <el-table-column label="申请编号" prop="id" width="180"/>
+            <el-table-column label="申请人" prop="name"/>
+            <el-table-column label="离职原因" prop="reason"/>
+            <el-table-column label="当前节点" prop="nodeName"/>
+            <el-table-column label="申请时间" prop="createTime">
               <template #default="{ row }">
                 {{ formatDate(row.createTime) }}
               </template>
             </el-table-column>
             <el-table-column label="操作" width="150">
               <template #default="{ row }">
-                <el-button type="primary" size="small" @click="handleTask(row.id)">处理</el-button>
+                <el-button size="small" type="primary" @click="handleTask(row.id)">处理</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -60,22 +60,22 @@
             <h3>已办理</h3>
           </div>
           <el-table :data="doneList" style="width: 100%; margin-top: 20px">
-            <el-table-column prop="id" label="申请编号" width="180"/>
-            <el-table-column prop="name" label="申请人"/>
-            <el-table-column prop="reason" label="离职原因"/>
-            <el-table-column prop="status" label="状态">
+            <el-table-column label="申请编号" prop="id" width="180"/>
+            <el-table-column label="申请人" prop="name"/>
+            <el-table-column label="离职原因" prop="reason"/>
+            <el-table-column label="状态" prop="status">
               <template #default="{ row }">
                 <el-tag :type="getStatusType(row.status)">{{ getStatusText(row.status) }}</el-tag>
               </template>
             </el-table-column>
-            <el-table-column prop="handleTime" label="处理时间">
+            <el-table-column label="处理时间" prop="handleTime">
               <template #default="{ row }">
                 {{ formatDate(row.handleTime) }}
               </template>
             </el-table-column>
             <el-table-column label="操作" width="150">
               <template #default="{ row }">
-                <el-button type="primary" size="small" @click="viewDetail(row.id)">查看</el-button>
+                <el-button size="small" type="primary" @click="viewDetail(row.id)">查看</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -84,39 +84,18 @@
     </el-tabs>
 
     <!-- 添加离职申请对话框 -->
-    <el-dialog
-        title="离职申请"
-        v-model="dialogVisible"
-        width="500px"
-    >
-      <el-form
-          ref="leaveForm"
-          :model="leaveForm"
-          :rules="rules"
-          label-width="100px"
-      >
+    <el-dialog v-model="dialogVisible" title="离职申请" width="500px">
+      <el-form ref="leaveForm" :model="leaveForm" :rules="rules" label-width="100px">
         <el-form-item label="姓名" prop="name">
           <el-input v-model="leaveForm.name" placeholder="请输入姓名"/>
         </el-form-item>
 
         <el-form-item label="离职日期" prop="leaveDate">
-          <el-date-picker
-              v-model="leaveForm.leaveDate"
-              type="date"
-              placeholder="选择离职日期"
-              format="YYYY-MM-DD"
-              value-format="YYYY-MM-DD"
-              style="width: 100%"
-          />
+          <el-date-picker v-model="leaveForm.leaveDate" format="YYYY-MM-DD" placeholder="选择离职日期" style="width: 100%" type="date" value-format="YYYY-MM-DD"/>
         </el-form-item>
 
         <el-form-item label="离职原因" prop="reason">
-          <el-input
-              v-model="leaveForm.reason"
-              type="textarea"
-              :rows="4"
-              placeholder="请输入离职原因"
-          />
+          <el-input v-model="leaveForm.reason" :rows="4" placeholder="请输入离职原因" type="textarea"/>
         </el-form-item>
       </el-form>
 
@@ -130,19 +109,11 @@
     </el-dialog>
 
     <!-- 封装后的处理任务对话框组件，只传业务ID -->
-    <ProcessDialog
-      v-model="processDialogVisible"
-      :businessId="selectedBusinessId"
-      @submit="submitProcess"
-    />
+    <ProcessDialog v-model="processDialogVisible" :businessId="selectedBusinessId" @submit="submitProcess"/>
 
     <!-- 添加详情对话框 -->
-    <el-dialog
-        title="申请详情"
-        v-model="detailDialogVisible"
-        width="500px"
-    >
-      <div class="detail-content" v-if="detailInfo">
+    <el-dialog v-model="detailDialogVisible" title="申请详情" width="500px">
+      <div v-if="detailInfo" class="detail-content">
         <el-descriptions :column="1" border>
           <el-descriptions-item label="申请人">
             {{ detailInfo.name }}
@@ -171,8 +142,8 @@
 </template>
 
 <script>
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { leaveApi } from "@/api/leave";
+import {ElMessage, ElMessageBox} from 'element-plus'
+import {leaveApi} from "@/api/leave";
 import ProcessDialog from "@/components/task/ProcessDialog.vue";
 
 export default {

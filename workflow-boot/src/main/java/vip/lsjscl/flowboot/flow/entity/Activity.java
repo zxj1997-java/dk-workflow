@@ -18,30 +18,30 @@ public class Activity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     // 用于关联前端 JSON 中的节点 ID
     @Column(name = "node_id")
     private String nodeId;
-    
+
     @Column(name = "name")
     private String name;
-    
+
     @Column(name = "code")
     private String code;
-    
+
     @Column(name = "page_url")
     private String pageUrl;
-    
+
     @Column(name = "after_class")
     private String afterClass;
-    
+
     // 为简单起见，将 List 类型转换为逗号分隔字符串存储（实际业务中可采用 join table 方式）
     @Column(name = "approvers")
     private String approvers;
-    
+
     @Column(name = "departments")
     private String departments;
-    
+
     @Column(name = "operations")
     private String operations;
 

@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :title="dialogTitle" v-model="visible" width="500px" @close="closeDialog">
+  <el-dialog v-model="visible" :title="dialogTitle" width="500px" @close="closeDialog">
     <el-form ref="formRef" :model="processForm" :rules="processRules" label-width="100px">
       <el-form-item label="处理结果" prop="action">
         <el-radio-group v-model="processForm.action">
@@ -9,7 +9,7 @@
         </el-radio-group>
       </el-form-item>
       <el-form-item label="处理意见" prop="comment">
-        <el-input v-model="processForm.comment" type="textarea" :rows="4" placeholder="请输入处理意见"/>
+        <el-input v-model="processForm.comment" :rows="4" placeholder="请输入处理意见" type="textarea"/>
       </el-form-item>
     </el-form>
     <template #footer>

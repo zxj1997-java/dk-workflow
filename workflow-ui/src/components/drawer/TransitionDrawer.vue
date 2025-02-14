@@ -1,41 +1,21 @@
 <template>
-  <el-drawer
-    v-model="visible"
-    title="变迁配置"
-    size="400px"
-    :destroy-on-close="true"
-    :append-to-body="true"
-    :with-header="true"
-    :close-on-click-modal="true"
-    :show-close="true"
-    :before-close="handleClose"
-  >
+  <el-drawer v-model="visible" :append-to-body="true" :before-close="handleClose" :close-on-click-modal="true" :destroy-on-close="true" :show-close="true" :with-header="true" size="400px" title="变迁配置">
     <div class="drawer-container">
-      <el-form :model="form" label-width="100px" class="transition-form">
+      <el-form :model="form" class="transition-form" label-width="100px">
         <el-form-item label="变迁名称" required>
           <el-input v-model="form.name" placeholder="请输入变迁名称"></el-input>
         </el-form-item>
-        
+
         <el-form-item label="变迁编码" required>
           <el-input v-model="form.code" placeholder="请输入变迁编码"></el-input>
         </el-form-item>
 
         <el-form-item label="条件class" required>
-          <el-input 
-            type="textarea" 
-            :autosize="{ minRows: 1, maxRows: 2 }" 
-            v-model="form.conditionClass" 
-            placeholder="类名(全路径).方法名">
-          </el-input>
+          <el-input v-model="form.conditionClass" :autosize="{ minRows: 1, maxRows: 2 }" placeholder="类名(全路径).方法名" type="textarea"></el-input>
         </el-form-item>
 
         <el-form-item label="执行后class">
-          <el-input 
-            type="textarea" 
-            :autosize="{ minRows: 1, maxRows: 2 }" 
-            v-model="form.afterClass" 
-            placeholder="类名(全路径).方法名">
-          </el-input>
+          <el-input v-model="form.afterClass" :autosize="{ minRows: 1, maxRows: 2 }" placeholder="类名(全路径).方法名" type="textarea"></el-input>
         </el-form-item>
       </el-form>
     </div>
@@ -50,7 +30,7 @@
 </template>
 
 <script>
-import { ElMessage } from 'element-plus'
+import {ElMessage} from 'element-plus'
 
 export default {
   name: 'TransitionDrawer',
@@ -100,7 +80,7 @@ export default {
   methods: {
     initForm() {
       if (this.transitionData) {
-        this.form = { ...this.transitionData }
+        this.form = {...this.transitionData}
       } else {
         this.form = {
           name: '',

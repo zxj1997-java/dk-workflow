@@ -13,7 +13,7 @@ import lombok.Data;
 @Entity
 @Table(name = "dk_history_task")
 public class HistoryTask {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

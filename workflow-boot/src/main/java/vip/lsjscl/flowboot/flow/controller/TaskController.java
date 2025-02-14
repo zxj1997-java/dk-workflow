@@ -1,9 +1,7 @@
 package vip.lsjscl.flowboot.flow.controller;
 
-import org.apache.catalina.util.ToStringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
 import vip.lsjscl.flowboot.flow.dict.TaskDecision;
 import vip.lsjscl.flowboot.flow.dict.TaskStatus;
@@ -19,6 +17,9 @@ import java.util.stream.Collectors;
 
 /**
  * 任务控制器，用于查询运行时任务（审批记录）
+ *
+ * @author zhangxingju
+ * @date 2025/02/14
  */
 @RestController
 @RequestMapping("/api/workflow")
@@ -63,14 +64,14 @@ public class TaskController {
      * 例如访问: GET /api/workflow/task/operations/2
      * 返回示例数据:
      * {
-     *   "data": [
-     *       {"value": "APPROVED", "label": "同意"},
-     *       {"value": "DISAPPROVED", "label": "拒绝"},
-     *       {"value": "RETURN_PREVIOUS", "label": "退回上一步"},
-     *       {"value": "RETURN_APPLICANT", "label": "退回申请人"}
-     *   ],
-     *   "code": 0,
-     *   "msg": "success"
+     * "data": [
+     * {"value": "APPROVED", "label": "同意"},
+     * {"value": "DISAPPROVED", "label": "拒绝"},
+     * {"value": "RETURN_PREVIOUS", "label": "退回上一步"},
+     * {"value": "RETURN_APPLICANT", "label": "退回申请人"}
+     * ],
+     * "code": 0,
+     * "msg": "success"
      * }
      */
     @GetMapping("/task/operations/{taskId}")

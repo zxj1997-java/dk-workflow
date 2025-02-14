@@ -4,6 +4,12 @@ import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 import vip.lsjscl.flowboot.flow.dict.TaskStatus;
 
+/**
+ * 任务状态转换器
+ *
+ * @author zhangxingju
+ * @date 2025/02/14
+ */
 @Converter(autoApply = true)
 public class TaskStatusConverter implements AttributeConverter<TaskStatus, Integer> {
 

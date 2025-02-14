@@ -7,6 +7,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 系统服务
+ *
+ * @author zhangxingju
+ * @date 2025/02/14
+ */
 @Service
 @RequiredArgsConstructor
 public class SystemService {

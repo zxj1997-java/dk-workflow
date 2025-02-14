@@ -1,6 +1,7 @@
 package vip.lsjscl.flowboot.flow.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.List;
 import java.util.Map;
 
@@ -15,12 +16,15 @@ public class WorkflowDiagram {
     public List<Node> getNodes() {
         return nodes;
     }
+
     public void setNodes(List<Node> nodes) {
         this.nodes = nodes;
     }
+
     public List<Edge> getEdges() {
         return edges;
     }
+
     public void setEdges(List<Edge> edges) {
         this.edges = edges;
     }
@@ -37,32 +41,77 @@ public class WorkflowDiagram {
         private String type;
         private Map<String, Object> data; // activity 节点下的 data 可按需要进行二次解析
 
-        public String getId() { return id; }
-        public void setId(String id) { this.id = id; }
+        public String getId() {
+            return id;
+        }
 
-        public String getShape() { return shape; }
-        public void setShape(String shape) { this.shape = shape; }
+        public void setId(String id) {
+            this.id = id;
+        }
 
-        public int getX() { return x; }
-        public void setX(int x) { this.x = x; }
+        public String getShape() {
+            return shape;
+        }
 
-        public int getY() { return y; }
-        public void setY(int y) { this.y = y; }
+        public void setShape(String shape) {
+            this.shape = shape;
+        }
 
-        public int getWidth() { return width; }
-        public void setWidth(int width) { this.width = width; }
+        public int getX() {
+            return x;
+        }
 
-        public int getHeight() { return height; }
-        public void setHeight(int height) { this.height = height; }
+        public void setX(int x) {
+            this.x = x;
+        }
 
-        public String getLabel() { return label; }
-        public void setLabel(String label) { this.label = label; }
+        public int getY() {
+            return y;
+        }
 
-        public String getType() { return type; }
-        public void setType(String type) { this.type = type; }
+        public void setY(int y) {
+            this.y = y;
+        }
 
-        public Map<String, Object> getData() { return data; }
-        public void setData(Map<String, Object> data) { this.data = data; }
+        public int getWidth() {
+            return width;
+        }
+
+        public void setWidth(int width) {
+            this.width = width;
+        }
+
+        public int getHeight() {
+            return height;
+        }
+
+        public void setHeight(int height) {
+            this.height = height;
+        }
+
+        public String getLabel() {
+            return label;
+        }
+
+        public void setLabel(String label) {
+            this.label = label;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public void setType(String type) {
+            this.type = type;
+        }
+
+        public Map<String, Object> getData() {
+            return data;
+        }
+
+        public void setData(Map<String, Object> data) {
+            this.data = data;
+        }
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -74,38 +123,78 @@ public class WorkflowDiagram {
         private Router router;
         private Connector connector;
 
-        public String getSource() { return source; }
-        public void setSource(String source) { this.source = source; }
+        public String getSource() {
+            return source;
+        }
 
-        public String getTarget() { return target; }
-        public void setTarget(String target) { this.target = target; }
+        public void setSource(String source) {
+            this.source = source;
+        }
 
-        public List<Object> getVertices() { return vertices; }
-        public void setVertices(List<Object> vertices) { this.vertices = vertices; }
+        public String getTarget() {
+            return target;
+        }
 
-        public Map<String, Object> getData() { return data; }
-        public void setData(Map<String, Object> data) { this.data = data; }
+        public void setTarget(String target) {
+            this.target = target;
+        }
 
-        public Router getRouter() { return router; }
-        public void setRouter(Router router) { this.router = router; }
+        public List<Object> getVertices() {
+            return vertices;
+        }
 
-        public Connector getConnector() { return connector; }
-        public void setConnector(Connector connector) { this.connector = connector; }
+        public void setVertices(List<Object> vertices) {
+            this.vertices = vertices;
+        }
+
+        public Map<String, Object> getData() {
+            return data;
+        }
+
+        public void setData(Map<String, Object> data) {
+            this.data = data;
+        }
+
+        public Router getRouter() {
+            return router;
+        }
+
+        public void setRouter(Router router) {
+            this.router = router;
+        }
+
+        public Connector getConnector() {
+            return connector;
+        }
+
+        public void setConnector(Connector connector) {
+            this.connector = connector;
+        }
 
         @JsonIgnoreProperties(ignoreUnknown = true)
         public static class Router {
             private String name;
 
-            public String getName() { return name; }
-            public void setName(String name) { this.name = name; }
+            public String getName() {
+                return name;
+            }
+
+            public void setName(String name) {
+                this.name = name;
+            }
         }
 
         @JsonIgnoreProperties(ignoreUnknown = true)
         public static class Connector {
             private String name;
 
-            public String getName() { return name; }
-            public void setName(String name) { this.name = name; }
+            public String getName() {
+                return name;
+            }
+
+            public void setName(String name) {
+                this.name = name;
+            }
         }
     }
 } 

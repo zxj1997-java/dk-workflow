@@ -1,8 +1,10 @@
 package vip.lsjscl.flowboot.flow.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.List;
 import java.util.Map;
+
 import lombok.Data;
 
 /**
@@ -18,7 +20,7 @@ public class Edge {
     private String target;
     private List<Object> vertices;
     private EdgeData data;
-    
+
     // 新增字段：router 和 connector
     private Router router;
     private Connector connector;

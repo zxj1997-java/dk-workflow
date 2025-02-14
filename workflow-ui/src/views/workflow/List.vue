@@ -6,10 +6,10 @@
     </div>
 
     <el-table :data="workflowList" style="width: 100%; margin-top: 20px">
-      <el-table-column prop="name" label="工作流名称"/>
-      <el-table-column prop="code" label="工作流编码"/>
-      <el-table-column prop="status" label="状态"/>
-      <el-table-column prop="createTime" label="创建时间">
+      <el-table-column label="工作流名称" prop="name"/>
+      <el-table-column label="工作流编码" prop="code"/>
+      <el-table-column label="状态" prop="status"/>
+      <el-table-column label="创建时间" prop="createTime">
         <template #default="scope">
           {{ formatDate(scope.row.createTime) }}
         </template>
@@ -21,10 +21,10 @@
       </el-table-column>
       <el-table-column label="操作" width="400">
         <template #default="scope">
-          <el-button type="primary" size="small" @click="editWorkflow(scope.row.id)">配置</el-button>
-          <el-button type="success" size="small" @click="publishWorkflow(scope.row.id)">发布</el-button>
-          <el-dropdown @command="handleVersionCommand" trigger="click">
-            <el-button type="warning" size="small">
+          <el-button size="small" type="primary" @click="editWorkflow(scope.row.id)">配置</el-button>
+          <el-button size="small" type="success" @click="publishWorkflow(scope.row.id)">发布</el-button>
+          <el-dropdown trigger="click" @command="handleVersionCommand">
+            <el-button size="small" type="warning">
               版本
               <el-icon class="el-icon--right">
                 <arrow-down/>

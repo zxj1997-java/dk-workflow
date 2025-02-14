@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 
 /**
  * 运行时任务
+ *
  * @author zhangxingju
  * @date 2025/02/13
  */
@@ -17,7 +18,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "dk_runtime_task")
 public class RuntimeTask {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

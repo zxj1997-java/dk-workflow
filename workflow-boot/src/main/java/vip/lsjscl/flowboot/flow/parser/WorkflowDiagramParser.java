@@ -5,6 +5,9 @@ import vip.lsjscl.flowboot.flow.dto.WorkflowDiagram;
 
 /**
  * 基于 Jackson 的 JSON 解析工具，将流程图 JSON 转换为 WorkflowDiagram 对象
+ *
+ * @author zhangxingju
+ * @date 2025/02/14
  */
 public class WorkflowDiagramParser {
     private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -18,7 +21,8 @@ public class WorkflowDiagramParser {
     public static WorkflowDiagram parse(String jsonContent) {
         try {
             return objectMapper.readValue(jsonContent, WorkflowDiagram.class);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new RuntimeException("解析流程图JSON失败", e);
         }
     }

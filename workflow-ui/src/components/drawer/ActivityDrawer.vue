@@ -1,7 +1,7 @@
 <template>
-  <el-drawer v-model="visible" title="活动配置" size="400px" :destroy-on-close="true" :append-to-body="true" :with-header="true" :close-on-click-modal="true" :show-close="true" :before-close="handleClose">
+  <el-drawer v-model="visible" :append-to-body="true" :before-close="handleClose" :close-on-click-modal="true" :destroy-on-close="true" :show-close="true" :with-header="true" size="400px" title="活动配置">
     <div class="drawer-container">
-      <el-form ref="formRef" :model="form" label-width="100px" class="activity-form" :rules="rules">
+      <el-form ref="formRef" :model="form" :rules="rules" class="activity-form" label-width="100px">
         <el-form-item label="活动名称" prop="name">
           <el-input v-model="form.name" placeholder="请输入活动名称"></el-input>
         </el-form-item>
@@ -15,17 +15,12 @@
         </el-form-item>
 
         <el-form-item label="执行后class">
-          <el-input 
-            type="textarea" 
-            :autosize="{ minRows: 1, maxRows: 2 }" 
-            v-model="form.afterClass" 
-            placeholder="类名(全路径).方法名">
-          </el-input>
+          <el-input v-model="form.afterClass" :autosize="{ minRows: 1, maxRows: 2 }" placeholder="类名(全路径).方法名" type="textarea"></el-input>
         </el-form-item>
 
         <el-form-item label="审核人员">
           <div class="select-container">
-            <el-select v-model="form.approvers" multiple filterable placeholder="请选择审核人员" :teleported="true" :popper-append-to-body="true" :reserve-keyword="true" :popper-options="{
+            <el-select v-model="form.approvers" :popper-append-to-body="true" :popper-options="{
                 modifiers: [
                   {
                     name: 'computeStyles',
@@ -35,7 +30,7 @@
                     }
                   }
                 ]
-              }">
+              }" :reserve-keyword="true" :teleported="true" filterable multiple placeholder="请选择审核人员">
               <el-option v-for="item in userOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
             </el-select>
           </div>
@@ -43,7 +38,7 @@
 
         <el-form-item label="审核部门">
           <div class="select-container">
-            <el-select v-model="form.departments" multiple filterable placeholder="请选择审核部门" :teleported="true" :popper-append-to-body="true" :reserve-keyword="true" :popper-options="{
+            <el-select v-model="form.departments" :popper-append-to-body="true" :popper-options="{
                 modifiers: [
                   {
                     name: 'computeStyles',
@@ -53,7 +48,7 @@
                     }
                   }
                 ]
-              }">
+              }" :reserve-keyword="true" :teleported="true" filterable multiple placeholder="请选择审核部门">
               <el-option v-for="item in departmentOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
             </el-select>
           </div>

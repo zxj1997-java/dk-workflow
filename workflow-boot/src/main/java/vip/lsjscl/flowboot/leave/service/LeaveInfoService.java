@@ -25,7 +25,7 @@ public interface LeaveInfoService {
      * 提交请假申请
      */
     R submitLeaveApplication(LeaveInfo leaveInfo);
-    
+
     R saveOrUpdate(LeaveInfo leaveInfo);
 
     R getLeaveDetail(Long id);
