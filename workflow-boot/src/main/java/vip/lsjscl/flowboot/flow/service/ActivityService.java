@@ -74,7 +74,7 @@ public class ActivityService {
             default:
                 throw new BusinessException("未知决策: " + decision);
         }
-
+        currentTask.setComment(processDataDto.getComment());
         // 完成当前任务
         currentTask.setUpdateTime(LocalDateTime.now());
         runtimeTaskRepository.save(currentTask);
