@@ -7,7 +7,7 @@
           <el-icon>
             <Document/>
           </el-icon>
-          <span>离职申请</span>
+          <span>请假申请</span>
         </el-menu-item>
 
         <el-sub-menu index="/workflow">

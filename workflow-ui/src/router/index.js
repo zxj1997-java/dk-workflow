@@ -39,13 +39,13 @@ const routes = [
     {
         path: '/leave',
         component: AppLayout,
-        meta: {title: '离职申请', icon: 'document'},
+        meta: {title: '请假申请', icon: 'document'},
         children: [
             {
                 path: 'index',
                 name: 'Leave',
                 component: () => import('@/views/leave/index.vue'),
-                meta: {title: '离职申请'}
+                meta: {title: '请假申请'}
             }
         ]
     },

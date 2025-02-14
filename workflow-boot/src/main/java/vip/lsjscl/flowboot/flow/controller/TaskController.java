@@ -36,7 +36,7 @@ public class TaskController {
      * 根据业务ID查询运行时任务
      * 请求示例: GET /api/workflow/runtime-tasks/{businessId}
      *
-     * @param businessId 离职申请记录ID（业务ID）
+     * @param businessId 请假申请记录ID（业务ID）
      * @return 运行时任务列表封装在 R 对象中
      */
     @GetMapping("/runtime-tasks/{businessId}")

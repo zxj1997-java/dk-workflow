@@ -185,7 +185,7 @@ export default {
   methods: {
     async loadInstanceData() {
       try {
-        // 查询运行时任务（即审批记录），这里 businessId 为离职申请的记录ID
+        // 查询运行时任务（即审批记录），这里 businessId 为请假申请的记录ID
         const res = await taskApi.getRuntimeTasks(this.instanceId)
         this.approvalRecords = res || []
         // 获取流程定义（假设通过流程编码获取，此处为 leave 工作流）

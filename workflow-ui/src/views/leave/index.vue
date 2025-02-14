@@ -1,10 +1,10 @@
 <template>
   <div class="leave-container">
     <el-tabs v-model="activeTab" class="leave-tabs">
-      <el-tab-pane label="离职申请" name="apply">
+      <el-tab-pane label="请假申请" name="apply">
         <div class="tab-content">
           <div class="header">
-            <h3>离职申请</h3>
+            <h3>请假申请</h3>
             <el-button type="primary" @click="createApplication">新建申请</el-button>
           </div>
           <el-table :data="applyList" style="width: 100%; margin-top: 20px">
@@ -90,8 +90,8 @@
       </el-tab-pane>
     </el-tabs>
 
-    <!-- 添加离职申请对话框 -->
-    <el-dialog v-model="dialogVisible" title="离职申请" width="500px">
+    <!-- 添加请假申请对话框 -->
+    <el-dialog v-model="dialogVisible" title="请假申请" width="500px">
       <el-form ref="leaveForm" :model="leaveForm" :rules="rules" label-width="100px">
         <el-form-item label="姓名" prop="name">
           <el-input v-model="leaveForm.name" placeholder="请输入姓名"/>
@@ -166,7 +166,7 @@ export default {
   data() {
     return {
       activeTab: 'apply',
-      applyList: [], // 离职申请列表
+      applyList: [], // 请假申请列表
       todoList: [], // 待办理列表
       doneList: [], // 已办理列表
       dialogVisible: false,
