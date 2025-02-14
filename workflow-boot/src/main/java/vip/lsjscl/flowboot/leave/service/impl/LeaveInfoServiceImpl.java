@@ -115,4 +115,14 @@ public class LeaveInfoServiceImpl implements LeaveInfoService {
         //leaveDate是否在两天内
         return leaveDate == null || !leaveDate.after(new Date(System.currentTimeMillis() + 2 * 24 * 60 * 60 * 1000));
     }
+
+    public boolean judgment2(String businessId) {
+        //从Spring容器中获取Bean
+        LeaveInfoRepository leaveInfoRepository = SpringContextUtil.getBean(LeaveInfoRepository.class);
+        Optional<LeaveInfo> optionalLeave = leaveInfoRepository.findById(Long.valueOf(businessId));
+        LeaveInfo leaveInfo = optionalLeave.get();
+        Date leaveDate = leaveInfo.getLeaveDate();
+        //leaveDate是否在两天内
+        return leaveDate == null || leaveDate.after(new Date(System.currentTimeMillis() + 2 * 24 * 60 * 60 * 1000));
+    }
 } 

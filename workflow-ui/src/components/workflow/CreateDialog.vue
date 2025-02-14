@@ -1,11 +1,5 @@
 <template>
-  <el-dialog
-    title="新建工作流"
-    v-model="dialogVisible"
-    width="30%"
-    :close-on-click-modal="false"
-    :destroy-on-close="true"
-  >
+  <el-dialog title="新建工作流" v-model="dialogVisible" width="30%" :close-on-click-modal="false" :destroy-on-close="true">
     <el-form :model="form" :rules="rules" ref="formRef" label-width="100px">
       <el-form-item label="工作流名称" prop="name">
         <el-input v-model="form.name" placeholder="请输入工作流名称"></el-input>
@@ -24,8 +18,8 @@
 </template>
 
 <script>
-import {createWorkflow} from '@/api/workflow/workflow'
-import { ElMessage } from 'element-plus'
+import {workflowApi} from '@/api/workflow/index'
+import {ElMessage} from 'element-plus'
 
 export default {
   name: 'CreateDialog',
@@ -39,12 +33,12 @@ export default {
       },
       rules: {
         name: [
-          { required: true, message: '请输入工作流名称', trigger: 'blur' },
-          { min: 2, max: 50, message: '长度在 2 到 50 个字符', trigger: 'blur' }
+          {required: true, message: '请输入工作流名称', trigger: 'blur'},
+          {min: 2, max: 50, message: '长度在 2 到 50 个字符', trigger: 'blur'}
         ],
         code: [
-          { required: true, message: '请输入工作流编码', trigger: 'blur' },
-          { pattern: /^[A-Za-z0-9_]+$/, message: '编码只能包含字母、数字和下划线', trigger: 'blur' }
+          {required: true, message: '请输入工作流编码', trigger: 'blur'},
+          {pattern: /^[A-Za-z0-9_]+$/, message: '编码只能包含字母、数字和下划线', trigger: 'blur'}
         ]
       }
     }
@@ -63,7 +57,7 @@ export default {
       try {
         await this.$refs.formRef.validate()
         this.loading = true
-        const res = await createWorkflow(this.form)
+        const res = await workflowApi.createWorkflow(this.form)
         ElMessage.success('创建成功')
         this.dialogVisible = false
         this.$emit('created', res)

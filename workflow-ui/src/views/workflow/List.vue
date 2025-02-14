@@ -32,11 +32,7 @@
             </el-button>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item
-                    v-for="version in (scope.row.versions || [])"
-                    :key="version.id"
-                    :command="{ action: 'viewVersion', workflowId: scope.row.id, version: version.version }"
-                >
+                <el-dropdown-item v-for="version in (scope.row.versions || [])" :key="version.id" :command="{ action: 'viewVersion', workflowId: scope.row.id, version: version.version }">
                   v{{ version.version }} ({{ formatDate(version.createTime) }})
                 </el-dropdown-item>
                 <el-dropdown-item v-if="!scope.row.versions?.length" disabled>
@@ -55,7 +51,7 @@
 
 <script>
 import CreateDialog from '@/components/workflow/CreateDialog.vue'
-import {getWorkflowList, publishWorkflow} from '@/api/workflow/workflow'
+import {workflowApi} from '@/api/workflow/index'
 import {ElMessage, ElMessageBox} from 'element-plus'
 import {ArrowDown} from '@element-plus/icons-vue'
 
@@ -76,7 +72,7 @@ export default {
   methods: {
     async getList() {
       try {
-        const res = await getWorkflowList()
+        const res = await workflowApi.getWorkflowList()
         console.log('API返回数据:', res)
 
         if (Array.isArray(res)) {
@@ -131,7 +127,7 @@ export default {
             }
         )
 
-        await publishWorkflow(id)
+        await workflowApi.publishWorkflow(id)
         ElMessage.success('发布成功')
         this.getList()
       } catch (error) {

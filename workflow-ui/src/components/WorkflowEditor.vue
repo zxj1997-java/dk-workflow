@@ -85,8 +85,7 @@
 <script>
 import { Graph } from '@antv/x6'
 // 修改导入方式，分别导入需要的 API
-import {getWorkflowById,saveWorkflow} from '@/api/workflow/workflow'
-import { getUsers,getDepartments } from '@/api/workflow/system'
+import { systemApi,workflowApi } from '@/api/workflow/index'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import EdgeContextMenu from './menu/EdgeContextMenu.vue'
 import NodeContextMenu from './menu/NodeContextMenu.vue'
@@ -358,10 +357,10 @@ export default {
       this.graph.on('node:added', ({ node }) => {
         if (node.shape === 'circle') {
           // 开始节点只有输出点，结束节点只有输入点
-          const ports = node.attrs.label.text === '开始' ? 
+          const ports = node.attrs.label.text === '开始' ?
             [{ group: 'out', position: { name: 'right' } }] :
             [{ group: 'in', position: { name: 'left' } }]
-          
+
           node.addPorts(ports)
         } else if (node.shape === 'rect') {
           // 活动节点四边各添加一个中间连接桩
@@ -412,7 +411,7 @@ export default {
             },
           },
         })
-        
+
         // 根据节点类型设置高亮边框颜色
         const nodeText = node.attrs.label.text
         if (nodeText === '结束') {
@@ -420,7 +419,7 @@ export default {
         } else {
         node.attr('body/stroke', '#1890ff')
         }
-        
+
         this.selectedCell = node
       })
 
@@ -443,7 +442,7 @@ export default {
           {
             name: 'vertices',
             args: {
-              attrs: { 
+              attrs: {
                 fill: '#1890ff',
                 stroke: '#fff',
                 strokeWidth: 1,
@@ -453,7 +452,7 @@ export default {
           {
             name: 'segments',
             args: {
-              attrs: { 
+              attrs: {
                 fill: '#1890ff',
                 stroke: '#fff',
                 strokeWidth: 1,
@@ -488,10 +487,10 @@ export default {
       // 添加节点右键菜单事件
       this.graph.on('node:contextmenu', ({ e, node }) => {
         // 修改判断条件：检查节点类型而不是标签文本
-        const nodeType = node.data?.type || 
-                        (node.attrs.label.text === '开始' ? 'start' : 
+        const nodeType = node.data?.type ||
+                        (node.attrs.label.text === '开始' ? 'start' :
                          node.attrs.label.text === '结束' ? 'end' : 'activity')
-        
+
         if (nodeType === 'activity') {
           e.preventDefault()
           this.currentNode = node
@@ -507,13 +506,13 @@ export default {
         // 检查是否是活动之间的连线
         const sourceCell = edge.getSourceCell()
         const targetCell = edge.getTargetCell()
-        
+
         // 修改类型判断逻辑
-        const sourceType = sourceCell.data?.type || 
-                          (sourceCell.attrs.label.text === '开始' ? 'start' : 
+        const sourceType = sourceCell.data?.type ||
+                          (sourceCell.attrs.label.text === '开始' ? 'start' :
                            sourceCell.attrs.label.text === '结束' ? 'end' : 'activity')
-        const targetType = targetCell.data?.type || 
-                          (targetCell.attrs.label.text === '开始' ? 'start' : 
+        const targetType = targetCell.data?.type ||
+                          (targetCell.attrs.label.text === '开始' ? 'start' :
                            targetCell.attrs.label.text === '结束' ? 'end' : 'activity')
 
         if (sourceType === 'activity' && targetType === 'activity') {
@@ -562,11 +561,11 @@ export default {
       const type = event.dataTransfer.getData('type')
       const container = this.$refs.container
       const rect = container.getBoundingClientRect()
-      
+
       // 计算相对于容器的坐标
       const x = event.clientX - rect.left
       const y = event.clientY - rect.top
-      
+
       // 检查是否在容器范围内
       if (x < 0 || x > this.containerWidth || y < 0 || y > this.containerHeight) {
         return
@@ -727,7 +726,7 @@ export default {
       if (this.selectedCell) {
         // 移除工具
         this.selectedCell.removeTools()
-        
+
         if (this.selectedCell.isNode()) {
           // 恢复节点的默认样式
           const nodeText = this.selectedCell.attrs.label.text
@@ -747,7 +746,7 @@ export default {
       try {
         const nodes = this.graph.getNodes()
         const edges = this.graph.getEdges()
-        
+
         const flowData = {
           nodes: nodes.map(node => ({
             id: node.id,
@@ -758,8 +757,8 @@ export default {
             height: node.size().height,
             label: node.attrs.label.text,
             data: node.data,
-            type: node.data?.type || 
-                  (node.attrs.label.text === '开始' ? 'start' : 
+            type: node.data?.type ||
+                  (node.attrs.label.text === '开始' ? 'start' :
                    node.attrs.label.text === '结束' ? 'end' : 'activity')
           })),
           edges: edges.map(edge => ({
@@ -778,8 +777,8 @@ export default {
 
         // 获取当前工作流的名称
         let workflowName = this.workflowData?.name || '新建工作流'
-        
-        await saveWorkflow({
+
+        await workflowApi.saveWorkflow({
           id: this.id,
           name: workflowName,
           flowData: JSON.stringify(flowData)
@@ -793,8 +792,7 @@ export default {
     },
     async loadWorkflowData() {
       try {
-        const data = await getWorkflowById(this.id)
-        console.log("工作流数据为空",data)
+        const data = await workflowApi.getWorkflowById(this.id)
         if (!data.flowData) {
           throw new Error('工作流数据为空')
         }
@@ -965,10 +963,10 @@ export default {
           this.currentNode.attr('label/text', formData.name)
           // 关闭抽屉
           this.drawerVisible = false
-          
+
           // 保存整个工作流
           await this.saveWorkflow()
-          
+
           ElMessage.success('活动配置保存成功')
         }
       } catch (error) {
@@ -993,8 +991,8 @@ export default {
       try {
         // 修改 API 调用方式
         const [users, departments] = await Promise.all([
-          getUsers(),
-          getDepartments()
+          systemApi.getUsers(),
+          systemApi.getDepartments()
         ])
         this.userOptions = users
         this.departmentOptions = departments
@@ -1053,10 +1051,10 @@ export default {
               }
             }])
           }
-          
+
           // 保存整个工作流
           await this.saveWorkflow()
-          
+
           this.transitionDrawerVisible = false
           ElMessage.success('变迁配置保存成功')
         }

@@ -7,10 +7,10 @@
 
     <!-- 添加属性抽屉 -->
     <el-drawer
-        v-model="drawerVisible"
-        :title="drawerTitle"
-        size="400px"
-        :destroy-on-close="true"
+      v-model="drawerVisible"
+      :title="drawerTitle"
+      size="400px"
+      :destroy-on-close="true"
     >
       <div class="drawer-container" v-if="selectedData">
         <!-- 活动属性 -->
@@ -74,57 +74,55 @@
 </template>
 
 <script>
-import {Graph} from '@antv/x6'
-import {getWorkflowById} from '@/api/workflow/workflow'
-import {getWorkflowVersionByWorkflowIdId} from '@/api/workflow/version'
-import {ElMessage} from 'element-plus'
-import {getDepartments, getUsers} from "@/api/workflow/system";
+import { Graph } from '@antv/x6'
+import { workflowApi,versionApi } from '@/api/workflow/index'
+import { ElMessage } from 'element-plus'
 
 // 注册节点类型
 Graph.registerNode(
-    'event',
-    {
-      inherit: 'circle',
-      attrs: {
-        body: {
-          strokeWidth: 2,
-          stroke: '#5F95FF',
-          fill: '#FFF',
-        },
+  'event',
+  {
+    inherit: 'circle',
+    attrs: {
+      body: {
+        strokeWidth: 2,
+        stroke: '#5F95FF',
+        fill: '#FFF',
       },
     },
-    true,
+  },
+  true,
 )
 
 Graph.registerNode(
-    'activity',
-    {
-      inherit: 'rect',
-      markup: [
-        {
-          tagName: 'rect',
-          selector: 'body',
-        },
-        {
-          tagName: 'text',
-          selector: 'label',
-        },
-      ],
-      attrs: {
-        body: {
-          rx: 6,
-          ry: 6,
-          stroke: '#5F95FF',
-          fill: '#EFF4FF',
-          strokeWidth: 1,
-        },
-        label: {
-          fontSize: 12,
-          fill: '#262626',
-        },
+  'activity',
+  {
+    inherit: 'rect',
+    markup: [
+      {
+        tagName: 'rect',
+        selector: 'body',
+      },
+      {
+        tagName: 'text',
+        selector: 'label',
+      },
+    ],
+    attrs: {
+      body: {
+        rx: 6,
+        ry: 6,
+        stroke: '#5F95FF',
+        fill: '#EFF4FF',
+        strokeWidth: 1,
+      },
+      label: {
+        fontSize: 12,
+        fill: '#262626',
       },
     },
-    true,
+  },
+  true,
 )
 
 export default {
@@ -177,10 +175,10 @@ export default {
     async loadWorkflowData() {
       try {
         // 获取工作流基本信息
-        this.workflow = await getWorkflowById(this.id)
-
+        this.workflow = await workflowApi.getWorkflowById(this.id)
+        
         // 获取指定版本的数据
-        const versionData = await getWorkflowVersionByWorkflowIdId(this.id, this.version)
+        const versionData = await versionApi.getWorkflowVersionByWorkflowIdId(this.id, this.version)
         console.log(versionData)
         if (versionData && versionData.flowData) {
           this.workflowData = JSON.parse(versionData.flowData)
@@ -196,8 +194,8 @@ export default {
     async loadOptions() {
       try {
         const [users, departments] = await Promise.all([
-          getUsers(),
-          getDepartments()
+          workflowApi.getUsers(),
+          workflowApi.getDepartments()
         ])
         this.userOptions = users
         this.departmentOptions = departments
@@ -209,8 +207,8 @@ export default {
       const container = this.$refs.container
       if (!container) return
 
-      const {width, height} = container.getBoundingClientRect()
-
+      const { width, height } = container.getBoundingClientRect()
+      
       this.graph = new Graph({
         container: container,
         width,
@@ -239,7 +237,7 @@ export default {
       window.addEventListener('resize', this.updateGraphSize)
 
       // 添加节点点击事件
-      this.graph.on('node:click', ({node}) => {
+      this.graph.on('node:click', ({ node }) => {
         const data = node.getData()
         if (data && data.type === 'activity') {
           this.showProperties('activity', data)
@@ -247,7 +245,7 @@ export default {
       })
 
       // 添加边点击事件
-      this.graph.on('edge:click', ({edge}) => {
+      this.graph.on('edge:click', ({ edge }) => {
         const data = edge.getData()
         if (data) {
           this.showProperties('transition', data)
@@ -257,7 +255,7 @@ export default {
     updateGraphSize() {
       const container = this.$refs.container
       if (container && this.graph) {
-        const {width, height} = container.getBoundingClientRect()
+        const { width, height } = container.getBoundingClientRect()
         this.graph.resize(width, height)
       }
     },

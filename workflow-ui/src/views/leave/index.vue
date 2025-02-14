@@ -210,8 +210,8 @@ import {
   getLeaveDetail,
   deleteLeave
 } from '@/api/leave'
+import {workflowApi} from '@/api/workflow/index'
 import {ElMessage, ElMessageBox} from 'element-plus'
-import {processTasks} from "@/api/workflow/workflow";
 
 export default {
   name: 'LeaveApplication',
@@ -376,7 +376,7 @@ export default {
       this.$refs.processForm.validate(async (valid) => {
         if (valid) {
           try {
-            await processTasks(this.processForm)
+            await workflowApi.processTasks(this.processForm)
             ElMessage.success('处理成功')
             this.processDialogVisible = false
             this.loadData()
