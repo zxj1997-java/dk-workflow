@@ -77,7 +77,7 @@
 <script>
 // eslint-disable-next-line no-unused-vars
 import { Graph } from '@antv/x6'
-import { workflowApi } from '@/api/workflow/index'
+import { workflowApi } from '@/api/workflow'
 import { ElMessage } from 'element-plus'
 import { Close } from '@element-plus/icons-vue'
 
@@ -509,7 +509,7 @@ export default {
 <style scoped>
 .instance-viewer {
   padding: 20px;
-  height: calc(100vh - 84px);  /* 调整高度 */
+  height: calc(100vh - 0px);  /* 调整高度 */
   min-height: 600px;  /* 添加最小高度 */
   display: flex;
   flex-direction: column;

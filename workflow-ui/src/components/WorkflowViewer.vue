@@ -75,7 +75,7 @@
 
 <script>
 import { Graph } from '@antv/x6'
-import { workflowApi,versionApi } from '@/api/workflow/index'
+import { workflowApi,versionApi } from '@/api/workflow'
 import { ElMessage } from 'element-plus'
 
 // 注册节点类型

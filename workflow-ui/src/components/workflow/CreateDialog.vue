@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import {workflowApi} from '@/api/workflow/index'
+import {workflowApi} from '@/api/workflow'
 import {ElMessage} from 'element-plus'
 
 export default {

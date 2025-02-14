@@ -51,7 +51,7 @@
 
 <script>
 import CreateDialog from '@/components/workflow/CreateDialog.vue'
-import {workflowApi} from '@/api/workflow/index'
+import {workflowApi} from '@/api/workflow'
 import {ElMessage, ElMessageBox} from 'element-plus'
 import {ArrowDown} from '@element-plus/icons-vue'
 

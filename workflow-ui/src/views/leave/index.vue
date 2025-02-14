@@ -210,7 +210,7 @@ import {
   getLeaveDetail,
   deleteLeave
 } from '@/api/leave'
-import {workflowApi} from '@/api/workflow/index'
+import {workflowApi} from '@/api/workflow'
 import {ElMessage, ElMessageBox} from 'element-plus'
 
 export default {

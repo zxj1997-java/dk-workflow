@@ -85,7 +85,7 @@
 <script>
 import { Graph } from '@antv/x6'
 // 修改导入方式，分别导入需要的 API
-import { systemApi,workflowApi } from '@/api/workflow/index'
+import { systemApi,workflowApi } from '@/api/workflow'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import EdgeContextMenu from './menu/EdgeContextMenu.vue'
 import NodeContextMenu from './menu/NodeContextMenu.vue'
