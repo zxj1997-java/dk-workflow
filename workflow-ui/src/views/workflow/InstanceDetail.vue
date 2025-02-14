@@ -21,7 +21,7 @@
           <div class="list-header">
             <h3>审批历史</h3>
           </div>
-          <el-table :data="approvalRecords" stripe style="width: 100%" @row-click="handleRowClick">
+          <el-table :data="sortedApprovalRecords" stripe style="width: 100%" @row-click="handleRowClick">
             <el-table-column label="节点" prop="activity.name" width="150"/>
             <el-table-column label="审批人" prop="approver" width="120"/>
             <el-table-column label="操作" prop="status" width="120">
@@ -152,19 +152,22 @@ export default {
     }
   },
   computed: {
+    sortedApprovalRecords() {
+      // 返回审批记录按 createTime 倒序排列的数组（不影响原审批记录数据）
+      return this.approvalRecords.slice().sort((a, b) => new Date(b.createTime) - new Date(a.createTime));
+    },
     nodeApprovalRecords() {
-      if (!this.selectedNode || !this.approvalRecords) return [];
-      return this.approvalRecords.filter(record => {
-        // 尝试获取审批记录中关联的活动ID，优先使用 nodeId 字段
-        let actId = null;
-        if (record.activity && record.activity.nodeId) {
-          actId = record.activity.nodeId;
-        } else if (record.activity && record.activity.id) {
-          actId = record.activity.id;
-        } else if (record.activityId) {
-          actId = record.activityId;
-        }
-        return actId === this.selectedNode.id;
+      if (!this.selectedNode) return [];
+      return this.sortedApprovalRecords.filter(record => {
+         let actId = null;
+         if (record.activity && record.activity.nodeId) {
+           actId = record.activity.nodeId;
+         } else if (record.activity && record.activity.id) {
+           actId = record.activity.id;
+         } else if (record.activityId) {
+           actId = record.activityId;
+         }
+         return actId === this.selectedNode.id;
       });
     }
   },
@@ -290,36 +293,32 @@ export default {
 
       this.graph.clearCells()
 
-      // 计算每个节点的状态：completed, pending, notActive
+      // 修改节点状态计算：对每个节点，取其所有审批记录，取最新记录状态作为节点状态
       const nodeStates = {}
       this.workflowData.nodes.forEach(node => {
-        let state = 'notActive'
-        // 开始节点直接设为 completed
+        let state = 'notActive';
         if (node.label === '开始') {
-          state = 'completed'
+          state = 'COMPLETED';
         } else {
-          const record = this.approvalRecords.find(r => {
-            // 尝试获取审批记录中关联的活动ID，优先使用 nodeId
-            let actId = null
+          const records = this.approvalRecords.filter(r => {
+            let actId = null;
             if (r.activity && r.activity.nodeId) {
-              actId = r.activity.nodeId
+              actId = r.activity.nodeId;
             } else if (r.activity && r.activity.id) {
-              actId = r.activity.id
+              actId = r.activity.id;
             } else if (r.activityId) {
-              actId = r.activityId
+              actId = r.activityId;
             }
-            return actId === node.id
-          })
-          if (record) {
-            if (record.status === 'COMPLETED') {
-              state = 'completed'
-            } else if (record.status === 'PENDING') {
-              state = 'pending'
-            }
+            return actId === node.id;
+          });
+          if (records.length > 0) {
+            // 排序取最新审批记录（假定 createTime 格式正确）
+            records.sort((a, b) => new Date(a.createTime) - new Date(b.createTime));
+            state = records[records.length - 1].status;
           }
         }
-        nodeStates[node.id] = state
-      })
+        nodeStates[node.id] = state;
+      });
 
       // 渲染节点（使用与 WorkflowViewer.vue 一致的样式，并根据状态设置颜色）
       this.workflowData.nodes.forEach(node => {
@@ -327,15 +326,21 @@ export default {
         // 根据节点状态设置颜色
         let fillColor, strokeColor
         const state = nodeStates[node.id] || 'notActive'
-        if (state === 'completed') {
-          fillColor = "#5F95FF"  // 蓝色
-          strokeColor = "#5F95FF"
-        } else if (state === 'pending') {
-          fillColor = "#ffeb99"  // 黄色
-          strokeColor = "#ffcc00"
+        if (state === 'COMPLETED') {
+          fillColor = isEvent ? (node.label === '开始' ? "#5F95FF" : "#fff") : "#EFF4FF";
+          strokeColor = isEvent ? (node.label === '结束' ? "#FF5F5F" : "#5F95FF") : "#5F95FF";
+        } else if (state === 'PENDING') {
+          fillColor = "#ffeb99";
+          strokeColor = "#ffcc00";
+        } else if (state === 'RETURNED') {
+          fillColor = "#ff9999";  // 退回状态使用红色调
+          strokeColor = "#ff4444";
+        } else if (state === 'TERMINATED') {
+          fillColor = "#d3d3d3";
+          strokeColor = "#d3d3d3";
         } else {
-          fillColor = "#d3d3d3"  // 灰色
-          strokeColor = "#d3d3d3"
+          fillColor = "#d3d3d3";
+          strokeColor = "#d3d3d3";
         }
         const nodeConfig = {
           id: node.id,
@@ -376,13 +381,15 @@ export default {
         const targetNode = this.workflowData.nodes.find(n => n.id === edge.target)
 
         let edgeColor = "#3c4260"  // 默认颜色
-        // 如果连线两端均已激活（即不为未激活状态），或者已完成节点与"结束"节点连接，则设为蓝色
-        if (
+        // 新的连线判断：当两个端点均为 RETURNED 状态，则边缘显示红色；若两端均激活（或满足激活条件），则显示蓝色；其它情况维持默认
+        if (sourceState === 'RETURNED' && targetState === 'RETURNED') {
+          edgeColor = "#ff4444";
+        } else if (
             (sourceState !== 'notActive' && targetState !== 'notActive') ||
-            (sourceState === 'completed' && targetNode && targetNode.label === '结束') ||
-            (targetState === 'completed' && sourceNode && sourceNode.label === '结束')
+            (sourceState === 'COMPLETED' && targetNode && targetNode.label === '结束') ||
+            (targetState === 'COMPLETED' && sourceNode && sourceNode.label === '结束')
         ) {
-          edgeColor = "#5F95FF"
+          edgeColor = "#5F95FF";
         }
         const edgeConfig = {
           source: edge.source,
