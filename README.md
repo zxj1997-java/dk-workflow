@@ -156,9 +156,9 @@ spring:
 MIT License
 
 ## 系统展示
-![配置列表.png](example%2F%C5%E4%D6%C3%C1%D0%B1%ED.png)
-![配置页面.png](example%2F%C5%E4%D6%C3%D2%B3%C3%E6.png)
-![活动配置.png](example%2F%BB%EE%B6%AF%C5%E4%D6%C3.png)
-![变迁配置.png](example%2F%B1%E4%C7%A8%C5%E4%D6%C3.png)
-![请假列表.png](example%2F%C7%EB%BC%D9%C1%D0%B1%ED.png)
-![进度查询.png](example%2F%BD%F8%B6%C8%B2%E9%D1%AF.png)
+![flow_list.png](example%2Fflow_list.png)
+![flow_config.png](example%2Fflow_config.png)
+![activity_config.png](example%2Factivity_config.png)
+![trans_list.png](example%2Ftrans_list.png)
+![leave_list.png](example%2Fleave_list.png)
+![process_view.png](example%2Fprocess_view.png)
