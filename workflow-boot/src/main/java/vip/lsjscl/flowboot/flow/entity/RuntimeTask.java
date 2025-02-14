@@ -16,7 +16,12 @@ import java.time.LocalDateTime;
  */
 @Data
 @Entity
-@Table(name = "dk_runtime_task")
+@Table(name = "dk_runtime_task", indexes = {
+    @Index(name = "idx_runtime_task_business_id", columnList = "business_id"),
+    @Index(name = "idx_runtime_task_status", columnList = "status"),
+    @Index(name = "idx_runtime_task_business_status", columnList = "business_id,status"),
+    @Index(name = "idx_runtime_task_workflow_version", columnList = "workflow_version_id")
+})
 public class RuntimeTask {
 
     @Id

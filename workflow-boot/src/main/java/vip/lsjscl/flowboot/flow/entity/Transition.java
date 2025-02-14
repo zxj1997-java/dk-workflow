@@ -12,7 +12,9 @@ import org.hibernate.annotations.Comment;
  */
 @Data
 @Entity
-@Table(name = "dk_transition")
+@Table(name = "dk_transition", indexes = {
+        @Index(name = "idx_history_task_workflow_version", columnList = "workflow_version_id")
+})
 public class Transition {
 
     @Id

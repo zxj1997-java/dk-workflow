@@ -14,7 +14,10 @@ import java.time.LocalDateTime;
  */
 @Data
 @Entity
-@Table(name = "dk_workflow_version")
+@Table(name = "dk_workflow_version", indexes = {
+    @Index(name = "idx_workflow_version_workflow_id", columnList = "workflow_id"),
+    @Index(name = "idx_workflow_version_version", columnList = "version")
+})
 public class WorkflowVersion {
 
     @Id

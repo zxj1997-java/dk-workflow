@@ -12,7 +12,10 @@ import org.hibernate.annotations.Comment;
  */
 @Data
 @Entity
-@Table(name = "dk_activity")
+@Table(name = "dk_activity", indexes = {
+    @Index(name = "idx_activity_workflow_version", columnList = "workflow_version_id"),
+    @Index(name = "idx_activity_node_id", columnList = "node_id")
+})
 public class Activity {
 
     @Id

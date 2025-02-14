@@ -15,7 +15,11 @@ import java.time.LocalDateTime;
  */
 @Data
 @Entity
-@Table(name = "dk_history_task")
+@Table(name = "dk_history_task", indexes = {
+    @Index(name = "idx_history_task_business_id", columnList = "business_id"),
+    @Index(name = "idx_history_task_workflow_version", columnList = "workflow_version_id"),
+    @Index(name = "idx_history_task_create_time", columnList = "create_time")
+})
 public class HistoryTask {
 
     @Id

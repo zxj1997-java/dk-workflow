@@ -15,7 +15,10 @@ import java.util.List;
  */
 @Data
 @Entity
-@Table(name = "dk_workflow")
+@Table(name = "dk_workflow", indexes = {
+    @Index(name = "idx_workflow_code", columnList = "code", unique = true),
+    @Index(name = "idx_workflow_status", columnList = "status")
+})
 public class Workflow {
 
     @Id
