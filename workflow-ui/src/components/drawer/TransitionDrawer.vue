@@ -10,12 +10,12 @@
           <el-input v-model="form.code" placeholder="请输入变迁编码"></el-input>
         </el-form-item>
 
-        <el-form-item label="条件class" required>
-          <el-input v-model="form.conditionClass" :autosize="{ minRows: 1, maxRows: 2 }" placeholder="类名(全路径).方法名" type="textarea"></el-input>
+        <el-form-item label="条件类方法" required>
+          <el-input v-model="form.conditionClass" :autosize="{ minRows: 1, maxRows: 2 }" placeholder="类名(全路径)#方法名" type="textarea"></el-input>
         </el-form-item>
 
-        <el-form-item label="执行后class">
-          <el-input v-model="form.afterClass" :autosize="{ minRows: 1, maxRows: 2 }" placeholder="类名(全路径).方法名" type="textarea"></el-input>
+        <el-form-item label="执行后类方法">
+          <el-input v-model="form.afterClass" :autosize="{ minRows: 1, maxRows: 2 }" placeholder="类名(全路径)#方法名" type="textarea"></el-input>
         </el-form-item>
       </el-form>
     </div>

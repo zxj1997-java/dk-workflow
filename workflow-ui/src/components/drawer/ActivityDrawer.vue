@@ -14,8 +14,8 @@
           <el-input v-model="form.pageUrl" placeholder="请输入页面路径，例如：/form/apply"></el-input>
         </el-form-item>
 
-        <el-form-item label="执行后class">
-          <el-input v-model="form.afterClass" :autosize="{ minRows: 1, maxRows: 2 }" placeholder="类名(全路径).方法名" type="textarea"></el-input>
+        <el-form-item label="执行后类方法">
+          <el-input v-model="form.afterClass" :autosize="{ minRows: 1, maxRows: 2 }" placeholder="类名(全路径)#方法名" type="textarea"></el-input>
         </el-form-item>
 
         <el-form-item label="审核人员">
