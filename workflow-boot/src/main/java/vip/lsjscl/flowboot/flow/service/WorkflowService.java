@@ -74,6 +74,7 @@ public class WorkflowService {
         runtimeTask.setCreateTime(LocalDateTime.now());
         runtimeTask.setUpdateTime(LocalDateTime.now());
         runtimeTask.setStatus(TaskStatus.COMPLETED);
+        runtimeTask.setWorkflowVersionId(latestVersion.getId());
         runtimeTaskRepository.save(runtimeTask);
 
         // 获取下一个活动节点

@@ -98,6 +98,7 @@ public class ActivityService {
             newTask.setCreateTime(LocalDateTime.now());
             newTask.setUpdateTime(LocalDateTime.now());
             newTask.setStatus(TaskStatus.PENDING);
+            newTask.setWorkflowVersionId(newActivity.getWorkflowVersionId());
             runtimeTaskRepository.save(newTask);
         }
     }

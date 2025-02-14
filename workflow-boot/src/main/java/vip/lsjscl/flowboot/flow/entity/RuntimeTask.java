@@ -28,6 +28,10 @@ public class RuntimeTask {
     @JoinColumn(name = "activity_id")
     private Activity activity;
 
+    @Comment("流程版本ID")
+    @Column(name = "workflow_version_id")
+    private Long workflowVersionId;
+
     @Comment("业务ID")
     @Column(name = "business_id")
     private String businessId;
