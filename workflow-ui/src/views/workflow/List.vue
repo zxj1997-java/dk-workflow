@@ -73,7 +73,6 @@ export default {
     async getList() {
       try {
         const res = await workflowApi.getWorkflowList()
-        console.log('API返回数据:', res)
 
         if (Array.isArray(res)) {
           this.workflowList = res.map(item => ({
@@ -92,7 +91,6 @@ export default {
           this.workflowList = []
         }
 
-        console.log('处理后的列表数据:', this.workflowList)
       } catch (error) {
         console.error('获取列表失败:', error)
         ElMessage.error('获取列表失败')

@@ -179,10 +179,8 @@ export default {
         
         // 获取指定版本的数据
         const versionData = await versionApi.getWorkflowVersionByWorkflowIdId(this.id, this.version)
-        console.log(versionData)
         if (versionData && versionData.flowData) {
           this.workflowData = JSON.parse(versionData.flowData)
-          console.log('加载的工作流数据:', this.workflowData)
         } else {
           throw new Error('版本数据为空')
         }
@@ -265,8 +263,6 @@ export default {
         return
       }
 
-      console.log('开始渲染工作流:', this.workflowData)
-
       // 清空画布
       this.graph.clearCells()
 
@@ -299,7 +295,6 @@ export default {
           }
         }
 
-        console.log('添加节点:', nodeConfig)
         this.graph.addNode(nodeConfig)
       })
 
@@ -350,7 +345,6 @@ export default {
           }] : []
         }
 
-        console.log('添加连线:', edgeConfig)
         this.graph.addEdge(edgeConfig)
       })
     },

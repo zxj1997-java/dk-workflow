@@ -129,43 +129,12 @@
       </template>
     </el-dialog>
 
-    <!-- 添加处理任务对话框 -->
-    <el-dialog
-        title="处理申请"
-        v-model="processDialogVisible"
-        width="500px"
-    >
-      <el-form
-          ref="processForm"
-          :model="processForm"
-          :rules="processRules"
-          label-width="100px"
-      >
-        <el-form-item label="处理结果" prop="action">
-          <el-radio-group v-model="processForm.action">
-            <el-radio v-for="item in operationOptions" :key="item.value" :label="item.value">
-              {{ item.label }}
-            </el-radio>
-          </el-radio-group>
-        </el-form-item>
-
-        <el-form-item label="处理意见" prop="comment">
-          <el-input
-              v-model="processForm.comment"
-              type="textarea"
-              :rows="4"
-              placeholder="请输入处理意见"
-          />
-        </el-form-item>
-      </el-form>
-
-      <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="processDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="submitProcess">确定</el-button>
-        </span>
-      </template>
-    </el-dialog>
+    <!-- 封装后的处理任务对话框组件，只传业务ID -->
+    <ProcessDialog
+      v-model="processDialogVisible"
+      :businessId="selectedBusinessId"
+      @submit="submitProcess"
+    />
 
     <!-- 添加详情对话框 -->
     <el-dialog
@@ -202,13 +171,13 @@
 </template>
 
 <script>
-
-import {taskApi} from '@/api/workflow'
-import {ElMessage, ElMessageBox} from 'element-plus'
-import {leaveApi} from "@/api/leave";
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { leaveApi } from "@/api/leave";
+import ProcessDialog from "@/components/task/ProcessDialog.vue";
 
 export default {
   name: 'LeaveApplication',
+  components: {ProcessDialog},
   data() {
     return {
       activeTab: 'apply',
@@ -217,12 +186,14 @@ export default {
       doneList: [], // 已办理列表
       dialogVisible: false,
       processDialogVisible: false,
-      processForm: {
-        id: null,
-        action: '', // 后续默认赋值为接口返回的第一个操作
-        comment: '',
+      // 用于传递待处理任务业务ID，ProcessDialog 会根据 businessId 加载对应任务数据
+      selectedBusinessId: null,
+      leaveForm: {
+        name: '',
+        leaveDate: '',
+        reason: '',
+        status: 'DRAFT'
       },
-      operationOptions: [],
       rules: {
         name: [
           {required: true, message: '请输入姓名', trigger: 'blur'}
@@ -232,14 +203,6 @@ export default {
         ],
         reason: [
           {required: true, message: '请输入离职原因', trigger: 'blur'}
-        ]
-      },
-      processRules: {
-        action: [
-          {required: true, message: '请选择处理结果', trigger: 'change'}
-        ],
-        comment: [
-          {required: true, message: '请输入处理意见', trigger: 'blur'}
         ]
       },
       loading: false,
@@ -350,40 +313,15 @@ export default {
       }
     },
 
-    // 处理任务：点击处理按钮时获取该任务目前活动的操作配置
+    // 修改处理任务方法，只传入业务ID，弹框内组件会根据业务ID自行加载任务数据及操作配置
     async handleTask(id) {
-      try {
-        // 调用 API 获取操作选项（假设返回 [{value:"APPROVED", label:"同意"}, ...]）
-        const res = await taskApi.getTaskOperations(id);
-        this.operationOptions = res || [];
-        // 默认选中第一个操作（如果存在）
-        this.processForm = {
-          id,
-          action: this.operationOptions.length > 0 ? this.operationOptions[0].value : '',
-          comment: '',
-        }
-        this.processDialogVisible = true;
-      } catch (error) {
-        console.error('获取操作配置失败', error);
-        ElMessage.error('获取流程操作配置失败');
-      }
+      this.selectedBusinessId = id;
+      this.processDialogVisible = true;
     },
 
-    // 提交处理结果
+    // ProcessDialog 提交后回调，刷新数据
     async submitProcess() {
-      this.$refs.processForm.validate(async (valid) => {
-        if (valid) {
-          try {
-            await taskApi.processTasks(this.processForm)
-            ElMessage.success('处理成功')
-            this.processDialogVisible = false
-            this.loadData()
-          } catch (error) {
-            console.error('处理失败:', error)
-            ElMessage.error('处理失败')
-          }
-        }
-      })
+      this.loadData();
     },
 
     // 删除申请

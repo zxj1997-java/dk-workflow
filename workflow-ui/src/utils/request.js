@@ -29,7 +29,6 @@ service.interceptors.request.use(
 // 响应拦截器
 service.interceptors.response.use(
   response => {
-      console.log("response.data",response.data)
     // 直接返回 response.data，不做额外处理
     return response.data.data;
   },

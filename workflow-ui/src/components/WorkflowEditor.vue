@@ -808,8 +808,6 @@ export default {
     renderWorkflow() {
       if (!this.workflowData || !this.graph) return
 
-      console.log('开始渲染工作流:', this.workflowData)
-
       // 清空画布
       this.graph.clearCells()
 
@@ -881,7 +879,6 @@ export default {
           }
         }
 
-        console.log('添加节点:', nodeConfig)
         this.graph.addNode(nodeConfig)
 
         // 更新节点状态
@@ -894,7 +891,6 @@ export default {
 
       // 渲染连线
       this.workflowData.edges.forEach(edge => {
-        console.log('添加连线:', edge)
         this.graph.addEdge({
           source: edge.source,
           target: edge.target,

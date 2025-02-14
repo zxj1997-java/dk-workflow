@@ -187,15 +187,12 @@ export default {
   methods: {
     async loadInstanceData() {
       try {
-        console.log('加载运行时任务，业务ID:', this.instanceId)
         // 查询运行时任务（即审批记录），这里 businessId 为离职申请的记录ID
         const res = await taskApi.getRuntimeTasks(this.instanceId)
-        console.log('运行时任务数据:', res)
         this.approvalRecords = res || []
         // 获取流程定义（假设通过流程编码获取，此处为 leave 工作流）
         const wfRes = await workflowApi.getWorkflowByCode('leave')
         this.workflow = wfRes;
-        console.log('获取流程定义:', this.workflow)
         if (this.workflow.flowData) {
           this.workflowData = JSON.parse(this.workflow.flowData)
           if (this.graph) {
@@ -262,12 +259,9 @@ export default {
         }
       })
 
-      console.log('Graph initialized:', this.graph)
-
       // 添加节点点击事件，设置高亮效果并更新选中节点数据
       this.graph.on('node:click', ({ node }) => {
         const nodeData = node.getData()
-        console.log('Node clicked:', nodeData)
         if (nodeData && nodeData.type !== 'event') {  // 排除开始和结束节点
           // 清除所有节点的高亮效果（恢复 strokeWidth 为 2）
           this.graph.getNodes().forEach(n => {
@@ -299,7 +293,6 @@ export default {
         return
       }
       
-      console.log('开始渲染流程')
       this.graph.clearCells()
 
       // 计算每个节点的状态：completed, pending, notActive
@@ -375,7 +368,6 @@ export default {
             }
           }
         }
-        console.log('添加节点:', nodeConfig)
         this.graph.addNode(nodeConfig)
       })
 
@@ -434,7 +426,6 @@ export default {
             position: { distance: 0.5 }
           }] : []
         }
-        console.log('创建连线:', edgeConfig)
         this.graph.addEdge(edgeConfig)
       })
 

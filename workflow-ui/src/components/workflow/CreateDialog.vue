@@ -45,7 +45,6 @@ export default {
   },
   methods: {
     show() {
-      console.log('Show method called')
       this.dialogVisible = true
       this.form.name = ''
       this.form.code = ''

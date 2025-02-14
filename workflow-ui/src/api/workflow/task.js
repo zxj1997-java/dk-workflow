@@ -32,18 +32,5 @@ export const taskApi = {
             url: `/api/workflow/task/operations/${taskId}`,
             method: 'get'
         })
-    },
-
-    /**
-     * 处理任务
-     * @param {object} data 包含任务处理所需的参数，如 { id, action, comment }
-     * @returns {Promise}
-     */
-    processTask(data) {
-        return request({
-            url: `/api/workflow/task/process/${data.id}`,
-            method: 'post',
-            data
-        })
     }
 } 
