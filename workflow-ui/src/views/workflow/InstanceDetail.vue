@@ -3,8 +3,8 @@
     <div class="header">
       <h3>流程实例</h3>
       <div class="status-tag">
-        <el-tag :type="getStatusType(approvalRecords[0]?.status)">
-          {{ getStatusText(approvalRecords[0]?.status) }}
+        <el-tag :type="getStatusType(sortedApprovalRecords[0]?.status)">
+          {{ getStatusText(sortedApprovalRecords[0]?.status) }}
         </el-tag>
       </div>
     </div>
