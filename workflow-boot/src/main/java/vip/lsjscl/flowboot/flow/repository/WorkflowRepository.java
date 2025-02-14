@@ -1,6 +1,7 @@
 package vip.lsjscl.flowboot.flow.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 import vip.lsjscl.flowboot.flow.entity.Workflow;
 
 import java.util.Optional;
@@ -11,6 +12,7 @@ import java.util.Optional;
  * @author zhangxingju
  * @date 2025/02/14
  */
+@Repository
 public interface WorkflowRepository extends JpaRepository<Workflow, Long> {
     Optional<Workflow> findByCode(String code);
 

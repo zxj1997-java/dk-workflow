@@ -2,10 +2,18 @@ package vip.lsjscl.flowboot.flow.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 import vip.lsjscl.flowboot.flow.entity.WorkflowVersion;
 
 import java.util.List;
 
+/**
+ * 工作流版本存储库
+ *
+ * @author zhangxingju
+ * @date 2025/02/14
+ */
+@Repository
 public interface WorkflowVersionRepository extends JpaRepository<WorkflowVersion, Long> {
     @Query("SELECT COALESCE(MAX(v.version), 0) FROM WorkflowVersion v WHERE v.workflowId = ?1")
     Integer findMaxVersionByWorkflowId(Long workflowId);

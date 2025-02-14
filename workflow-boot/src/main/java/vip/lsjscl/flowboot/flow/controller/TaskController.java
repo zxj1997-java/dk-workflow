@@ -8,7 +8,9 @@ import vip.lsjscl.flowboot.flow.dict.TaskDecision;
 import vip.lsjscl.flowboot.flow.dict.TaskStatus;
 import vip.lsjscl.flowboot.flow.dto.ProcessDataDto;
 import vip.lsjscl.flowboot.flow.entity.Activity;
+import vip.lsjscl.flowboot.flow.entity.HistoryTask;
 import vip.lsjscl.flowboot.flow.entity.RuntimeTask;
+import vip.lsjscl.flowboot.flow.repository.HistoryTaskRepository;
 import vip.lsjscl.flowboot.flow.repository.RuntimeTaskRepository;
 import vip.lsjscl.flowboot.flow.service.ActivityService;
 import vip.lsjscl.flowboot.flow.service.TaskService;
@@ -104,4 +106,39 @@ public class TaskController {
         return R.ok().put("data", operationList);
     }
 
+    /**
+     * 查询用户的待办任务
+     */
+    @GetMapping("/tasks/todo")
+    public R getTodoTasks(@RequestParam(required = false) String userId, 
+                         @RequestParam(required = false) String deptId) {
+        if (StringUtils.isBlank(userId) && StringUtils.isBlank(deptId)) {
+            return R.error("用户ID和部门ID不能同时为空");
+        }
+        return R.ok().put("data", taskService.getTodoTasks(userId, deptId));
+    }
+
+    /**
+     * 查询用户的已办任务
+     */
+    @GetMapping("/tasks/done")
+    public R getDoneTasks(@RequestParam(required = false) String userId, 
+                         @RequestParam(required = false) String deptId) {
+        if (StringUtils.isBlank(userId) && StringUtils.isBlank(deptId)) {
+            return R.error("用户ID和部门ID不能同时为空");
+        }
+        return R.ok().put("data", taskService.getDoneTasks(userId, deptId));
+    }
+
+    /**
+     * 查询用户的所有相关任务（包括待办和已办）
+     */
+    @GetMapping("/tasks/all")
+    public R getAllTasks(@RequestParam(required = false) String userId, 
+                        @RequestParam(required = false) String deptId) {
+        if (StringUtils.isBlank(userId) && StringUtils.isBlank(deptId)) {
+            return R.error("用户ID和部门ID不能同时为空");
+        }
+        return R.ok().put("data", taskService.getAllTasks(userId, deptId));
+    }
 } 

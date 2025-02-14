@@ -14,11 +14,14 @@ import vip.lsjscl.flowboot.flow.repository.HistoryTaskRepository;
 import vip.lsjscl.flowboot.flow.repository.RuntimeTaskRepository;
 import vip.lsjscl.flowboot.flow.repository.TransitionRepository;
 import vip.lsjscl.flowboot.flow.dict.TaskStatus;
+import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.HashMap;
 
 /**
  * 任务服务
@@ -171,5 +174,43 @@ public class TaskService {
         runtimeTask.setCreateTime(historyTask.getCreateTime());
         runtimeTask.setUpdateTime(historyTask.getUpdateTime());
         return runtimeTask;
+    }
+
+    /**
+     * 查询待办任务
+     */
+    public List<RuntimeTask> getTodoTasks(String userId, String deptId) {
+        if (StringUtils.isNotBlank(userId) && StringUtils.isNotBlank(deptId)) {
+            return runtimeTaskRepository.findByUserIdOrDeptIdAndStatus(userId, deptId, TaskStatus.PENDING);
+        } else if (StringUtils.isNotBlank(userId)) {
+            return runtimeTaskRepository.findByUserIdAndStatus(userId, TaskStatus.PENDING);
+        } else if (StringUtils.isNotBlank(deptId)) {
+            return runtimeTaskRepository.findByDeptIdAndStatus(deptId, TaskStatus.PENDING);
+        }
+        return Collections.emptyList();
+    }
+
+    /**
+     * 查询已办任务
+     */
+    public List<HistoryTask> getDoneTasks(String userId, String deptId) {
+        if (StringUtils.isNotBlank(userId) && StringUtils.isNotBlank(deptId)) {
+            return historyTaskRepository.findByUserIdOrDeptId(userId, deptId);
+        } else if (StringUtils.isNotBlank(userId)) {
+            return historyTaskRepository.findByUserId(userId);
+        } else if (StringUtils.isNotBlank(deptId)) {
+            return historyTaskRepository.findByDeptId(deptId);
+        }
+        return Collections.emptyList();
+    }
+
+    /**
+     * 查询所有任务（包括待办和已办）
+     */
+    public Map<String, Object> getAllTasks(String userId, String deptId) {
+        Map<String, Object> result = new HashMap<>();
+        result.put("todoTasks", getTodoTasks(userId, deptId));
+        result.put("doneTasks", getDoneTasks(userId, deptId));
+        return result;
     }
 } 

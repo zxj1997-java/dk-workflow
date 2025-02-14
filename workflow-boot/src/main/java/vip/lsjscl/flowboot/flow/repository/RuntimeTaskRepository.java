@@ -3,6 +3,7 @@ package vip.lsjscl.flowboot.flow.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import vip.lsjscl.flowboot.flow.entity.RuntimeTask;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,6 +16,7 @@ import vip.lsjscl.flowboot.flow.dict.TaskStatus;
  * @author zhangxingju
  * @date 2025/02/14
  */
+@Repository
 public interface RuntimeTaskRepository extends JpaRepository<RuntimeTask, Long> {
     // 根据业务ID和任务状态查找唯一待办理任务记录（假设每个业务只有一条待办理任务）
     Optional<RuntimeTask> findByBusinessIdAndStatus(String businessId, TaskStatus status);
@@ -27,4 +29,16 @@ public interface RuntimeTaskRepository extends JpaRepository<RuntimeTask, Long> 
     List<RuntimeTask> findByBusinessId(String businessId);
 
     List<RuntimeTask> findByStatus(TaskStatus status);
+
+    // 根据人员ID和任务状态查询任务
+    @Query("SELECT rt FROM RuntimeTask rt WHERE rt.activity.approvers LIKE %:userId% AND rt.status = :status")
+    List<RuntimeTask> findByUserIdAndStatus(String userId, TaskStatus status);
+
+    // 根据部门ID和任务状态查询任务
+    @Query("SELECT rt FROM RuntimeTask rt WHERE rt.activity.departments LIKE %:deptId% AND rt.status = :status")
+    List<RuntimeTask> findByDeptIdAndStatus(String deptId, TaskStatus status);
+
+    // 根据人员ID或部门ID查询待办任务
+    @Query("SELECT rt FROM RuntimeTask rt WHERE (rt.activity.approvers LIKE %:userId% OR rt.activity.departments LIKE %:deptId%) AND rt.status = :status")
+    List<RuntimeTask> findByUserIdOrDeptIdAndStatus(String userId, String deptId, TaskStatus status);
 } 
