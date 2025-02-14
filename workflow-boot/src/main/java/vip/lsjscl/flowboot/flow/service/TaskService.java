@@ -77,18 +77,23 @@ public class TaskService {
             return true;
         }
 
-        // 找到开始节点和结束节点
+        // 找到开始节点和所有结束节点
         Activity startActivity = findStartActivity(activities);
-        Activity endActivity = findEndActivity(activities);
+        List<Activity> endActivities = findEndActivities(activities);
 
-        if (startActivity == null || endActivity == null) {
+        if (startActivity == null || endActivities.isEmpty()) {
             return false;
         }
 
-        // 检查结束节点是否完成
+        // 检查是否有任何一个结束节点完成
         return tasks.stream()
-                .anyMatch(task -> task.getActivity().getId().equals(endActivity.getId())
-                        && task.getStatus() == TaskStatus.COMPLETED);
+                .anyMatch(task -> 
+                    endActivities.stream()
+                        .anyMatch(endActivity -> 
+                            task.getActivity().getId().equals(endActivity.getId()) 
+                            && task.getStatus() == TaskStatus.COMPLETED
+                        )
+                );
     }
 
     private Activity findStartActivity(List<Activity> activities) {
@@ -99,12 +104,11 @@ public class TaskService {
                 .orElse(null);
     }
 
-    private Activity findEndActivity(List<Activity> activities) {
-        // 找到没有出边的节点作为结束节点
+    private List<Activity> findEndActivities(List<Activity> activities) {
+        // 找到所有没有出边的节点作为结束节点
         return activities.stream()
                 .filter(activity -> !hasOutgoingTransitions(activity))
-                .findFirst()
-                .orElse(null);
+                .collect(Collectors.toList());
     }
 
     private void syncToHistory(List<RuntimeTask> tasks) {
