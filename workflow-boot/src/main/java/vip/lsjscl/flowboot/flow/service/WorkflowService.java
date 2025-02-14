@@ -92,7 +92,7 @@ public class WorkflowService {
         workflow.setName(dto.getName());
         workflow.setCode(dto.getCode());
         workflow.setCreateTime(LocalDateTime.now());
-        workflow.setStatus("DRAFT");
+        workflow.setStatus(0);
         workflow.setFlowData("");
         return workflowRepository.save(workflow);
     }
@@ -107,7 +107,6 @@ public class WorkflowService {
             workflow = new Workflow();
         }
         workflow.setFlowData(flowData);
-        workflow.setStatus("DRAFT");
         return workflowRepository.save(workflow);
     }
 
@@ -215,7 +214,7 @@ public class WorkflowService {
         }
 
         // 更新工作流状态为已发布
-        workflow.setStatus("published");
+        workflow.setStatus(1);
         workflowRepository.save(workflow);
 
         return workflowVersion;

@@ -38,7 +38,7 @@ public class Workflow {
     private LocalDateTime createTime;
 
     @Column(nullable = false)
-    private String status;
+    private Integer status;
 
     @Transient
     private Integer currentVersion;

@@ -8,7 +8,11 @@
     <el-table :data="workflowList" style="width: 100%; margin-top: 20px">
       <el-table-column label="工作流名称" prop="name"/>
       <el-table-column label="工作流编码" prop="code"/>
-      <el-table-column label="状态" prop="status"/>
+      <el-table-column label="状态" prop="status">
+        <template #default="scope">
+          {{ getStatusText(scope.row.status) }}
+        </template>
+      </el-table-column>
       <el-table-column label="创建时间" prop="createTime">
         <template #default="scope">
           {{ formatDate(scope.row.createTime) }}
@@ -126,6 +130,13 @@ export default {
         )
 
         await workflowApi.publishWorkflow(id)
+        
+        // 更新状态为已发布
+        const workflow = this.workflowList.find(item => item.id === id);
+        if (workflow) {
+          workflow.status = '1'; // 设置为已发布
+        }
+
         ElMessage.success('发布成功')
         this.getList()
       } catch (error) {
@@ -143,6 +154,13 @@ export default {
         })
         window.open(routeUrl.href, '_blank')
       }
+    },
+    getStatusText(status) {
+      const statusMap = {
+        '0': '未发布',
+        '1': '已发布',
+      };
+      return statusMap[status] || status; // 默认返回原始状态
     }
   }
 }
