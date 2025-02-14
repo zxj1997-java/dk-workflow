@@ -1,6 +1,6 @@
 <template>
   <div class="leave-container">
-    <el-tabs v-model="activeTab" class="leave-tabs">
+    <el-tabs v-model="activeTab" class="leave-tabs" v-loading="loading">
       <el-tab-pane label="请假申请" name="apply">
         <div class="tab-content">
           <div class="header">
@@ -11,8 +11,16 @@
             <el-table-column label="申请编号" prop="id" width="180"/>
             <el-table-column label="申请人" prop="name"/>
             <el-table-column label="离职原因" prop="reason"/>
-            <el-table-column label="开始时间" prop="startDate"/>
-            <el-table-column label="结束时间" prop="endDate"/>
+            <el-table-column label="开始时间" prop="startDate">
+              <template #default="{ row }">
+                {{ formatDateYMD(row.startDate) }}
+              </template>
+            </el-table-column>
+            <el-table-column label="结束时间" prop="endDate">
+              <template #default="{ row }">
+                {{ formatDateYMD(row.endDate) }}
+              </template>
+            </el-table-column>
             <el-table-column label="状态" prop="status">
               <template #default="{ row }">
                 <el-tag :type="getStatusType(row.status)">{{ getStatusText(row.status) }}</el-tag>
@@ -42,8 +50,16 @@
             <el-table-column label="申请编号" prop="id" width="180"/>
             <el-table-column label="申请人" prop="name"/>
             <el-table-column label="离职原因" prop="reason"/>
-            <el-table-column label="开始时间" prop="startDate"/>
-            <el-table-column label="结束时间" prop="endDate"/>
+            <el-table-column label="开始时间" prop="startDate">
+              <template #default="{ row }">
+                {{ formatDateYMD(row.startDate) }}
+              </template>
+            </el-table-column>
+            <el-table-column label="结束时间" prop="endDate">
+              <template #default="{ row }">
+                {{ formatDateYMD(row.endDate) }}
+              </template>
+            </el-table-column>
             <el-table-column label="当前节点" prop="nodeName"/>
             <el-table-column label="申请时间" prop="createTime">
               <template #default="{ row }">
@@ -67,8 +83,16 @@
           <el-table :data="doneList" style="width: 100%; margin-top: 20px">
             <el-table-column label="申请编号" prop="id" width="180"/>
             <el-table-column label="申请人" prop="name"/>
-            <el-table-column label="开始时间" prop="startDate"/>
-            <el-table-column label="结束时间" prop="endDate"/>
+            <el-table-column label="开始时间" prop="startDate">
+              <template #default="{ row }">
+                {{ formatDateYMD(row.startDate) }}
+              </template>
+            </el-table-column>
+            <el-table-column label="结束时间" prop="endDate">
+              <template #default="{ row }">
+                {{ formatDateYMD(row.endDate) }}
+              </template>
+            </el-table-column>
             <el-table-column label="离职原因" prop="reason"/>
             <el-table-column label="状态" prop="status">
               <template #default="{ row }">
@@ -130,10 +154,10 @@
             {{ detailInfo.name }}
           </el-descriptions-item>
           <el-descriptions-item label="开始日期">
-            {{ detailInfo.startDate }}
+            {{ formatDateYMD(detailInfo.startDate) }}
           </el-descriptions-item>
           <el-descriptions-item label="结束日期">
-            {{ detailInfo.endDate }}
+            {{ formatDateYMD(detailInfo.endDate) }}
           </el-descriptions-item>
           <el-descriptions-item label="原因">
             {{ detailInfo.reason }}
@@ -202,6 +226,23 @@ export default {
   created() {
     this.loadData()
   },
+  watch: {
+    activeTab: {
+      handler(newVal) {
+        switch (newVal) {
+          case 'apply':
+            this.loadApplyList();
+            break;
+          case 'todo':
+            this.loadTodoList();
+            break;
+          case 'done':
+            this.loadDoneList();
+            break;
+        }
+      }
+    }
+  },
   methods: {
     // 加载所有数据
     async loadData() {
@@ -214,6 +255,7 @@ export default {
         ])
       } catch (error) {
         console.error('加载数据失败:', error)
+        ElMessage.error('加载数据失败')
       } finally {
         this.loading = false
       }
@@ -221,34 +263,43 @@ export default {
 
     // 加载申请列表
     async loadApplyList() {
+      this.loading = true
       try {
         const res = await leaveApi.getMyApplications()
         this.applyList = res || []
       } catch (error) {
         console.error('加载申请列表失败:', error)
         ElMessage.error('加载申请列表失败')
+      } finally {
+        this.loading = false
       }
     },
 
     // 加载待办列表
     async loadTodoList() {
+      this.loading = true
       try {
         const res = await leaveApi.getTodoTasks()
         this.todoList = res || []
       } catch (error) {
         console.error('加载待办列表失败:', error)
         ElMessage.error('加载待办列表失败')
+      } finally {
+        this.loading = false
       }
     },
 
     // 加载已办列表
     async loadDoneList() {
+      this.loading = true
       try {
         const res = await leaveApi.getDoneTasks()
         this.doneList = res || []
       } catch (error) {
         console.error('加载已办列表失败:', error)
         ElMessage.error('加载已办列表失败')
+      } finally {
+        this.loading = false
       }
     },
 
@@ -367,6 +418,13 @@ export default {
       return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
     },
 
+    // 添加新的日期格式化方法（仅显示年月日）
+    formatDateYMD(dateStr) {
+      if (!dateStr) return '';
+      const date = new Date(dateStr);
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    },
+
     // 进度查询：跳转到流程图页面（实例详情页面）
     viewProgress(row) {
       // 判断是否存在工作流实例ID（workflowVersionId字段保存了流程启动后返回的ID）
@@ -402,6 +460,7 @@ export default {
 
 .tab-content {
   padding: 20px 0;
+  min-height: 300px;
 }
 
 .header {
@@ -421,7 +480,8 @@ export default {
 }
 
 :deep(.el-table) {
-  margin-top: 20px;
+  height: 100%;
+  min-height: 200px;
 }
 
 .dialog-footer {
