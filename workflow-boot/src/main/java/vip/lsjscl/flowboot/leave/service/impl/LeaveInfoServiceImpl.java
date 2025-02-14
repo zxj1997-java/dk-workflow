@@ -14,6 +14,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Transactional
 @Service
@@ -110,23 +111,19 @@ public class LeaveInfoServiceImpl implements LeaveInfoService {
         }
     }
 
-    public boolean judgment(String businessId) {
+    public boolean isWithinTwoDays(String businessId) {
         //从Spring容器中获取Bean
         LeaveInfoRepository leaveInfoRepository = SpringContextUtil.getBean(LeaveInfoRepository.class);
         Optional<LeaveInfo> optionalLeave = leaveInfoRepository.findById(Long.valueOf(businessId));
         LeaveInfo leaveInfo = optionalLeave.get();
-        Date leaveDate = leaveInfo.getLeaveDate();
-        //leaveDate是否在两天内
-        return leaveDate == null || !leaveDate.after(new Date(System.currentTimeMillis() + 2 * 24 * 60 * 60 * 1000));
+        Date startDate = leaveInfo.getStartDate();
+        Date endDate = leaveInfo.getEndDate();
+        long diffInMillies = Math.abs(endDate.getTime() - startDate.getTime());
+        long diffInDays = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
+        return diffInDays < 2;
     }
 
-    public boolean judgment2(String businessId) {
-        //从Spring容器中获取Bean
-        LeaveInfoRepository leaveInfoRepository = SpringContextUtil.getBean(LeaveInfoRepository.class);
-        Optional<LeaveInfo> optionalLeave = leaveInfoRepository.findById(Long.valueOf(businessId));
-        LeaveInfo leaveInfo = optionalLeave.get();
-        Date leaveDate = leaveInfo.getLeaveDate();
-        //leaveDate是否在两天内
-        return leaveDate == null || leaveDate.after(new Date(System.currentTimeMillis() + 2 * 24 * 60 * 60 * 1000));
+    public boolean notWithinTwoDays(String businessId) {
+        return !isWithinTwoDays(businessId);
     }
 } 

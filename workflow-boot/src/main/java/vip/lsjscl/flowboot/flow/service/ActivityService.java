@@ -1,6 +1,7 @@
 package vip.lsjscl.flowboot.flow.service;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.lsjscl.flowboot.common.exception.BusinessException;
@@ -190,7 +191,7 @@ public class ActivityService {
         }
 
         try {
-            int lastDotIndex = conditionClass.lastIndexOf(".");
+            int lastDotIndex = conditionClass.lastIndexOf("#");
             if (lastDotIndex == -1) {
                 throw new IllegalArgumentException("Invalid condition class format");
             }
@@ -200,7 +201,8 @@ public class ActivityService {
 
             // 加载类并验证方法签名
             Class<?> clazz = Class.forName(className);
-            Method method = clazz.getMethod(methodName, String.class); // 明确指定参数类型
+            // 明确指定参数类型
+            Method method = clazz.getMethod(methodName, String.class);
 
 
             // 验证返回类型

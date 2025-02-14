@@ -6,6 +6,12 @@ import org.hibernate.annotations.Comment;
 
 import java.util.Date;
 
+/**
+ * 请假信息
+ *
+ * @author zhangxingju
+ * @date 2025/02/14
+ */
 @Data
 @Entity
 @Table(name = "leave_info")
@@ -23,10 +29,13 @@ public class LeaveInfo {
     @Column(name = "reason")
     private String reason;
 
+    @Comment("开始日期")
+    @Column(name = "start_date")
+    private Date startDate;
 
-    @Comment("离职日期")
-    @Column(name = "leave_date")
-    private Date leaveDate;
+    @Comment("结束日期")
+    @Column(name = "end_date")
+    private Date endDate;
 
 
     @Comment("状态")

@@ -9,7 +9,10 @@
           </div>
           <el-table :data="applyList" style="width: 100%; margin-top: 20px">
             <el-table-column label="申请编号" prop="id" width="180"/>
+            <el-table-column label="申请人" prop="name"/>
             <el-table-column label="离职原因" prop="reason"/>
+            <el-table-column label="开始时间" prop="startDate"/>
+            <el-table-column label="结束时间" prop="endDate"/>
             <el-table-column label="状态" prop="status">
               <template #default="{ row }">
                 <el-tag :type="getStatusType(row.status)">{{ getStatusText(row.status) }}</el-tag>
@@ -39,6 +42,8 @@
             <el-table-column label="申请编号" prop="id" width="180"/>
             <el-table-column label="申请人" prop="name"/>
             <el-table-column label="离职原因" prop="reason"/>
+            <el-table-column label="开始时间" prop="startDate"/>
+            <el-table-column label="结束时间" prop="endDate"/>
             <el-table-column label="当前节点" prop="nodeName"/>
             <el-table-column label="申请时间" prop="createTime">
               <template #default="{ row }">
@@ -62,6 +67,8 @@
           <el-table :data="doneList" style="width: 100%; margin-top: 20px">
             <el-table-column label="申请编号" prop="id" width="180"/>
             <el-table-column label="申请人" prop="name"/>
+            <el-table-column label="开始时间" prop="startDate"/>
+            <el-table-column label="结束时间" prop="endDate"/>
             <el-table-column label="离职原因" prop="reason"/>
             <el-table-column label="状态" prop="status">
               <template #default="{ row }">
@@ -90,8 +97,12 @@
           <el-input v-model="leaveForm.name" placeholder="请输入姓名"/>
         </el-form-item>
 
-        <el-form-item label="离职日期" prop="leaveDate">
-          <el-date-picker v-model="leaveForm.leaveDate" format="YYYY-MM-DD" placeholder="选择离职日期" style="width: 100%" type="date" value-format="YYYY-MM-DD"/>
+        <el-form-item label="开始日期" prop="startDate">
+          <el-date-picker v-model="leaveForm.startDate" format="YYYY-MM-DD" placeholder="选择离职日期" style="width: 100%" type="date" value-format="YYYY-MM-DD"/>
+        </el-form-item>
+
+        <el-form-item label="结束日期" prop="endDate">
+          <el-date-picker v-model="leaveForm.endDate" format="YYYY-MM-DD" placeholder="选择离职日期" style="width: 100%" type="date" value-format="YYYY-MM-DD"/>
         </el-form-item>
 
         <el-form-item label="离职原因" prop="reason">
@@ -118,10 +129,13 @@
           <el-descriptions-item label="申请人">
             {{ detailInfo.name }}
           </el-descriptions-item>
-          <el-descriptions-item label="离职日期">
-            {{ detailInfo.leaveDate }}
+          <el-descriptions-item label="开始日期">
+            {{ detailInfo.startDate }}
           </el-descriptions-item>
-          <el-descriptions-item label="离职原因">
+          <el-descriptions-item label="结束日期">
+            {{ detailInfo.endDate }}
+          </el-descriptions-item>
+          <el-descriptions-item label="原因">
             {{ detailInfo.reason }}
           </el-descriptions-item>
           <el-descriptions-item label="状态">
@@ -161,7 +175,8 @@ export default {
       selectedBusinessId: null,
       leaveForm: {
         name: '',
-        leaveDate: '',
+        startDate: '',
+        endDate: '',
         reason: '',
         status: 'DRAFT'
       },
@@ -169,11 +184,14 @@ export default {
         name: [
           {required: true, message: '请输入姓名', trigger: 'blur'}
         ],
-        leaveDate: [
-          {required: true, message: '请选择离职日期', trigger: 'change'}
+        startDate: [
+          {required: true, message: '请选择开始日期', trigger: 'change'}
+        ],
+        endDate: [
+          {required: true, message: '请选择结束日期', trigger: 'change'}
         ],
         reason: [
-          {required: true, message: '请输入离职原因', trigger: 'blur'}
+          {required: true, message: '请输入原因', trigger: 'blur'}
         ]
       },
       loading: false,
@@ -315,7 +333,8 @@ export default {
     createApplication() {
       this.leaveForm = {
         name: '',
-        leaveDate: '',
+        startDate: '',
+        endDate: '',
         reason: '',
         status: 'DRAFT'
       }
