@@ -497,7 +497,7 @@ export default {
 
 <style scoped>
 .instance-viewer {
-  padding: 20px;
+  padding: 10px 20px 20px 20px;
   height: calc(100vh - 0px); /* 调整高度 */
   min-height: 600px; /* 添加最小高度 */
   display: flex;
@@ -508,7 +508,7 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   flex-shrink: 0; /* 防止头部压缩 */
 }
 
