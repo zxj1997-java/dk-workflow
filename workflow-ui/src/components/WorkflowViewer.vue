@@ -398,10 +398,6 @@ export default {
   min-height: 500px;
 }
 
-.drawer-container {
-  padding: 20px;
-}
-
 .property-item {
   margin-bottom: 16px;
 }

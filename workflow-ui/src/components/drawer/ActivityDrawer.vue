@@ -15,7 +15,12 @@
         </el-form-item>
 
         <el-form-item label="执行后class">
-          <el-input v-model="form.afterClass" placeholder="类名.方法名"></el-input>
+          <el-input 
+            type="textarea" 
+            :autosize="{ minRows: 1, maxRows: 2 }" 
+            v-model="form.afterClass" 
+            placeholder="类名(全路径).方法名">
+          </el-input>
         </el-form-item>
 
         <el-form-item label="审核人员">
@@ -205,7 +210,6 @@ export default {
 .drawer-container {
   height: 100%;
   overflow-y: auto;
-  padding: 20px;
 }
 
 .drawer-footer {
