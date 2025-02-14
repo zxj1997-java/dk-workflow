@@ -1,5 +1,6 @@
 package vip.lsjscl.flowboot.flow.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -10,6 +11,7 @@ import vip.lsjscl.flowboot.flow.entity.Activity;
 import vip.lsjscl.flowboot.flow.entity.RuntimeTask;
 import vip.lsjscl.flowboot.flow.repository.RuntimeTaskRepository;
 import vip.lsjscl.flowboot.flow.service.ActivityService;
+import vip.lsjscl.flowboot.flow.service.TaskService;
 import vip.lsjscl.flowboot.leave.common.utils.R;
 
 import java.util.*;
@@ -23,14 +25,15 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/api/workflow")
-@CrossOrigin(origins = "http://localhost:8081")  // 根据需要配置允许的跨域访问
+@CrossOrigin(origins = "http://localhost:8081")
+@RequiredArgsConstructor
 public class TaskController {
 
-    @Autowired
-    private RuntimeTaskRepository runtimeTaskRepository;
+    private final RuntimeTaskRepository runtimeTaskRepository;
 
-    @Autowired
-    private ActivityService activityService;
+    private final TaskService taskService;
+
+    private final ActivityService activityService;
 
     /**
      * 根据业务ID查询运行时任务
@@ -41,8 +44,8 @@ public class TaskController {
      */
     @GetMapping("/runtime-tasks/{businessId}")
     public R getRuntimeTasks(@PathVariable("businessId") String businessId) {
-        List<RuntimeTask> tasks = runtimeTaskRepository.findByBusinessId(businessId);
-        return R.ok().put("data", tasks);
+        List<RuntimeTask> tasks = taskService.getTasksByBusinessId(businessId);
+        return R.ok(tasks);
     }
 
 

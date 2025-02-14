@@ -31,6 +31,10 @@ public class HistoryTask {
     @Column(name = "workflow_version_id")
     private Long workflowVersionId;
 
+    @Comment("业务ID")
+    @Column(name = "business_id")
+    private String businessId;
+
     @Comment("创建时间")
     @Column(name = "create_time")
     private LocalDateTime createTime;

@@ -117,6 +117,7 @@ public class TaskService {
             HistoryTask historyTask = new HistoryTask();
             historyTask.setActivity(task.getActivity());
             historyTask.setWorkflowVersionId(task.getWorkflowVersionId());
+            historyTask.setBusinessId(task.getBusinessId());
             historyTask.setStatus(task.getStatus());
             historyTask.setComment(task.getComment());
             historyTask.setCreateTime(task.getCreateTime());
@@ -136,5 +137,39 @@ public class TaskService {
 
     private boolean hasOutgoingTransitions(Activity activity) {
         return !transitionRepository.findByFromActivity(activity).isEmpty();
+    }
+
+    /**
+     * 获取任务记录（先查运行时任务，如果没有则查历史任务）
+     * @param businessId 业务ID
+     * @return 任务列表
+     */
+    public List<RuntimeTask> getTasksByBusinessId(String businessId) {
+        // 先查询运行时任务
+        List<RuntimeTask> runtimeTasks = runtimeTaskRepository.findByBusinessId(businessId);
+        if (!runtimeTasks.isEmpty()) {
+            return runtimeTasks;
+        }
+
+        // 如果运行时任务为空，则查询历史任务并转换为RuntimeTask
+        List<HistoryTask> historyTasks = historyTaskRepository.findByBusinessId(businessId);
+        return historyTasks.stream()
+                .map(this::convertToRuntimeTask)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 将历史任务转换为运行时任务对象
+     */
+    private RuntimeTask convertToRuntimeTask(HistoryTask historyTask) {
+        RuntimeTask runtimeTask = new RuntimeTask();
+        runtimeTask.setId(historyTask.getId());
+        runtimeTask.setActivity(historyTask.getActivity());
+        runtimeTask.setWorkflowVersionId(historyTask.getWorkflowVersionId());
+        runtimeTask.setStatus(historyTask.getStatus());
+        runtimeTask.setComment(historyTask.getComment());
+        runtimeTask.setCreateTime(historyTask.getCreateTime());
+        runtimeTask.setUpdateTime(historyTask.getUpdateTime());
+        return runtimeTask;
     }
 } 
