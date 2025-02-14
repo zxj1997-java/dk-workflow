@@ -13,7 +13,7 @@ export const workflowApi = {
 
     // 保存工作流
     saveWorkflow(data) {
-        const url = data.id ? `/api/workflow/${data.id}` : '/api/workflow/save'
+        const url = `/api/workflow/${data.id}`
         return request({
             url,
             method: 'post',
@@ -45,21 +45,6 @@ export const workflowApi = {
         })
     },
 
-    // 获取工作流版本列表
-    getWorkflowVersions(id) {
-        return request({
-            url: `/api/workflow/${id}/versions`,
-            method: 'get'
-        })
-    },
-
-    // 获取工作流指定版本
-    getWorkflowVersion(workflowId, version) {
-        return request({
-            url: `/api/workflow/${workflowId}/version/${version}`,
-            method: 'get'
-        })
-    },
     // 根据流程编码获取流程定义
     getWorkflowByCode(code) {
         return request({

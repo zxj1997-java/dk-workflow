@@ -52,18 +52,7 @@ public class WorkflowController {
      */
     @PostMapping("/{id}")
     public R updateWorkflow(@PathVariable Long id, @RequestBody WorkflowSaveDTO request) {
-        Workflow saved = workflowService.saveWorkflow(request.getName(), request.getFlowData(), id);
-        return R.ok(saved);
-    }
-
-    /**
-     * 保存工作流
-     *
-     * @param request 工作流dto对象
-     */
-    @PostMapping("/save")
-    public R saveWorkflow(@RequestBody WorkflowSaveDTO request) {
-        Workflow saved = workflowService.saveWorkflow(request.getName(), request.getFlowData(), null);
+        Workflow saved = workflowService.saveWorkflow(request.getFlowData(), id);
         return R.ok(saved);
     }
 

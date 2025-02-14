@@ -97,7 +97,7 @@ public class WorkflowService {
         return workflowRepository.save(workflow);
     }
 
-    public Workflow saveWorkflow(String name, String flowData, Long id) {
+    public Workflow saveWorkflow(String flowData, Long id) {
         Workflow workflow;
         if (id != null) {
             workflow = workflowRepository.findById(id)
@@ -106,7 +106,6 @@ public class WorkflowService {
         else {
             workflow = new Workflow();
         }
-        workflow.setName(name);
         workflow.setFlowData(flowData);
         workflow.setStatus("DRAFT");
         return workflowRepository.save(workflow);
