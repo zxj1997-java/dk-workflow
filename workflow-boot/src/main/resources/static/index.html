@@ -4,9 +4,46 @@
     <meta charset="UTF-8">
     <title>工作流示例</title>
     <script src="/js/workflow.js"></script>
+    <style>
+        /* 重置默认样式 */
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        .page-container {
+            display: flex;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        .business-content {
+            flex: 1;
+            padding: 20px;
+            border-right: 1px solid #ebeef5;
+            overflow: auto; /* 如果业务内容过长，只在内容区域显示滚动条 */
+        }
+        
+        .workflow-sidebar {
+            width: 300px;
+            border-left: 1px solid #ebeef5;
+            overflow: hidden; /* 确保侧边栏不会出现滚动条 */
+        }
+    </style>
 </head>
 <body>
-<div id="workflowContainer"></div>
+<div class="page-container">
+    <div class="business-content">
+        <!-- 业务内容区域 -->
+        <h2>请假申请</h2>
+        <p>这里是业务表单内容...</p>
+    </div>
+    <div class="workflow-sidebar">
+        <div id="workflowContainer"></div>
+    </div>
+</div>
 <script>
     const workflow = new WorkflowPlugin({
         container: 'workflowContainer',

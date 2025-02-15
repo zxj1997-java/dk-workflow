@@ -45,32 +45,9 @@ class WorkflowPlugin {
         const mainContainer = document.createElement('div');
         mainContainer.className = 'workflow-main';
 
-        // 创建按钮和意见框容器
-        const actionContainer = document.createElement('div');
-        actionContainer.className = 'workflow-action';
-
-        // 创建操作按钮
-        if (data.operations && Array.isArray(data.operations)) {
-            data.operations.forEach(op => {
-                const button = document.createElement('button');
-                button.textContent = op.label;
-                button.className = 'workflow-button';
-                button.onclick = () => this.handleOperation(op.value);
-                actionContainer.appendChild(button);
-            });
-        }
-
-        // 创建意见输入框
-        const commentInput = document.createElement('textarea');
-        commentInput.className = 'workflow-comment';
-        commentInput.placeholder = '请输入处理意见...';
-        actionContainer.appendChild(commentInput);
-
-        // 创建流程监控按钮
-        const monitorButton = document.createElement('button');
-        monitorButton.textContent = '流程监控';
-        monitorButton.className = 'workflow-monitor-button';
-        monitorButton.onclick = () => this.openProcessMonitor();
+        // 1. 创建状态和监控按钮容器
+        const headerContainer = document.createElement('div');
+        headerContainer.className = 'workflow-header';
 
         // 创建状态显示
         const statusContainer = document.createElement('div');
@@ -83,10 +60,38 @@ class WorkflowPlugin {
             `;
         }
 
-        // 添加到主容器
-        mainContainer.appendChild(actionContainer);
-        mainContainer.appendChild(statusContainer);
-        mainContainer.appendChild(monitorButton);
+        // 创建流程监控按钮
+        const monitorButton = document.createElement('button');
+        monitorButton.textContent = '流程监控';
+        monitorButton.className = 'workflow-monitor-button';
+        monitorButton.onclick = () => this.openProcessMonitor();
+
+        // 将状态和监控按钮添加到头部容器
+        headerContainer.appendChild(statusContainer);
+        headerContainer.appendChild(monitorButton);
+
+        // 2. 创建意见输入框
+        const commentInput = document.createElement('textarea');
+        commentInput.className = 'workflow-comment';
+        commentInput.placeholder = '请输入处理意见...';
+
+        // 3. 创建操作按钮组
+        const buttonContainer = document.createElement('div');
+        buttonContainer.className = 'workflow-buttons';
+        if (data.operations && Array.isArray(data.operations)) {
+            data.operations.forEach(op => {
+                const button = document.createElement('button');
+                button.textContent = op.label;
+                button.className = 'workflow-button';
+                button.onclick = () => this.handleOperation(op.value);
+                buttonContainer.appendChild(button);
+            });
+        }
+
+        // 按顺序添加到主容器
+        mainContainer.appendChild(headerContainer);
+        mainContainer.appendChild(commentInput);
+        mainContainer.appendChild(buttonContainer);
         container.appendChild(mainContainer);
 
         // 添加样式
@@ -98,7 +103,7 @@ class WorkflowPlugin {
         const comment = commentInput ? commentInput.value.trim() : '';
 
         if (!comment) {
-            alert('请输入处理意见');
+            this.showMessage('请输入处理意见', 'warning');
             return;
         }
 
@@ -115,19 +120,58 @@ class WorkflowPlugin {
             });
             const result = await response.json();
             if (result.code === 0) {
-                alert('处理成功');
+                this.showMessage('处理成功', 'success');
                 window.location.reload();
             } else {
-                alert('处理失败: ' + result.msg);
+                this.showMessage(result.msg || '处理失败', 'error');
             }
         } catch (error) {
             console.error('处理失败:', error);
-            alert('处理失败');
+            this.showMessage('处理失败', 'error');
         }
     }
 
     openProcessMonitor() {
-        window.open(`${this.monitorUrl}workflow/instance/detail/${this.businessId}`);
+        // 创建遮罩层
+        const overlay = document.createElement('div');
+        overlay.className = 'workflow-overlay';
+        
+        // 创建弹框容器
+        const modal = document.createElement('div');
+        modal.className = 'workflow-modal';
+        
+        // 创建弹框头部
+        const header = document.createElement('div');
+        header.className = 'workflow-modal-header';
+        header.innerHTML = `
+            <span>流程监控</span>
+            <button class="workflow-modal-close">&times;</button>
+        `;
+        
+        // 创建弹框内容
+        const content = document.createElement('div');
+        content.className = 'workflow-modal-content';
+        
+        // 创建iframe加载流程监控页面
+        const iframe = document.createElement('iframe');
+        iframe.src = `${this.monitorUrl}workflow/instance/detail/${this.businessId}`;
+        iframe.className = 'workflow-modal-iframe';
+        
+        // 组装弹框
+        content.appendChild(iframe);
+        modal.appendChild(header);
+        modal.appendChild(content);
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+        
+        // 绑定关闭事件
+        const closeBtn = modal.querySelector('.workflow-modal-close');
+        closeBtn.onclick = () => document.body.removeChild(overlay);
+        overlay.onclick = (e) => {
+            if (e.target === overlay) {
+                document.body.removeChild(overlay);
+            }
+        };
     }
 
     showError(message) {
@@ -139,6 +183,21 @@ class WorkflowPlugin {
                 </div>
             `;
         }
+    }
+
+    showMessage(message, type = 'info') {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `workflow-message ${type}`;
+        messageDiv.textContent = message;
+        document.body.appendChild(messageDiv);
+
+        // 2秒后自动消失
+        setTimeout(() => {
+            messageDiv.classList.add('fade-out');
+            setTimeout(() => {
+                document.body.removeChild(messageDiv);
+            }, 300);
+        }, 2000);
     }
 
     getStatusText(status) {
@@ -157,55 +216,146 @@ class WorkflowPlugin {
         const style = document.createElement('style');
         style.id = 'workflow-styles';
         style.textContent = `
+            ${this.getBaseStyles()}
+            
+            .workflow-message {
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                padding: 10px 20px;
+                border-radius: 4px;
+                font-size: 14px;
+                z-index: 9999;
+                transition: opacity 0.3s, transform 0.3s;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            }
+            .workflow-message.success {
+                background-color: #f0f9eb;
+                color: #67c23a;
+                border: 1px solid #e1f3d8;
+            }
+            .workflow-message.warning {
+                background-color: #fdf6ec;
+                color: #e6a23c;
+                border: 1px solid #faecd8;
+            }
+            .workflow-message.error {
+                background-color: #fef0f0;
+                color: #f56c6c;
+                border: 1px solid #fde2e2;
+            }
+            .workflow-message.info {
+                background-color: #f4f4f5;
+                color: #909399;
+                border: 1px solid #e9e9eb;
+            }
+            .workflow-message.fade-out {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    // 将原有的样式移到单独的方法中
+    getBaseStyles() {
+        return `
+            ${this.getOriginalStyles()}
+
+            .workflow-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 9999;
+            }
+            
+            .workflow-modal {
+                background: white;
+                border-radius: 4px;
+                width: 90%;
+                height: 90%;
+                display: flex;
+                flex-direction: column;
+                box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            }
+            
+            .workflow-modal-header {
+                padding: 15px 20px;
+                border-bottom: 1px solid #e4e7ed;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .workflow-modal-header span {
+                font-size: 16px;
+                font-weight: 500;
+                color: #303133;
+            }
+            
+            .workflow-modal-close {
+                border: none;
+                background: none;
+                font-size: 20px;
+                color: #909399;
+                cursor: pointer;
+                padding: 0;
+                line-height: 1;
+            }
+            
+            .workflow-modal-close:hover {
+                color: #409eff;
+            }
+            
+            .workflow-modal-content {
+                flex: 1;
+                padding: 20px;
+                overflow: hidden;
+            }
+            
+            .workflow-modal-iframe {
+                width: 100%;
+                height: 100%;
+                border: none;
+            }
+        `;
+    }
+
+    // 将原有的基础样式移到单独的方法中
+    getOriginalStyles() {
+        return `
             .workflow-main {
                 padding: 20px;
-                border: 1px solid #ebeef5;
-                border-radius: 4px;
-            }
-            .workflow-action {
+                height: 100vh;
                 display: flex;
+                flex-direction: column;
+                box-sizing: border-box;
+            }
+            .workflow-header {
+                height: 10%;
+                min-height: 50px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
                 gap: 10px;
-                margin-bottom: 16px;
-            }
-            .workflow-button {
-                padding: 8px 16px;
-                border: 1px solid #dcdfe6;
-                border-radius: 4px;
-                background: #fff;
-                cursor: pointer;
-            }
-            .workflow-button:hover {
-                background: #f5f7fa;
-            }
-            .workflow-comment {
-                flex: 1;
-                min-height: 60px;
-                padding: 8px;
-                border: 1px solid #dcdfe6;
-                border-radius: 4px;
-                resize: vertical;
-            }
-            .workflow-monitor-button {
-                margin-top: 16px;
-                padding: 8px 16px;
-                border: 1px solid #409eff;
-                border-radius: 4px;
-                background: #ecf5ff;
-                color: #409eff;
-                cursor: pointer;
-            }
-            .workflow-monitor-button:hover {
-                background: #409eff;
-                color: #fff;
+                padding-bottom: 10px;
             }
             .workflow-status {
-                margin-top: 16px;
+                flex-shrink: 0;
             }
             .status-tag {
                 display: inline-block;
-                padding: 4px 8px;
+                padding: 6px 12px;
                 border-radius: 4px;
-                font-size: 12px;
+                font-size: 14px;
+                font-weight: bold;
             }
             .status-tag.pending {
                 background: #e6a23c;
@@ -223,6 +373,61 @@ class WorkflowPlugin {
                 background: #909399;
                 color: #fff;
             }
+            .workflow-monitor-button {
+                padding: 6px 12px;
+                border: 1px solid #409eff;
+                border-radius: 4px;
+                background: #ecf5ff;
+                color: #409eff;
+                cursor: pointer;
+                font-size: 14px;
+                white-space: nowrap;
+            }
+            .workflow-monitor-button:hover {
+                background: #409eff;
+                color: #fff;
+            }
+            .workflow-comment {
+                height: 70%;
+                min-height: 200px;
+                padding: 10px;
+                border: 1px solid #dcdfe6;
+                border-radius: 4px;
+                resize: none;
+                font-size: 14px;
+                box-sizing: border-box;
+                margin: 10px 0;
+                transition: border-color 0.2s ease-in-out;
+                outline: none;
+            }
+            .workflow-comment:hover {
+                border-color: #c0c4cc;
+            }
+            .workflow-comment:focus {
+                border-color: #409eff80;
+                box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.1);
+            }
+            .workflow-buttons {
+                height: 20%;
+                min-height: 60px;
+                display: flex;
+                gap: 10px;
+                justify-content: center;
+                align-items: flex-start;
+                padding-top: 10px;
+            }
+            .workflow-button {
+                padding: 10px 20px;
+                border: 1px solid #dcdfe6;
+                border-radius: 4px;
+                background: #fff;
+                cursor: pointer;
+                font-size: 14px;
+                white-space: nowrap;
+            }
+            .workflow-button:hover {
+                background: #f5f7fa;
+            }
             .workflow-error {
                 color: #f56c6c;
                 padding: 8px;
@@ -231,6 +436,5 @@ class WorkflowPlugin {
                 border-radius: 4px;
             }
         `;
-        document.head.appendChild(style);
     }
 } 
