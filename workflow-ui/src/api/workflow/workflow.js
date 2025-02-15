@@ -51,5 +51,20 @@ export const workflowApi = {
             url: `/api/workflow/code/${code}`,
             method: 'get'
         })
+    },
+    
+    // 获取工作流详细信息（用于导出）
+    getWorkflowDetail: (id) => {
+        return request({
+            url: `/api/workflow/${id}/export`,
+            method: 'get'
+        })
+    },
+     // 删除工作流
+     deleteWorkflow: (id) => {
+        return request({
+            url: `/api/workflow/${id}`,
+            method: 'delete'
+        })
     }
 }

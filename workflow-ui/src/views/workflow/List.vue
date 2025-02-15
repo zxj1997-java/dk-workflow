@@ -23,10 +23,16 @@
           v{{ scope.row.currentVersion || 0 }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="400">
+      <el-table-column label="操作" width="500">
         <template #default="scope">
           <el-button size="small" type="primary" @click="editWorkflow(scope.row.id)">配置</el-button>
           <el-button size="small" type="success" @click="publishWorkflow(scope.row.id)">发布</el-button>
+          <el-button size="small" type="info" @click="exportWorkflow(scope.row)">导出</el-button>
+          <el-button 
+              v-if="scope.row.status === 0"
+              size="small" 
+              type="danger" 
+              @click="deleteWorkflow(scope.row.id)">删除</el-button>
           <el-dropdown trigger="click" @command="handleVersionCommand">
             <el-button size="small" type="warning">
               版本
@@ -161,6 +167,60 @@ export default {
         '1': '已发布',
       };
       return statusMap[status] || status; // 默认返回原始状态
+    },
+    // 导出工作流
+    async exportWorkflow(workflow) {
+      try {
+        // 获取工作流详细信息
+        const res = await workflowApi.getWorkflowDetail(workflow.id)
+
+        console.log("获取工作流详细信息",res);
+        
+        // 创建Blob对象
+        const blob = new Blob([JSON.stringify(res, null, 2)], {
+          type: 'application/json'
+        })
+        
+        // 创建下载链接
+        const url = window.URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        link.download = `${workflow.name}_${workflow.code}_flow.json`
+        
+        // 触发下载
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(url)
+        
+        ElMessage.success('导出成功')
+      } catch (error) {
+        console.error('导出失败:', error)
+        ElMessage.error('导出失败')
+      }
+    },
+    // 删除工作流
+    async deleteWorkflow(id) {
+      try {
+        await ElMessageBox.confirm(
+          '确定要删除该工作流吗？',
+          '删除确认',
+          {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }
+        )
+        
+        await workflowApi.deleteWorkflow(id)
+        ElMessage.success('删除成功')
+        this.getList() // 刷新列表
+      } catch (error) {
+        if (error !== 'cancel') {
+          console.error('删除失败:', error)
+          ElMessage.error('删除失败')
+        }
+      }
     }
   }
 }

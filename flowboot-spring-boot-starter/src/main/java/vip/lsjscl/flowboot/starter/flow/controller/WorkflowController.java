@@ -16,6 +16,8 @@ import jakarta.validation.Valid;
 import vip.lsjscl.flowboot.starter.common.R;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * 工作流定义控制器
@@ -40,8 +42,15 @@ public class WorkflowController {
      */
     @PostMapping("/create")
     public R createWorkflow(@RequestBody @Valid WorkflowCreateDTO dto) {
-        Workflow workflow = workflowService.createWorkflow(dto);
-        return R.ok(workflow);
+        try {
+            //创建工作流
+            Workflow workflow = workflowService.createWorkflow(dto);
+            return R.ok(workflow);
+        }
+        catch (Exception e) {
+            log.error("创建工作流失败", e);
+            throw new BusinessException("创建工作流失败: " + e.getMessage());
+        }
     }
 
     /**
@@ -130,5 +139,47 @@ public class WorkflowController {
     public R getWorkflowVersion(@PathVariable Long id, @PathVariable Integer version) {
         WorkflowVersion workflowVersion = workflowService.getWorkflowVersion(id, version);
         return R.ok(workflowVersion);
+    }
+
+    /**
+     * 导出工作流
+     *
+     * @param id 工作流ID
+     */
+    @GetMapping("/{id}/export")
+    public R exportWorkflow(@PathVariable Long id) {
+        try {
+            Workflow workflow = workflowService.findById(id);
+            if (workflow == null) {
+                throw new BusinessException("工作流不存在");
+            }
+            
+            // 构建导出数据
+            Map<String, Object> exportData = new HashMap<>();
+            exportData.put("name", workflow.getName());
+            exportData.put("code", workflow.getCode());
+            exportData.put("flowData", workflow.getFlowData());
+            
+            return R.ok(exportData);
+        } catch (Exception e) {
+            log.error("导出工作流失败", e);
+            throw new BusinessException("导出工作流失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 删除未发布的工作流
+     *
+     * @param id 工作流ID
+     */
+    @DeleteMapping("/{id}")
+    public R deleteWorkflow(@PathVariable Long id) {
+        try {
+            workflowService.deleteWorkflow(id);
+            return R.ok();
+        } catch (Exception e) {
+            log.error("删除工作流失败", e);
+            throw new BusinessException("删除工作流失败: " + e.getMessage());
+        }
     }
 }

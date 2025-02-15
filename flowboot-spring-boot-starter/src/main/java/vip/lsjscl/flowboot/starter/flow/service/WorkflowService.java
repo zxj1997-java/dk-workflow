@@ -2,6 +2,7 @@ package vip.lsjscl.flowboot.starter.flow.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -95,6 +96,9 @@ public class WorkflowService {
         workflow.setCreateTime(LocalDateTime.now());
         workflow.setStatus(0);
         workflow.setFlowData("");
+        if(StringUtils.isNotBlank(dto.getFlowData())){
+            workflow.setFlowData(dto.getFlowData());
+        }
         return workflowRepository.save(workflow);
     }
 
@@ -237,5 +241,23 @@ public class WorkflowService {
         return CollectionUtils.isEmpty(list) ? "" : String.join(",", list);
     }
 
+    /**
+     * 删除未发布的工作流
+     *
+     * @param id 工作流ID
+     */
+    @Transactional
+    public void deleteWorkflow(Long id) {
+        Workflow workflow = workflowRepository.findById(id)
+                .orElseThrow(() -> new BusinessException("工作流不存在"));
+        
+        // 检查工作流状态，只能删除未发布的工作流
+        if (workflow.getStatus() == 1) {
+            throw new BusinessException("已发布的工作流不能删除");
+        }
+        
+        // 删除工作流
+        workflowRepository.deleteById(id);
+    }
 
 }
