@@ -166,3 +166,123 @@ MIT License
 ![trans_list.png](example%2Ftrans_list.png)
 ![leave_list.png](example%2Fleave_list.png)
 ![process_view.png](example%2Fprocess_view.png)
+
+## 最新更新内容 (2025/02/15)
+
+### 1. 删除策略配置
+
+现在支持通过配置选择使用物理删除或逻辑删除：
+
+```yaml
+# 工作流引擎配置
+flow-boot:
+  # 是否启用物理删除,默认为false(逻辑删除)
+  physical-delete: false
+```
+
+- 默认使用逻辑删除（is_deleted = true）
+- 配置 physical-delete = true 时使用物理删除
+- 查询时自动过滤已删除数据
+
+### 2. 用户信息获取机制
+
+新增用户信息提供接口，便于集成系统用户体系：
+
+```java
+@Component
+public class CustomUserInfoProvider implements UserInfoProvider {
+    @Override
+    public String getCurrentUserId() {
+        // 实现获取当前用户ID的逻辑
+        return "当前用户ID";
+    }
+    
+    @Override
+    public String getCurrentUsername() {
+        // 实现获取当前用户名的逻辑
+        return "当前用户名";
+    }
+}
+```
+
+特性：
+- 自动记录数据创建和更新人
+- 支持自定义用户信息获取逻辑
+- 默认提供系统用户实现
+
+### 3. JSON 数据处理优化
+
+为工作流定义数据添加 JSON 转换支持：
+
+```java
+@Convert(converter = JsonConverter.class)
+private Object flowData;
+```
+
+优势：
+- 自动处理 JSON 序列化和反序列化
+- 支持直接操作对象，无需手动转换
+- 统一的异常处理机制
+
+使用示例：
+```java
+// 保存数据
+Workflow workflow = new Workflow();
+Map<String, Object> flowData = new HashMap<>();
+flowData.put("nodes", Arrays.asList("node1", "node2"));
+workflow.setFlowData(flowData);
+
+// 读取数据
+Workflow workflow = workflowRepository.findById(id).orElse(null);
+JsonNode flowData = (JsonNode) workflow.getFlowData();
+String node1 = flowData.get("nodes").get(0).asText();
+```
+
+### 4. 其他优化
+
+1. 实体关系优化：
+   - 使用懒加载优化性能
+   - 优化外键关系配置
+
+2. 配置项统一：
+   - 将配置前缀统一为 `flow-boot`
+   - 支持更灵活的配置扩展
+
+## 使用说明
+
+### 1. 配置删除策略
+
+在 application.yml 中添加：
+```yaml
+flow-boot:
+  physical-delete: false  # true为物理删除，false为逻辑删除
+```
+
+### 2. 集成用户系统
+
+创建自定义用户信息提供者：
+```java
+@Component
+public class CustomUserInfoProvider implements UserInfoProvider {
+    @Override
+    public String getCurrentUserId() {
+        // 实现用户ID获取逻辑
+        return SecurityContextHolder.getContext().getAuthentication().getName();
+    }
+    
+    @Override
+    public String getCurrentUsername() {
+        // 实现用户名获取逻辑
+        return SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    }
+}
+```
+
+### 3. 使用 JSON 转换
+
+直接使用实体类即可，无需额外配置：
+```java
+Workflow workflow = new Workflow();
+workflow.setFlowData(yourJsonObject);
+workflowRepository.save(workflow);
+```
