@@ -3,6 +3,7 @@ package vip.lsjscl.flowboot.leave.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.Comment;
+import vip.lsjscl.flowboot.starter.flow.entity.BaseEntity;
 
 import java.util.Date;
 
@@ -15,11 +16,7 @@ import java.util.Date;
 @Data
 @Entity
 @Table(name = "leave_info")
-public class LeaveInfo {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class LeaveInfo extends BaseEntity {
 
     @Comment("姓名")
     @Column(name = "name")
@@ -44,7 +41,7 @@ public class LeaveInfo {
 
     @Comment("工作流版本")
     @Column(name = "workflow_version_id")
-    private Long workflowVersionId;
+    private String workflowVersionId;
 
 }
 

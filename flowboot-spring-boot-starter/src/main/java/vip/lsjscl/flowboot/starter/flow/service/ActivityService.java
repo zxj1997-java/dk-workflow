@@ -127,7 +127,7 @@ public class ActivityService {
      *
      * @return 第一个活动
      */
-    public Activity getFirstActivity(long workflowVersionId) {
+    public Activity getFirstActivity(String workflowVersionId) {
         // 根据流程版本id查询所有变迁记录
         List<Transition> transitions = transitionRepository.findByWorkflowVersionId(workflowVersionId);
         if (transitions == null || transitions.isEmpty()) {

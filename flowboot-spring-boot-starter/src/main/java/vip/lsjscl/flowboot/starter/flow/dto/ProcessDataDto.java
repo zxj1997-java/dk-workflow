@@ -11,7 +11,7 @@ import vip.lsjscl.flowboot.starter.flow.dict.TaskDecision;
  */
 @Data
 public class ProcessDataDto {
-    Long id;
+    String id;
 
     TaskDecision action;
 

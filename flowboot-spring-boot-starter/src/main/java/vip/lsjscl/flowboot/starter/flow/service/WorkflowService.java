@@ -50,7 +50,7 @@ public class WorkflowService {
      * @param businessId   业务ID，用于关联外部系统业务数据
      */
     @Transactional
-    public Long startWorkflow(String workflowCode, String businessId) {
+    public String startWorkflow(String workflowCode, String businessId) {
         // 根据流程编码查询工作流定义
         Workflow workflow = workflowRepository.findByCode(workflowCode)
                 .orElseThrow(() -> new BusinessException("未找到对应的工作流定义"));
@@ -96,13 +96,13 @@ public class WorkflowService {
         workflow.setCreateTime(LocalDateTime.now());
         workflow.setStatus(0);
         workflow.setFlowData("");
-        if(StringUtils.isNotBlank(dto.getFlowData())){
+        if (StringUtils.isNotBlank(dto.getFlowData())) {
             workflow.setFlowData(dto.getFlowData());
         }
         return workflowRepository.save(workflow);
     }
 
-    public Workflow saveWorkflow(String flowData, Long id) {
+    public Workflow saveWorkflow(String flowData, String id) {
         Workflow workflow;
         if (id != null) {
             workflow = workflowRepository.findById(id)
@@ -126,7 +126,7 @@ public class WorkflowService {
         return workflows;
     }
 
-    public Workflow findById(Long id) {
+    public Workflow findById(String id) {
         return workflowRepository.findById(id)
                 .orElseThrow(() -> new BusinessException("工作流不存在"));
     }
@@ -146,7 +146,7 @@ public class WorkflowService {
     }
 
     @Transactional
-    public WorkflowVersion publishWorkflow(Long id) {
+    public WorkflowVersion publishWorkflow(String id) {
         // 查找对应的工作流定义
         Workflow workflow = workflowRepository.findById(id)
                 .orElseThrow(() -> new BusinessException("工作流不存在"));
@@ -225,11 +225,11 @@ public class WorkflowService {
         return workflowVersion;
     }
 
-    public List<WorkflowVersion> getWorkflowVersions(Long workflowId) {
+    public List<WorkflowVersion> getWorkflowVersions(String workflowId) {
         return workflowVersionRepository.findByWorkflowIdOrderByVersionDesc(workflowId);
     }
 
-    public WorkflowVersion getWorkflowVersion(Long workflowId, Integer version) {
+    public WorkflowVersion getWorkflowVersion(String workflowId, Integer version) {
         List<WorkflowVersion> versions = workflowVersionRepository.findByWorkflowIdOrderByVersionDesc(workflowId);
         return versions.stream().filter(v -> v.getVersion().equals(version))
                 .findFirst()
@@ -247,15 +247,15 @@ public class WorkflowService {
      * @param id 工作流ID
      */
     @Transactional
-    public void deleteWorkflow(Long id) {
+    public void deleteWorkflow(String id) {
         Workflow workflow = workflowRepository.findById(id)
                 .orElseThrow(() -> new BusinessException("工作流不存在"));
-        
+
         // 检查工作流状态，只能删除未发布的工作流
         if (workflow.getStatus() == 1) {
             throw new BusinessException("已发布的工作流不能删除");
         }
-        
+
         // 删除工作流
         workflowRepository.deleteById(id);
     }

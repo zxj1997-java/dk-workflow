@@ -10,18 +10,17 @@ import java.util.List;
 /**
  * 工作流定义
  * 描述工作流的基本信息和流程配置数据
+ *
+ * @author zhangxingju
+ * @date 2025/02/15
  */
 @Data
 @Entity
 @Table(name = "dk_workflow", indexes = {
-    @Index(name = "idx_workflow_code", columnList = "code", unique = true),
-    @Index(name = "idx_workflow_status", columnList = "status")
+        @Index(name = "idx_workflow_code", columnList = "code", unique = true),
+        @Index(name = "idx_workflow_status", columnList = "status")
 })
-public class Workflow {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Workflow extends BaseEntity {
 
     @Comment("工作流名称")
     @Column(nullable = false)
@@ -35,9 +34,9 @@ public class Workflow {
     @Column(name = "flow_data", columnDefinition = "text")
     private String flowData;
 
-    @Comment("创建时间")
-    @Column(name = "create_time")
-    private LocalDateTime createTime;
+    @Transient
+    @OneToMany(mappedBy = "workflowId")
+    private List<WorkflowVersion> versions;
 
     @Comment("状态")
     @Column(nullable = false)
@@ -45,13 +44,4 @@ public class Workflow {
 
     @Transient
     private Integer currentVersion;
-
-    @Transient
-    @OneToMany(mappedBy = "workflowId")
-    private List<WorkflowVersion> versions;
-
-    @PrePersist
-    public void prePersist() {
-        createTime = LocalDateTime.now();
-    }
 } 

@@ -13,9 +13,8 @@ export const workflowApi = {
 
     // 保存工作流
     saveWorkflow(data) {
-        const url = `/api/workflow/${data.id}`
         return request({
-            url,
+            url: '/api/workflow/update',
             method: 'post',
             data
         })
@@ -32,39 +31,44 @@ export const workflowApi = {
     // 获取工作流详情
     getWorkflowById(id) {
         return request({
-            url: `/api/workflow/${id}`,
-            method: 'get'
+            url: '/api/workflow/detail',
+            method: 'get',
+            params: { id }
         })
     },
 
     // 发布工作流
     publishWorkflow(id) {
         return request({
-            url: `/api/workflow/${id}/publish`,
-            method: 'post'
+            url: '/api/workflow/publish',
+            method: 'post',
+            params: { id }
         })
     },
 
     // 根据流程编码获取流程定义
     getWorkflowByCode(code) {
         return request({
-            url: `/api/workflow/code/${code}`,
-            method: 'get'
+            url: '/api/workflow/code',
+            method: 'get',
+            params: { code }
         })
     },
     
     // 获取工作流详细信息（用于导出）
     getWorkflowDetail: (id) => {
         return request({
-            url: `/api/workflow/${id}/export`,
-            method: 'get'
+            url: '/api/workflow/export',
+            method: 'get',
+            params: { id }
         })
     },
      // 删除工作流
      deleteWorkflow: (id) => {
         return request({
-            url: `/api/workflow/${id}`,
-            method: 'delete'
+            url: '/api/workflow/delete',
+            method: 'delete',
+            params: { id }
         })
     }
 }

@@ -48,16 +48,18 @@ export const leaveApi = {
     // 获取申请详情
     getLeaveDetail(id) {
         return request({
-            url: `/workflow/leave/detail/${id}`,
-            method: 'get'
+            url: '/workflow/leave/detail',
+            method: 'get',
+            params: { id }
         })
     },
 
     // 删除申请
     deleteLeave(id) {
         return request({
-            url: `/workflow/leave/${id}`,
-            method: 'delete'
+            url: '/workflow/leave/delete',
+            method: 'delete',
+            params: { id }
         })
     }
 } 

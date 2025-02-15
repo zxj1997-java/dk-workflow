@@ -10,20 +10,17 @@ import java.time.LocalDateTime;
 /**
  * 历史任务
  * 记录已完成的任务信息，用于流程追踪和日志审计
+ *
  * @author 15331
  */
 @Data
 @Entity
 @Table(name = "dk_history_task", indexes = {
-    @Index(name = "idx_history_task_business_id", columnList = "business_id"),
-    @Index(name = "idx_history_task_workflow_version", columnList = "workflow_version_id"),
-    @Index(name = "idx_history_task_create_time", columnList = "create_time")
+        @Index(name = "idx_history_task_business_id", columnList = "business_id"),
+        @Index(name = "idx_history_task_workflow_version", columnList = "workflow_version_id"),
+        @Index(name = "idx_history_task_create_time", columnList = "create_time")
 })
-public class HistoryTask {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class HistoryTask extends BaseEntity {
 
     @Comment("业务ID")
     @Column(name = "business_id")
@@ -36,7 +33,7 @@ public class HistoryTask {
 
     @Comment("流程版本ID")
     @Column(name = "workflow_version_id")
-    private Long workflowVersionId;
+    private String workflowVersionId;
 
     @Comment("创建时间")
     @Column(name = "create_time")

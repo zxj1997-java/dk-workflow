@@ -14,7 +14,7 @@ import java.util.List;
  * @date 2025/02/14
  */
 @Repository
-public interface HistoryTaskRepository extends JpaRepository<HistoryTask, Long> {
+public interface HistoryTaskRepository extends JpaRepository<HistoryTask, String> {
     // 根据业务ID查询历史任务
     List<HistoryTask> findByBusinessId(String businessId);
 

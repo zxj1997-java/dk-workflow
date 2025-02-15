@@ -56,12 +56,11 @@ public class WorkflowController {
     /**
      * 更新工作流
      *
-     * @param id      主键
      * @param request 工作流dto对象
      */
-    @PostMapping("/{id}")
-    public R updateWorkflow(@PathVariable Long id, @RequestBody WorkflowSaveDTO request) {
-        Workflow saved = workflowService.saveWorkflow(request.getFlowData(), id);
+    @PostMapping("/update")
+    public R updateWorkflow(@RequestBody WorkflowSaveDTO request) {
+        Workflow saved = workflowService.saveWorkflow(request.getFlowData(), request.getId());
         return R.ok(saved);
     }
 
@@ -90,8 +89,8 @@ public class WorkflowController {
      *
      * @param id 主键
      */
-    @GetMapping("/{id}")
-    public R getWorkflowById(@PathVariable Long id) {
+    @GetMapping("/detail")
+    public R getWorkflowById(@RequestParam String id) {
         Workflow workflow = workflowService.findById(id);
         return R.ok(workflow);
     }
@@ -101,8 +100,8 @@ public class WorkflowController {
      *
      * @param code 工作流编码
      */
-    @GetMapping("/code/{code}")
-    public R getWorkflowById(@PathVariable String code) {
+    @GetMapping("/code")
+    public R getWorkflowByCode(@RequestParam String code) {
         WorkflowVersion workflow = workflowService.findByCode(code);
         return R.ok(workflow);
     }
@@ -112,8 +111,8 @@ public class WorkflowController {
      *
      * @param id 主键
      */
-    @PostMapping("/{id}/publish")
-    public R publishWorkflow(@PathVariable Long id) {
+    @PostMapping("/publish")
+    public R publishWorkflow(@RequestParam String id) {
         WorkflowVersion version = workflowService.publishWorkflow(id);
         return R.ok(version);
     }
@@ -123,8 +122,8 @@ public class WorkflowController {
      *
      * @param id 主键
      */
-    @GetMapping("/{id}/versions")
-    public R getWorkflowVersions(@PathVariable Long id) {
+    @GetMapping("/versions")
+    public R getWorkflowVersions(@RequestParam String id) {
         List<WorkflowVersion> versions = workflowService.getWorkflowVersions(id);
         return R.ok(versions);
     }
@@ -135,8 +134,8 @@ public class WorkflowController {
      * @param id      主键
      * @param version 版本Id
      */
-    @GetMapping("/{id}/version/{version}")
-    public R getWorkflowVersion(@PathVariable Long id, @PathVariable Integer version) {
+    @GetMapping("/version")
+    public R getWorkflowVersion(@RequestParam String id, @RequestParam Integer version) {
         WorkflowVersion workflowVersion = workflowService.getWorkflowVersion(id, version);
         return R.ok(workflowVersion);
     }
@@ -146,22 +145,23 @@ public class WorkflowController {
      *
      * @param id 工作流ID
      */
-    @GetMapping("/{id}/export")
-    public R exportWorkflow(@PathVariable Long id) {
+    @GetMapping("/export")
+    public R exportWorkflow(@RequestParam String id) {
         try {
             Workflow workflow = workflowService.findById(id);
             if (workflow == null) {
                 throw new BusinessException("工作流不存在");
             }
-            
+
             // 构建导出数据
             Map<String, Object> exportData = new HashMap<>();
             exportData.put("name", workflow.getName());
             exportData.put("code", workflow.getCode());
             exportData.put("flowData", workflow.getFlowData());
-            
+
             return R.ok(exportData);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             log.error("导出工作流失败", e);
             throw new BusinessException("导出工作流失败: " + e.getMessage());
         }
@@ -172,12 +172,13 @@ public class WorkflowController {
      *
      * @param id 工作流ID
      */
-    @DeleteMapping("/{id}")
-    public R deleteWorkflow(@PathVariable Long id) {
+    @DeleteMapping("/delete")
+    public R deleteWorkflow(@RequestParam String id) {
         try {
             workflowService.deleteWorkflow(id);
             return R.ok();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             log.error("删除工作流失败", e);
             throw new BusinessException("删除工作流失败: " + e.getMessage());
         }

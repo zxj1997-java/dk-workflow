@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-vip.lsjscl.flowboot.starter.FlowbootWorkflowAutoConfiguration 
+vip.lsjscl.flowboot.starter.config.FlowbootAutoConfiguration

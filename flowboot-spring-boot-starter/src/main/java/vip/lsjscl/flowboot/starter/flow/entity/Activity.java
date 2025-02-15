@@ -8,21 +8,17 @@ import org.hibernate.annotations.Comment;
  * 活动
  * 描述工作流各个节点（活动）的配置信息
  * 例如节点名称、对应页面、允许的操作等
- * 
+ *
  * @author zhangxingju
  * @date 2025/02/13
  */
 @Data
 @Entity
 @Table(name = "dk_activity", indexes = {
-    @Index(name = "idx_activity_workflow_version", columnList = "workflow_version_id"),
-    @Index(name = "idx_activity_node_id", columnList = "node_id")
+        @Index(name = "idx_activity_workflow_version", columnList = "workflow_version_id"),
+        @Index(name = "idx_activity_node_id", columnList = "node_id")
 })
-public class Activity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Activity extends BaseEntity {
 
     // 用于关联前端 JSON 中的节点 ID
     @Column(name = "node_id")
@@ -46,12 +42,12 @@ public class Activity {
 
     @Column(name = "departments")
     private String departments;
-    
+
     @Comment("操作集合，可用逗号分隔多个操作")
     @Column(name = "operations")
     private String operations;
-    
+
     @Comment("流程版本ID")
     @Column(name = "workflow_version_id")
-    private Long workflowVersionId;
+    private String workflowVersionId;
 } 

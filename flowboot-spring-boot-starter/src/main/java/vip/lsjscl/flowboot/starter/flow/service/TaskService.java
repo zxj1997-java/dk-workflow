@@ -58,7 +58,7 @@ public class TaskService {
             }
 
             // 获取工作流版本ID（从任务中获取）
-            Long workflowVersionId = tasks.get(0).getWorkflowVersionId();
+            String workflowVersionId = tasks.get(0).getWorkflowVersionId();
 
             // 3. 查询该工作流版本的所有活动
             List<Activity> activities = activityRepository.findByWorkflowVersionId(workflowVersionId);
@@ -90,12 +90,12 @@ public class TaskService {
 
         // 检查是否有任何一个结束节点完成
         return tasks.stream()
-                .anyMatch(task -> 
-                    endActivities.stream()
-                        .anyMatch(endActivity -> 
-                            task.getActivity().getId().equals(endActivity.getId()) 
-                            && task.getStatus() == TaskStatus.COMPLETED
-                        )
+                .anyMatch(task ->
+                        endActivities.stream()
+                                .anyMatch(endActivity ->
+                                        task.getActivity().getId().equals(endActivity.getId())
+                                                && task.getStatus() == TaskStatus.COMPLETED
+                                )
                 );
     }
 
@@ -144,6 +144,7 @@ public class TaskService {
 
     /**
      * 获取任务记录（先查运行时任务，如果没有则查历史任务）
+     *
      * @param businessId 业务ID
      * @return 任务列表
      */
@@ -182,9 +183,11 @@ public class TaskService {
     public List<RuntimeTask> getTodoTasks(String userId, String deptId) {
         if (StringUtils.isNotBlank(userId) && StringUtils.isNotBlank(deptId)) {
             return runtimeTaskRepository.findByUserIdOrDeptIdAndStatus(userId, deptId, TaskStatus.PENDING);
-        } else if (StringUtils.isNotBlank(userId)) {
+        }
+        else if (StringUtils.isNotBlank(userId)) {
             return runtimeTaskRepository.findByUserIdAndStatus(userId, TaskStatus.PENDING);
-        } else if (StringUtils.isNotBlank(deptId)) {
+        }
+        else if (StringUtils.isNotBlank(deptId)) {
             return runtimeTaskRepository.findByDeptIdAndStatus(deptId, TaskStatus.PENDING);
         }
         return Collections.emptyList();
@@ -196,9 +199,11 @@ public class TaskService {
     public List<HistoryTask> getDoneTasks(String userId, String deptId) {
         if (StringUtils.isNotBlank(userId) && StringUtils.isNotBlank(deptId)) {
             return historyTaskRepository.findByUserIdOrDeptId(userId, deptId);
-        } else if (StringUtils.isNotBlank(userId)) {
+        }
+        else if (StringUtils.isNotBlank(userId)) {
             return historyTaskRepository.findByUserId(userId);
-        } else if (StringUtils.isNotBlank(deptId)) {
+        }
+        else if (StringUtils.isNotBlank(deptId)) {
             return historyTaskRepository.findByDeptId(deptId);
         }
         return Collections.emptyList();

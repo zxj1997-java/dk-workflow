@@ -14,12 +14,12 @@ import java.util.List;
  * @date 2025/02/14
  */
 @Repository
-public interface WorkflowVersionRepository extends JpaRepository<WorkflowVersion, Long> {
+public interface WorkflowVersionRepository extends JpaRepository<WorkflowVersion, String> {
     @Query("SELECT COALESCE(MAX(v.version), 0) FROM WorkflowVersion v WHERE v.workflowId = ?1")
-    Integer findMaxVersionByWorkflowId(Long workflowId);
+    Integer findMaxVersionByWorkflowId(String workflowId);
 
-    WorkflowVersion findByWorkflowIdAndVersion(Long workflowId, Integer version);
+    WorkflowVersion findByWorkflowIdAndVersion(String workflowId, Integer version);
 
     // 添加这个方法，用于获取指定工作流的所有版本
-    List<WorkflowVersion> findByWorkflowIdOrderByVersionDesc(Long workflowId);
+    List<WorkflowVersion> findByWorkflowIdOrderByVersionDesc(String workflowId);
 } 

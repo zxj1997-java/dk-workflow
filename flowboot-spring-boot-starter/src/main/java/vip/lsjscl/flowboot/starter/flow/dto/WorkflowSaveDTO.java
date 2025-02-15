@@ -5,10 +5,13 @@ import lombok.Data;
 /**
  * 工作流保存 DTO
  * 用于接收前端提交的工作流保存信息
+ *
+ * @author zhangxingju
+ * @date 2025/02/15
  */
 @Data
 public class WorkflowSaveDTO {
-    private Long id;
+    private String id;
     private String name;
     private String code;
     private String flowData;

@@ -8,17 +8,19 @@ export const taskApi = {
     // 新增：通过业务ID查询运行时任务（审批记录）
     getRuntimeTasks(businessId) {
         return request({
-            url: `/api/workflow/runtime-tasks/${businessId}`,
-            method: 'get'
+            url: '/api/workflow/runtime-tasks',
+            method: 'get',
+            params: { businessId }
         })
     },
 
     // 处理任务
     processTasks(data) {
         return request({
-            url: `/api/workflow/runtime-tasks/process/${data.id}`,
+            url: '/api/workflow/runtime-tasks/process',
             method: 'POST',
-            data: data
+            params: { id: data.id },
+            data
         })
     },
     /**
@@ -29,8 +31,9 @@ export const taskApi = {
      */
     getTaskOperations(taskId) {
         return request({
-            url: `/api/workflow/task/operations/${taskId}`,
-            method: 'get'
+            url: '/api/workflow/task/operations',
+            method: 'get',
+            params: { taskId }
         })
     }
 } 

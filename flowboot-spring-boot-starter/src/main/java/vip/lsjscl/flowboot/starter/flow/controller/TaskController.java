@@ -38,10 +38,6 @@ public class TaskController {
 
     private final ActivityService activityService;
 
-    private final WorkflowRepository workflowRepository;
-
-    private final HistoryTaskRepository historyTaskRepository;
-
     /**
      * 根据业务ID查询运行时任务
      * 请求示例: GET /api/workflow/runtime-tasks/{businessId}
@@ -49,8 +45,8 @@ public class TaskController {
      * @param businessId 请假申请记录ID（业务ID）
      * @return 运行时任务列表封装在 R 对象中
      */
-    @GetMapping("/runtime-tasks/{businessId}")
-    public R getRuntimeTasks(@PathVariable("businessId") String businessId) {
+    @GetMapping("/runtime-tasks")
+    public R getRuntimeTasks(@RequestParam("businessId") String businessId) {
         List<RuntimeTask> tasks = taskService.getTasksByBusinessId(businessId);
         return R.ok(tasks);
     }
@@ -61,8 +57,8 @@ public class TaskController {
      *
      * @return 运行时任务列表封装在 R 对象中
      */
-    @PostMapping("/runtime-tasks/process/{businessId}")
-    public R processTasks(@PathVariable String businessId, @RequestBody ProcessDataDto processDataDto) {
+    @PostMapping("/runtime-tasks/process")
+    public R processTasks(@RequestParam String businessId, @RequestBody ProcessDataDto processDataDto) {
         Optional<RuntimeTask> byBusinessIdAndStatus = runtimeTaskRepository.findByBusinessIdAndStatus(businessId, TaskStatus.PENDING);
         RuntimeTask runtimeTask = byBusinessIdAndStatus.get();
         activityService.updateCurrentTaskActivity(processDataDto);
@@ -84,8 +80,8 @@ public class TaskController {
      * "msg": "success"
      * }
      */
-    @GetMapping("/task/operations/{taskId}")
-    public R getTaskOperations(@PathVariable("taskId") Long taskId) {
+    @GetMapping("/task/operations")
+    public R getTaskOperations(@RequestParam("taskId") String taskId) {
         // 查找任务，如果不存在则抛出异常
         RuntimeTask runtimeTask = runtimeTaskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("任务不存在，任务ID: " + taskId));
@@ -154,8 +150,8 @@ public class TaskController {
      * @param businessId 业务ID
      * @return 页面路径和操作按钮信息
      */
-    @GetMapping("/process/page/{businessId}")
-    public R processPagePath(@PathVariable("businessId") String businessId) {
+    @GetMapping("/process/page")
+    public R processPagePath(@RequestParam("businessId") String businessId) {
         // 1. 获取当前运行时任务
         RuntimeTask currentTask = runtimeTaskRepository.findByBusinessIdAndStatus(businessId, TaskStatus.PENDING).orElse(null);
 

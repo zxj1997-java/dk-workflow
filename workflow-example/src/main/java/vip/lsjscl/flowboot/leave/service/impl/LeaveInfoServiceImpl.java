@@ -9,6 +9,7 @@ import vip.lsjscl.flowboot.leave.entity.LeaveInfo;
 import vip.lsjscl.flowboot.leave.repository.LeaveInfoRepository;
 import vip.lsjscl.flowboot.leave.service.LeaveInfoService;
 import vip.lsjscl.flowboot.starter.flow.service.WorkflowService;
+import vip.lsjscl.flowboot.starter.service.DeleteStrategyService;
 
 import java.util.Date;
 import java.util.List;
@@ -25,6 +26,9 @@ public class LeaveInfoServiceImpl implements LeaveInfoService {
 
     @Autowired
     private WorkflowService workflowService;
+
+    @Autowired
+    private DeleteStrategyService deleteStrategyService;
 
     @Override
     public R getMyApplications(Map<String, Object> params) {
@@ -54,7 +58,7 @@ public class LeaveInfoServiceImpl implements LeaveInfoService {
             leaveInfo.setStatus("PENDING");
             LeaveInfo saved = leaveInfoRepository.save(leaveInfo);
             // 初始化工作流，传入业务ID
-            Long leave = workflowService.startWorkflow("leave", saved.getId().toString());
+            String leave = workflowService.startWorkflow("leave", saved.getId().toString());
             saved.setWorkflowVersionId(leave);
             return R.ok().put("data", saved);
         }
@@ -76,7 +80,7 @@ public class LeaveInfoServiceImpl implements LeaveInfoService {
     }
 
     @Override
-    public R getLeaveDetail(Long id) {
+    public R getLeaveDetail(String id) {
         try {
             Optional<LeaveInfo> optionalLeave = leaveInfoRepository.findById(id);
             if (optionalLeave.isEmpty()) {
@@ -90,7 +94,7 @@ public class LeaveInfoServiceImpl implements LeaveInfoService {
     }
 
     @Override
-    public R deleteLeaveApplication(Long id) {
+    public R deleteLeaveApplication(String id) {
         try {
             Optional<LeaveInfo> optionalLeave = leaveInfoRepository.findById(id);
             if (optionalLeave.isEmpty()) {
@@ -103,7 +107,7 @@ public class LeaveInfoServiceImpl implements LeaveInfoService {
                 return R.error("只能删除草稿状态的申请");
             }
 
-            leaveInfoRepository.deleteById(id);
+            deleteStrategyService.delete(leaveInfoRepository, id);
             return R.ok();
         }
         catch (Exception e) {
@@ -114,7 +118,7 @@ public class LeaveInfoServiceImpl implements LeaveInfoService {
     public boolean isWithinTwoDays(String businessId) {
         //从Spring容器中获取Bean
         LeaveInfoRepository leaveInfoRepository = SpringContextUtil.getBean(LeaveInfoRepository.class);
-        Optional<LeaveInfo> optionalLeave = leaveInfoRepository.findById(Long.valueOf(businessId));
+        Optional<LeaveInfo> optionalLeave = leaveInfoRepository.findById(businessId);
         LeaveInfo leaveInfo = optionalLeave.get();
         Date startDate = leaveInfo.getStartDate();
         Date endDate = leaveInfo.getEndDate();

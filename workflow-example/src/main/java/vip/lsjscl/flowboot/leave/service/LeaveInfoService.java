@@ -34,7 +34,7 @@ public interface LeaveInfoService {
 
     R saveOrUpdate(LeaveInfo leaveInfo);
 
-    R getLeaveDetail(Long id);
+    R getLeaveDetail(String id);
 
-    R deleteLeaveApplication(Long id);
+    R deleteLeaveApplication(String id);
 }

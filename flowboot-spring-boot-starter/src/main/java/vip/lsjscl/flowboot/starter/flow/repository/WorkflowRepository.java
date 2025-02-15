@@ -13,11 +13,11 @@ import java.util.Optional;
  * @date 2025/02/14
  */
 @Repository
-public interface WorkflowRepository extends JpaRepository<Workflow, Long> {
+public interface WorkflowRepository extends JpaRepository<Workflow, String> {
     Optional<Workflow> findByCode(String code);
 
     boolean existsByCode(String code);
 
     @Override
-    Optional<Workflow> findById(Long id);
+    Optional<Workflow> findById(String id);
 } 

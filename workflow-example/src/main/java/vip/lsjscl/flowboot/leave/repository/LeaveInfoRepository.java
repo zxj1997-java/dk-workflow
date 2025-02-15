@@ -11,7 +11,7 @@ import java.util.List;
  * @author zhangxingju
  * @date 2025/02/15
  */
-public interface LeaveInfoRepository extends JpaRepository<LeaveInfo, Long> {
+public interface LeaveInfoRepository extends JpaRepository<LeaveInfo, String> {
 
     List<LeaveInfo> findByStatus(String status);
 

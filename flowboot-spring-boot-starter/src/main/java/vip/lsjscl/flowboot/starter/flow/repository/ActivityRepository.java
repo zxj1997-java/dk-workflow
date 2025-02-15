@@ -13,7 +13,7 @@ import java.util.List;
  * @date 2025/02/14
  */
 @Repository
-public interface ActivityRepository extends JpaRepository<Activity, Long> {
+public interface ActivityRepository extends JpaRepository<Activity, String> {
     // 根据工作流版本ID查询所有活动
-    List<Activity> findByWorkflowVersionId(Long workflowVersionId);
+    List<Activity> findByWorkflowVersionId(String workflowVersionId);
 } 

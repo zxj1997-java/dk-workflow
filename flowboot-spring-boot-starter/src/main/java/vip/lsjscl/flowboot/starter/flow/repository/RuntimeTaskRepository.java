@@ -16,7 +16,7 @@ import java.util.Optional;
  * @date 2025/02/14
  */
 @Repository
-public interface RuntimeTaskRepository extends JpaRepository<RuntimeTask, Long> {
+public interface RuntimeTaskRepository extends JpaRepository<RuntimeTask, String> {
     // 根据业务ID和任务状态查找唯一待办理任务记录（假设每个业务只有一条待办理任务）
     Optional<RuntimeTask> findByBusinessIdAndStatus(String businessId, TaskStatus status);
 

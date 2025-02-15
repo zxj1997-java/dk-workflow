@@ -67,17 +67,16 @@ public class LeaveInfoController {
     /**
      * 获取申请详情
      */
-    @GetMapping("/detail/{id}")
-    public R getDetail(@PathVariable("id") Long id) {
+    @GetMapping("/detail")
+    public R getDetail(@RequestParam String id) {
         return leaveService.getLeaveDetail(id);
     }
-
 
     /**
      * 删除申请
      */
-    @DeleteMapping("/{id}")
-    public R delete(@PathVariable("id") Long id) {
+    @DeleteMapping("/delete")
+    public R delete(@RequestParam String id) {
         return leaveService.deleteLeaveApplication(id);
     }
 } 

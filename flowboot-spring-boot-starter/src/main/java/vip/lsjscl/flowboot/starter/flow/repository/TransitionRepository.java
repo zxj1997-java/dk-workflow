@@ -14,7 +14,7 @@ import java.util.List;
  * @date 2025/02/14
  */
 @Repository
-public interface TransitionRepository extends JpaRepository<Transition, Long> {
+public interface TransitionRepository extends JpaRepository<Transition, String> {
     // 根据起始活动查询变迁记录
     List<Transition> findByFromActivity(Activity activity);
 
@@ -22,7 +22,7 @@ public interface TransitionRepository extends JpaRepository<Transition, Long> {
     List<Transition> findByToActivity(Activity activity);
 
     // 根据流程版本id查询变迁记录
-    List<Transition> findByWorkflowVersionId(long workflowVersionId);
+    List<Transition> findByWorkflowVersionId(String workflowVersionId);
 
     // 其它方法
 } 
