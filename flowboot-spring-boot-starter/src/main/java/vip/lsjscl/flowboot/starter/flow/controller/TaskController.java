@@ -154,8 +154,8 @@ public class TaskController {
      * @param businessId 业务ID
      * @return 页面路径和操作按钮信息
      */
-    @GetMapping("/getCurrentActivityPagePath")
-    public R getCurrentActivityPagePath(@RequestParam String businessId) {
+    @GetMapping("/process/page/{businessId}")
+    public R processPagePath(@PathVariable("businessId") String businessId) {
         // 1. 获取当前运行时任务
         RuntimeTask currentTask = runtimeTaskRepository.findByBusinessIdAndStatus(businessId, TaskStatus.PENDING).orElse(null);
 

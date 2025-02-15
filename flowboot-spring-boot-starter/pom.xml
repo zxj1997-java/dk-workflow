@@ -13,6 +13,7 @@
     <name>Flowboot Spring Boot Starter</name>
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>17</java.version>
         <spring-boot.version>3.2.2</spring-boot.version>
     </properties>
