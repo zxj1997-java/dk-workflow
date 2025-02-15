@@ -108,7 +108,7 @@ class WorkflowPlugin {
         }
 
         try {
-            const response = await fetch(`${this.baseUrl}api/workflow/runtime-tasks/process/${this.businessId}`, {
+            const response = await fetch(`${this.baseUrl}api/workflow/runtime-tasks/process?businessId=${this.businessId}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
