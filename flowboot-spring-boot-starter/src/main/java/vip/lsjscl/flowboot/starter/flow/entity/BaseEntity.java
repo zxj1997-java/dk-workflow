@@ -5,7 +5,8 @@ import lombok.Data;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
-import org.springframework.beans.factory.annotation.Autowired;
+import vip.lsjscl.flowboot.config.SpringContextUtil;
+import vip.lsjscl.flowboot.starter.service.UserInfoHolder;
 
 import java.time.LocalDateTime;
 
@@ -51,10 +52,21 @@ public abstract class BaseEntity {
         this.createTime = LocalDateTime.now();
         this.updateTime = this.createTime;
         this.isDeleted = false;
+        
+        UserInfoHolder userInfoHolder = SpringContextUtil.getBean(UserInfoHolder.class);
+        if (userInfoHolder != null) {
+            this.createBy = userInfoHolder.getCurrentUserId();
+            this.updateBy = this.createBy;
+        }
     }
 
     @PreUpdate
     public void preUpdate() {
         this.updateTime = LocalDateTime.now();
+        
+        UserInfoHolder userInfoHolder = SpringContextUtil.getBean(UserInfoHolder.class);
+        if (userInfoHolder != null) {
+            this.updateBy = userInfoHolder.getCurrentUserId();
+        }
     }
 } 

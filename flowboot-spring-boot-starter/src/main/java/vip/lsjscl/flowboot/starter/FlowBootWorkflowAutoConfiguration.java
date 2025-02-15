@@ -10,6 +10,6 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 @ComponentScan(basePackages = "vip.lsjscl.flowboot")
-public class FlowbootWorkflowAutoConfiguration {
+public class FlowBootWorkflowAutoConfiguration {
     // 如果需要，可以在此处进一步配置 Bean，例如自定义属性绑定等
 } 
