@@ -33,8 +33,8 @@ build/
 .vscode/
 
 # 依赖目录
-/node_modules
-/dist
+node_modules
+dist
 
 # 本地环境文件
 .env.local
