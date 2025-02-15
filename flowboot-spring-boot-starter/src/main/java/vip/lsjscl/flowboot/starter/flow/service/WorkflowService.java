@@ -165,7 +165,7 @@ public class WorkflowService {
         // 解析存储的流程图 JSON 数据
         FlowDiagram flowDiagram;
         try {
-            flowDiagram = objectMapper.readValue(workflow.getFlowData(), FlowDiagram.class);
+            flowDiagram = objectMapper.readValue(workflow.getFlowData().toString(), FlowDiagram.class);
         }
         catch (Exception e) {
             throw new BusinessException("解析流程图JSON失败: " + e.getMessage(), e);

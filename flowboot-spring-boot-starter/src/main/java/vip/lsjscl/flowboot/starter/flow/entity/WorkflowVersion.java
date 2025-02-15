@@ -3,8 +3,7 @@ package vip.lsjscl.flowboot.starter.flow.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.Comment;
-
-import java.time.LocalDateTime;
+import vip.lsjscl.flowboot.starter.flow.converter.JsonConverter;
 
 /**
  * 工作流版本
@@ -29,7 +28,8 @@ public class WorkflowVersion extends BaseEntity {
     @Column(nullable = false)
     private Integer version;
 
-    @Comment("工作流定义数据，使用text类型存储")
+    @Comment("工作流定义数据")
     @Column(name = "flow_data", columnDefinition = "text")
-    private String flowData;
+    @Convert(converter = JsonConverter.class)
+    private Object flowData;
 }

@@ -3,6 +3,7 @@ package vip.lsjscl.flowboot.starter.flow.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.Comment;
+import vip.lsjscl.flowboot.starter.flow.converter.JsonConverter;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,9 +31,10 @@ public class Workflow extends BaseEntity {
     @Column(nullable = false, unique = true)
     private String code;
 
-    @Comment("工作流定义数据，使用text类型存储")
+    @Comment("工作流定义数据")
     @Column(name = "flow_data", columnDefinition = "text")
-    private String flowData;
+    @Convert(converter = JsonConverter.class)
+    private Object flowData;
 
     @Transient
     @OneToMany(mappedBy = "workflowId")
