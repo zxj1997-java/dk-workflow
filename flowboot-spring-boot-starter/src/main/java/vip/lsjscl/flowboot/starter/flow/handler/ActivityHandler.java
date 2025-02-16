@@ -1,6 +1,6 @@
 package vip.lsjscl.flowboot.starter.flow.handler;
 
-import vip.lsjscl.flowboot.starter.flow.entity.RuntimeTask;
+import vip.lsjscl.flowboot.starter.flow.entity.Activity;
 
 /**
  * 活动节点处理器接口
@@ -9,12 +9,13 @@ import vip.lsjscl.flowboot.starter.flow.entity.RuntimeTask;
  * @author zhangxingju
  * @date 2025/02/15
  */
+@FunctionalInterface
 public interface ActivityHandler {
     
     /**
      * 处理活动节点
      * @param businessId 业务ID
-     * @param task 运行时任务
+     * @param activity 活动节点
      */
-    void handle(String businessId, RuntimeTask task);
+    void handle(String businessId, Activity activity);
 } 

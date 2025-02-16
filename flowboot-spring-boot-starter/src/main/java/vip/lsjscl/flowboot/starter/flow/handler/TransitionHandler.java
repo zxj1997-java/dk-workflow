@@ -9,12 +9,14 @@ import vip.lsjscl.flowboot.starter.flow.entity.Transition;
  * @author zhangxingju
  * @date 2025/02/15
  */
+@FunctionalInterface
 public interface TransitionHandler {
-    
+
     /**
      * 处理变迁
+     *
      * @param businessId 业务ID
      * @param transition 变迁信息
      */
-    boolean handle(String businessId, Transition transition);
+    boolean handler(String businessId, Transition transition);
 } 

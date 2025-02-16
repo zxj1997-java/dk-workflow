@@ -9,6 +9,7 @@ import vip.lsjscl.flowboot.starter.flow.entity.Transition;
  * @author zhangxingju
  * @date 2025/02/15
  */
+@FunctionalInterface
 public interface ConditionHandler {
     
     /**

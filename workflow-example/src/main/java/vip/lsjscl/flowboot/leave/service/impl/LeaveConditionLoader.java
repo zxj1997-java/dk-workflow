@@ -5,6 +5,7 @@ import vip.lsjscl.flowboot.config.SpringContextUtil;
 import vip.lsjscl.flowboot.leave.entity.LeaveInfo;
 import vip.lsjscl.flowboot.leave.repository.LeaveInfoRepository;
 import vip.lsjscl.flowboot.starter.flow.entity.Transition;
+import vip.lsjscl.flowboot.starter.flow.handler.ConditionHandler;
 import vip.lsjscl.flowboot.starter.flow.handler.TransitionHandler;
 
 import java.util.Date;
@@ -18,7 +19,7 @@ import java.util.concurrent.TimeUnit;
  * @date 2025/02/16
  */
 @Service
-public class LeaveLoader implements TransitionHandler {
+public class LeaveConditionLoader implements ConditionHandler {
     /**
      * 处理变迁
      *
@@ -26,7 +27,7 @@ public class LeaveLoader implements TransitionHandler {
      * @param transition 变迁信息
      */
     @Override
-    public boolean handle(String businessId, Transition transition) {
+    public boolean evaluate(String businessId, Transition transition) {
         System.err.println(businessId);
         System.err.println(transition.getCode());
         //从Spring容器中获取Bean

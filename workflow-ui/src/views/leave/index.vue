@@ -1,7 +1,7 @@
 <template>
   <div class="leave-container">
     <el-tabs v-model="activeTab" class="leave-tabs" v-loading="loading">
-      <el-tab-pane label="请假申请" name="apply">
+      <el-tab-pane label="请假申请" name="apply" :key="'apply-' + activeTab">
         <div class="tab-content">
           <div class="header">
             <h3>请假申请</h3>
@@ -41,7 +41,7 @@
         </div>
       </el-tab-pane>
 
-      <el-tab-pane label="待办理" name="todo">
+      <el-tab-pane label="待办理" name="todo" :key="'todo-' + activeTab">
         <div class="tab-content">
           <div class="header">
             <h3>待办理</h3>
@@ -75,7 +75,7 @@
         </div>
       </el-tab-pane>
 
-      <el-tab-pane label="已办理" name="done">
+      <el-tab-pane label="已办理" name="done" :key="'done-' + activeTab">
         <div class="tab-content">
           <div class="header">
             <h3>已办理</h3>
@@ -502,4 +502,4 @@ export default {
 :deep(.el-descriptions__content) {
   padding: 12px;
 }
-</style> 
+</style>

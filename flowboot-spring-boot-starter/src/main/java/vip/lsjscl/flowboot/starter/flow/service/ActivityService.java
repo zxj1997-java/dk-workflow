@@ -93,6 +93,15 @@ public class ActivityService {
     }
 
     /**
+     * 获取处理器Bean的名称
+     */
+    private String getBeanName(String className) {
+        String shortName = className.substring(className.lastIndexOf('.') + 1);
+        // 首字母转小写
+        return Character.toLowerCase(shortName.charAt(0)) + shortName.substring(1);
+    }
+
+    /**
      * 执行活动节点的后置处理
      */
     private void executeActivityAfterClass(String businessId, RuntimeTask task) {
@@ -105,8 +114,9 @@ public class ActivityService {
                 }
 
                 String className = parts[0];
-                ActivityHandler handler = (ActivityHandler) applicationContext.getBean(Class.forName(className));
-                handler.handle(businessId, task);
+                String beanName = getBeanName(className);
+                ActivityHandler handler = applicationContext.getBean(beanName, ActivityHandler.class);
+                handler.handle(businessId, activity);
             }
             catch (Exception e) {
                 throw new BusinessException("执行活动后置处理失败: " + e.getMessage());
@@ -221,10 +231,9 @@ public class ActivityService {
             if (parts.length != 2) {
                 throw new BusinessException("处理器类格式错误，应为：类名#方法名");
             }
-
             String className = parts[0];
-
-            ConditionHandler handler = (ConditionHandler) applicationContext.getBean(Class.forName(className));
+            String beanName = getBeanName(className);
+            ConditionHandler handler = applicationContext.getBean(beanName, ConditionHandler.class);
             boolean evaluate = handler.evaluate(businessId, transition);
             if (evaluate) {
                 executeTransitionAfterClass(businessId, transition);
@@ -248,8 +257,9 @@ public class ActivityService {
                 }
 
                 String className = parts[0];
-                TransitionHandler handler = (TransitionHandler) applicationContext.getBean(Class.forName(className));
-                handler.handle(businessId, transition);
+                String beanName = getBeanName(className);
+                TransitionHandler handler = applicationContext.getBean(beanName, TransitionHandler.class);
+                handler.handler(businessId, transition);
             }
             catch (Exception e) {
                 throw new BusinessException("执行变迁后置处理失败: " + e.getMessage());
