@@ -126,29 +126,29 @@ export default {
     async publishWorkflow(id) {
       try {
         await ElMessageBox.confirm(
-            '发布后将生成新的版本，确定要发布吗？',
-            '发布确认',
-            {
-              confirmButtonText: '确定',
-              cancelButtonText: '取消',
-              type: 'warning'
-            }
+          '发布后将生成新的版本，确定要发布吗？',
+          '发布确认',
+          {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }
         )
 
-        await workflowApi.publishWorkflow(id)
-        
-        // 更新状态为已发布
-        const workflow = this.workflowList.find(item => item.id === id);
-        if (workflow) {
-          workflow.status = '1'; // 设置为已发布
+        // 先获取工作流详情，检查是否有流程图数据
+        const workflow = await workflowApi.getWorkflowDetail(id)
+        if (!workflow.flowData) {
+          ElMessage.error('请先设计流程图后再发布')
+          return
         }
 
+        await workflowApi.publishWorkflow(id)
         ElMessage.success('发布成功')
         this.getList()
       } catch (error) {
         if (error !== 'cancel') {
           console.error('发布失败:', error)
-          ElMessage.error('发布失败')
+          ElMessage.error(error.message || '发布失败')
         }
       }
     },

@@ -1,5 +1,6 @@
 package vip.lsjscl.flowboot.starter.flow.dto;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -23,5 +24,5 @@ public class WorkflowCreateDTO {
     /**
      * 导入的流程数据
      */
-    private String flowData;
+    private JsonNode flowData;
 } 

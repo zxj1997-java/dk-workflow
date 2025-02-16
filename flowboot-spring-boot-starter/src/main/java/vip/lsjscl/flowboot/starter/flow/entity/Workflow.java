@@ -1,5 +1,6 @@
 package vip.lsjscl.flowboot.starter.flow.entity;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.Comment;
@@ -34,7 +35,7 @@ public class Workflow extends BaseEntity {
     @Comment("工作流定义数据")
     @Column(name = "flow_data", columnDefinition = "text")
     @Convert(converter = JsonConverter.class)
-    private Object flowData;
+    private JsonNode flowData;
 
     @Transient
     @OneToMany(mappedBy = "workflowId")

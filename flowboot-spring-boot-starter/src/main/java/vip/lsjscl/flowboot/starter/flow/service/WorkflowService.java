@@ -1,5 +1,6 @@
 package vip.lsjscl.flowboot.starter.flow.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -95,14 +96,14 @@ public class WorkflowService {
         workflow.setCode(dto.getCode());
         workflow.setCreateTime(LocalDateTime.now());
         workflow.setStatus(0);
-        workflow.setFlowData("");
-        if (StringUtils.isNotBlank(dto.getFlowData())) {
+        workflow.setFlowData(null);
+        if (dto.getFlowData() != null) {
             workflow.setFlowData(dto.getFlowData());
         }
         return workflowRepository.save(workflow);
     }
 
-    public Workflow saveWorkflow(String flowData, String id) {
+    public Workflow saveWorkflow(JsonNode flowData, String id) {
         Workflow workflow;
         if (id != null) {
             workflow = workflowRepository.findById(id)
@@ -165,10 +166,12 @@ public class WorkflowService {
         // 解析存储的流程图 JSON 数据
         FlowDiagram flowDiagram;
         try {
-            flowDiagram = objectMapper.readValue(workflow.getFlowData().toString(), FlowDiagram.class);
+            JsonNode flowData = workflow.getFlowData();
+            // 直接使用字符串，不需要调用 toString()
+            flowDiagram = objectMapper.readValue(flowData.asText(), FlowDiagram.class);
         }
         catch (Exception e) {
-            throw new BusinessException("解析流程图JSON失败: " + e.getMessage(), e);
+            throw new BusinessException("解析流程图数据失败: " + e.getMessage());
         }
 
         // 用于存储生成的活动记录，方便后续建立变迁关系

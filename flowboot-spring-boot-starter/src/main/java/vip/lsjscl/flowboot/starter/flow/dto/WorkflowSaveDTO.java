@@ -1,5 +1,6 @@
 package vip.lsjscl.flowboot.starter.flow.dto;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;
 
 /**
@@ -14,6 +15,6 @@ public class WorkflowSaveDTO {
     private String id;
     private String name;
     private String code;
-    private String flowData;
+    private JsonNode flowData;
     // 如果需要，可以添加更多字段，如版本号、描述等
 } 

@@ -4,8 +4,9 @@ export const versionApi = {
     // 获取工作流版本
     getWorkflowVersionByWorkflowIdId(workflowId, version) {
         return request({
-            url: `/api/workflow/${workflowId}/version/${version}`,
-            method: 'get'
+            url: `/api/workflow/version`,
+            method: 'get',
+            params: {id: workflowId, version: version}
         })
     }
 }
