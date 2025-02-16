@@ -39,14 +39,4 @@ public class Edge {
     public static class Connector {
         private String name;
     }
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    @Data
-    public static class EdgeData {
-        private String name;
-        private String code;
-        private String conditionClass;
-        private String afterClass;
-        private String type;
-    }
 } 
