@@ -12,10 +12,20 @@
 
         <el-form-item label="条件类方法" required>
           <el-input v-model="form.conditionClass" :autosize="{ minRows: 1, maxRows: 2 }" placeholder="类名(全路径)#方法名" type="textarea"></el-input>
+          <div class="method-tip">
+            <p>实现接口: ConditionHandler</p>
+            <p>方法签名: boolean evaluate(String businessId,Transition transition)</p>
+            <p>示例: com.example.handler.LeaveConditionHandler#evaluate</p>
+          </div>
         </el-form-item>
 
         <el-form-item label="执行后类方法">
           <el-input v-model="form.afterClass" :autosize="{ minRows: 1, maxRows: 2 }" placeholder="类名(全路径)#方法名" type="textarea"></el-input>
+          <div class="method-tip">
+            <p>实现接口: TransitionHandler</p>
+            <p>方法签名: void handle(String businessId,Transition transition)</p>
+            <p>示例: com.example.handler.LeaveTransitionHandler#handle</p>
+          </div>
         </el-form-item>
       </el-form>
     </div>
@@ -155,5 +165,19 @@ export default {
   margin-bottom: 0;
   padding: 16px 20px;
   border-bottom: 1px solid #dcdfe6;
+}
+
+.method-tip {
+  margin-top: 8px;
+  padding: 8px;
+  background-color: #f5f7fa;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #606266;
+  line-height: 1.4;
+}
+
+.method-tip p {
+  margin: 4px 0;
 }
 </style> 

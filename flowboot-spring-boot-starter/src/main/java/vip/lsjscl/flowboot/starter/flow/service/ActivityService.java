@@ -67,7 +67,6 @@ public class ActivityService {
                 currentTask.setStatus(TaskStatus.RETURNED);
                 break;
             case DISAPPROVED:
-                // 直接将当前任务更新为终止状态，流程停止，不创建新任务
                 currentTask.setStatus(TaskStatus.TERMINATED);
                 currentTask.setUpdateTime(LocalDateTime.now());
                 runtimeTaskRepository.save(currentTask);
@@ -76,12 +75,44 @@ public class ActivityService {
                 throw new BusinessException("未知决策: " + decision);
         }
         currentTask.setComment(processDataDto.getComment());
-        // 完成当前任务
         currentTask.setUpdateTime(LocalDateTime.now());
+        
+        // 执行活动节点的后置处理
+        executeActivityAfterClass(businessId, currentTask);
+        
         runtimeTaskRepository.save(currentTask);
 
         // 激活下一个活动
         activateNextActiveNode(newActivity, businessId);
+    }
+
+    /**
+     * 执行活动节点的后置处理
+     */
+    private void executeActivityAfterClass(String businessId, RuntimeTask task) {
+        Activity activity = task.getActivity();
+        if (activity != null && StringUtils.isNotBlank(activity.getAfterClass())) {
+            try {
+                String[] parts = activity.getAfterClass().split("#");
+                if (parts.length != 2) {
+                    throw new IllegalArgumentException("Invalid afterClass format");
+                }
+
+                String className = parts[0];
+                String methodName = parts[1];
+
+                Class<?> clazz = Class.forName(className);
+                Method method = clazz.getMethod(methodName, String.class, RuntimeTask.class);
+                
+                Constructor<?> constructor = clazz.getDeclaredConstructor();
+                constructor.setAccessible(true);
+                Object instance = constructor.newInstance();
+                
+                method.invoke(instance, businessId, task);
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to execute activity afterClass: " + activity.getAfterClass(), e);
+            }
+        }
     }
 
     /**
@@ -186,50 +217,38 @@ public class ActivityService {
      */
     private boolean evaluateTransitionCondition(Transition transition, String businessId) {
         String conditionClass = transition.getConditionClass();
-        if (conditionClass == null || conditionClass.isEmpty()) {
+        if (StringUtils.isBlank(conditionClass)) {
             return true;
         }
 
         try {
-            int lastDotIndex = conditionClass.lastIndexOf("#");
-            if (lastDotIndex == -1) {
+            String[] parts = conditionClass.split("#");
+            if (parts.length != 2) {
                 throw new IllegalArgumentException("Invalid condition class format");
             }
 
-            String className = conditionClass.substring(0, lastDotIndex);
-            String methodName = conditionClass.substring(lastDotIndex + 1);
+            String className = parts[0];
+            String methodName = parts[1];
 
             // 加载类并验证方法签名
             Class<?> clazz = Class.forName(className);
-            // 明确指定参数类型
-            Method method = clazz.getMethod(methodName, String.class);
-
+            // 使用新的方法签名
+            Method method = clazz.getMethod(methodName, String.class, Transition.class);
 
             // 验证返回类型
             if (!method.getReturnType().equals(boolean.class) &&
                     !method.getReturnType().equals(Boolean.class)) {
                 throw new IllegalArgumentException("Method must return boolean");
             }
-            // 获取无参构造方法
+
             Constructor<?> constructor = clazz.getDeclaredConstructor();
-            // 如果构造方法是私有的，设置可访问
             constructor.setAccessible(true);
-            // 创建实例
             Object instance = constructor.newInstance();
-            // 调用静态方法并传入参数
-            return (Boolean) method.invoke(instance, businessId);
-        }
-        catch (ClassNotFoundException e) {
-            throw new RuntimeException("Condition class not found: " + conditionClass, e);
-        }
-        catch (NoSuchMethodException e) {
-            throw new RuntimeException("Method with String parameter not found in: " + conditionClass, e);
-        }
-        catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException("Failed to invoke condition method", e);
-        }
-        catch (Exception e) {
-            throw new RuntimeException("Unexpected error evaluating condition", e);
+
+            // 调用方法并传入正确的参数
+            return (Boolean) method.invoke(instance, businessId, transition);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to evaluate condition: " + conditionClass, e);
         }
     }
 

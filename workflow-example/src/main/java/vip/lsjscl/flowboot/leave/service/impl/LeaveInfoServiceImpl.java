@@ -114,20 +114,4 @@ public class LeaveInfoServiceImpl implements LeaveInfoService {
             return R.error("删除失败");
         }
     }
-
-    public boolean isWithinTwoDays(String businessId) {
-        //从Spring容器中获取Bean
-        LeaveInfoRepository leaveInfoRepository = SpringContextUtil.getBean(LeaveInfoRepository.class);
-        Optional<LeaveInfo> optionalLeave = leaveInfoRepository.findById(businessId);
-        LeaveInfo leaveInfo = optionalLeave.get();
-        Date startDate = leaveInfo.getStartDate();
-        Date endDate = leaveInfo.getEndDate();
-        long diffInMillies = Math.abs(endDate.getTime() - startDate.getTime());
-        long diffInDays = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
-        return diffInDays < 2;
-    }
-
-    public boolean notWithinTwoDays(String businessId) {
-        return !isWithinTwoDays(businessId);
-    }
 } 

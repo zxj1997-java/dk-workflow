@@ -15,7 +15,13 @@
         </el-form-item>
 
         <el-form-item label="执行后类方法">
-          <el-input v-model="form.afterClass" :autosize="{ minRows: 1, maxRows: 2 }" placeholder="类名(全路径)#方法名" type="textarea"></el-input>
+          <el-input v-model="form.afterClass" :autosize="{ minRows: 1, maxRows: 2 }" placeholder="类名(全路径)#方法名" type="textarea">
+          </el-input>
+          <div class="method-tip">
+            <p>实现接口: ActivityHandler</p>
+            <p>方法签名: void handle(String businessId,RuntimeTask task)</p>
+            <p>示例: com.example.handler.LeaveActivityHandler#handle</p>
+          </div>
         </el-form-item>
 
         <el-form-item label="审核人员">
@@ -236,5 +242,19 @@ export default {
 
 :deep(.el-select) {
   width: 100%;
+}
+
+.method-tip {
+  margin-top: 8px;
+  padding: 8px;
+  background-color: #f5f7fa;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #606266;
+  line-height: 1.4;
+}
+
+.method-tip p {
+  margin: 4px 0;
 }
 </style> 
