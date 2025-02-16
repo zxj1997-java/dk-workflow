@@ -1,14 +1,21 @@
 const { defineConfig } = require('@vue/cli-service')
+
+// 获取正确的 API URL
+const getApiUrl = () => {
+  const url = process.env.VUE_APP_BASE_API || 'http://localhost:8080'
+  // 确保 URL 格式正确
+  return url.startsWith('http') ? url : `http://${url}`
+}
+
 module.exports = defineConfig({
   transpileDependencies: true,
   devServer: {
     port: 8081,
     proxy: {
       '/api': {
-        target: 'http://[::1]:8080', // 使用 IPv6 localhost
-        // 或者使用 target: 'http://127.0.0.1:8080', // 强制使用 IPv4
+        target: getApiUrl(),
         changeOrigin: true,
-        ws: true,
+        ws: false,
         pathRewrite: {
           '^/api': '/api'
         },
@@ -20,8 +27,8 @@ module.exports = defineConfig({
       }
     },
     allowedHosts: 'all', // 允许所有主机访问
-    client: {
-      webSocketURL: 'auto://0.0.0.0:0/ws' // 自动处理 WebSocket 连接
+    headers: {
+      'Access-Control-Allow-Origin': '*'
     }
   }
 }) 

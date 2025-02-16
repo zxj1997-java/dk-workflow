@@ -1,9 +1,15 @@
 import axios from 'axios'
 import {ElMessage} from 'element-plus'
 
+// 确保 baseURL 格式正确
+const getBaseUrl = () => {
+  const url = process.env.VUE_APP_BASE_API || 'http://localhost:8080'
+  return url.startsWith('http') ? url : `http://${url}`
+}
+
 // 创建 axios 实例
 const service = axios.create({
-    baseURL: process.env.VUE_APP_BASE_API || 'http://localhost:8080', // 设置默认的基础URL
+    baseURL: getBaseUrl(),
     timeout: 15000, // 请求超时时间
     headers: {
         'Content-Type': 'application/json'

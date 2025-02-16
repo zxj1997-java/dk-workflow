@@ -5,6 +5,10 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 
+// 打印当前环境信息
+console.log('当前环境:', process.env.NODE_ENV)
+console.log('API地址:', process.env.VUE_APP_BASE_API)
+
 const app = createApp(App)
 
 app.use(ElementPlus)
