@@ -5,6 +5,7 @@ module.exports = defineConfig({
     port: 8081,
     proxy: {
       '/api': {
+        host: '::', // 监听所有 IPv6 和 IPv4 接口
         target: 'http://localhost:8080',
         changeOrigin: true,
         ws: true,
