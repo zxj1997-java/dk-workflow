@@ -19,7 +19,6 @@ export const taskApi = {
         return request({
             url: '/api/workflow/runtime-tasks/process',
             method: 'POST',
-            params: { id: data.id },
             data
         })
     },

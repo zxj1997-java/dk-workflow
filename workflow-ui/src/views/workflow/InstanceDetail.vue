@@ -335,8 +335,8 @@ export default {
           fillColor = "#ff9999";  // 退回状态使用红色调
           strokeColor = "#ff4444";
         } else if (state === 'TERMINATED') {
-          fillColor = "#d3d3d3";
-          strokeColor = "#d3d3d3";
+          fillColor = "#ffcccc";  // 修改终止状态为红色
+          strokeColor = "#ff6666"; // 修改终止状态边框为深红色
         } else {
           fillColor = "#d3d3d3";
           strokeColor = "#d3d3d3";

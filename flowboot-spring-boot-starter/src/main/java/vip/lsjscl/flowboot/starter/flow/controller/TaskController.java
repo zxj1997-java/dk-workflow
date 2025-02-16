@@ -58,8 +58,8 @@ public class TaskController {
      * @return 运行时任务列表封装在 R 对象中
      */
     @PostMapping("/runtime-tasks/process")
-    public R processTasks(@RequestParam String businessId, @RequestBody ProcessDataDto processDataDto) {
-        Optional<RuntimeTask> byBusinessIdAndStatus = runtimeTaskRepository.findByBusinessIdAndStatus(businessId, TaskStatus.PENDING);
+    public R processTasks(@RequestBody ProcessDataDto processDataDto) {
+        Optional<RuntimeTask> byBusinessIdAndStatus = runtimeTaskRepository.findByBusinessIdAndStatus(processDataDto.getId(), TaskStatus.PENDING);
         RuntimeTask runtimeTask = byBusinessIdAndStatus.get();
         activityService.updateCurrentTaskActivity(processDataDto);
         return R.ok().put("data", runtimeTask);
