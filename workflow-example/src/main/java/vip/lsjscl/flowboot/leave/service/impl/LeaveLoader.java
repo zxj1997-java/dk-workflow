@@ -1,5 +1,6 @@
 package vip.lsjscl.flowboot.leave.service.impl;
 
+import org.springframework.stereotype.Service;
 import vip.lsjscl.flowboot.config.SpringContextUtil;
 import vip.lsjscl.flowboot.leave.entity.LeaveInfo;
 import vip.lsjscl.flowboot.leave.repository.LeaveInfoRepository;
@@ -16,6 +17,7 @@ import java.util.concurrent.TimeUnit;
  * @author zhangxingju
  * @date 2025/02/16
  */
+@Service
 public class LeaveLoader implements TransitionHandler {
     /**
      * 处理变迁

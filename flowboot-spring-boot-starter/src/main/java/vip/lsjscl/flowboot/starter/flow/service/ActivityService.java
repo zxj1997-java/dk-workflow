@@ -2,6 +2,7 @@ package vip.lsjscl.flowboot.starter.flow.service;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.lsjscl.flowboot.starter.exception.BusinessException;
@@ -13,6 +14,9 @@ import vip.lsjscl.flowboot.starter.flow.entity.Transition;
 import vip.lsjscl.flowboot.starter.flow.dict.TaskDecision;
 import vip.lsjscl.flowboot.starter.flow.repository.RuntimeTaskRepository;
 import vip.lsjscl.flowboot.starter.flow.repository.TransitionRepository;
+import vip.lsjscl.flowboot.starter.flow.handler.ActivityHandler;
+import vip.lsjscl.flowboot.starter.flow.handler.ConditionHandler;
+import vip.lsjscl.flowboot.starter.flow.handler.TransitionHandler;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -37,6 +41,8 @@ public class ActivityService {
     private final TransitionRepository transitionRepository;
 
     private final RuntimeTaskRepository runtimeTaskRepository;
+
+    private final ApplicationContext applicationContext;
 
     /**
      * 根据决策更新办件记录的当前活动节点：
@@ -76,10 +82,10 @@ public class ActivityService {
         }
         currentTask.setComment(processDataDto.getComment());
         currentTask.setUpdateTime(LocalDateTime.now());
-        
+
         // 执行活动节点的后置处理
         executeActivityAfterClass(businessId, currentTask);
-        
+
         runtimeTaskRepository.save(currentTask);
 
         // 激活下一个活动
@@ -95,22 +101,15 @@ public class ActivityService {
             try {
                 String[] parts = activity.getAfterClass().split("#");
                 if (parts.length != 2) {
-                    throw new IllegalArgumentException("Invalid afterClass format");
+                    throw new BusinessException("处理器类格式错误，应为：类名#方法名");
                 }
 
                 String className = parts[0];
-                String methodName = parts[1];
-
-                Class<?> clazz = Class.forName(className);
-                Method method = clazz.getMethod(methodName, String.class, RuntimeTask.class);
-                
-                Constructor<?> constructor = clazz.getDeclaredConstructor();
-                constructor.setAccessible(true);
-                Object instance = constructor.newInstance();
-                
-                method.invoke(instance, businessId, task);
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to execute activity afterClass: " + activity.getAfterClass(), e);
+                ActivityHandler handler = (ActivityHandler) applicationContext.getBean(Class.forName(className));
+                handler.handle(businessId, task);
+            }
+            catch (Exception e) {
+                throw new BusinessException("执行活动后置处理失败: " + e.getMessage());
             }
         }
     }
@@ -209,11 +208,7 @@ public class ActivityService {
     }
 
     /**
-     * 简单示例：通过变迁的 conditionClass 与上下文数据进行条件判断
-     * 实际场景可结合反射、策略模式或其它决策逻辑处理
-     *
-     * @param transition 当前变迁记录
-     * @return 如果条件满足返回 true，否则返回 false
+     * 评估变迁条件
      */
     private boolean evaluateTransitionCondition(Transition transition, String businessId) {
         String conditionClass = transition.getConditionClass();
@@ -224,31 +219,41 @@ public class ActivityService {
         try {
             String[] parts = conditionClass.split("#");
             if (parts.length != 2) {
-                throw new IllegalArgumentException("Invalid condition class format");
+                throw new BusinessException("处理器类格式错误，应为：类名#方法名");
             }
 
             String className = parts[0];
-            String methodName = parts[1];
 
-            // 加载类并验证方法签名
-            Class<?> clazz = Class.forName(className);
-            // 使用新的方法签名
-            Method method = clazz.getMethod(methodName, String.class, Transition.class);
-
-            // 验证返回类型
-            if (!method.getReturnType().equals(boolean.class) &&
-                    !method.getReturnType().equals(Boolean.class)) {
-                throw new IllegalArgumentException("Method must return boolean");
+            ConditionHandler handler = (ConditionHandler) applicationContext.getBean(Class.forName(className));
+            boolean evaluate = handler.evaluate(businessId, transition);
+            if (evaluate) {
+                executeTransitionAfterClass(businessId, transition);
             }
+            return evaluate;
+        }
+        catch (Exception e) {
+            throw new BusinessException("执行条件判断失败: " + e.getMessage());
+        }
+    }
 
-            Constructor<?> constructor = clazz.getDeclaredConstructor();
-            constructor.setAccessible(true);
-            Object instance = constructor.newInstance();
+    /**
+     * 执行变迁后置处理
+     */
+    private void executeTransitionAfterClass(String businessId, Transition transition) {
+        if (transition != null && StringUtils.isNotBlank(transition.getAfterClass())) {
+            try {
+                String[] parts = transition.getAfterClass().split("#");
+                if (parts.length != 2) {
+                    throw new BusinessException("处理器类格式错误，应为：类名#方法名");
+                }
 
-            // 调用方法并传入正确的参数
-            return (Boolean) method.invoke(instance, businessId, transition);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to evaluate condition: " + conditionClass, e);
+                String className = parts[0];
+                TransitionHandler handler = (TransitionHandler) applicationContext.getBean(Class.forName(className));
+                handler.handle(businessId, transition);
+            }
+            catch (Exception e) {
+                throw new BusinessException("执行变迁后置处理失败: " + e.getMessage());
+            }
         }
     }
 
