@@ -249,3 +249,112 @@ POST /api/workflow/runtime-tasks/process   # 处理任务
 ## 许可证
 
 MIT License
+
+## 处理器接口
+
+系统提供了三种处理器接口，用于实现流程中的自定义业务逻辑：
+
+### 1. 活动节点处理器 (ActivityHandler)
+
+用于处理活动节点的业务逻辑，在活动完成时执行。
+
+```java
+@Service
+public class LeaveActivityHandler implements ActivityHandler {
+    @Autowired
+    private LeaveInfoService leaveInfoService;
+    
+    @Override
+    public void handle(String businessId, RuntimeTask task) {
+        // 获取请假信息
+        LeaveInfo leaveInfo = leaveInfoService.getById(businessId);
+        
+        // 根据节点编码处理不同的业务逻辑
+        if ("DEPT_APPROVE".equals(task.getActivity().getCode())) {
+            // 部门审批通过后的处理
+            leaveInfo.setDeptApproved(true);
+            leaveInfoService.updateById(leaveInfo);
+        } else if ("HR_APPROVE".equals(task.getActivity().getCode())) {
+            // HR审批通过后的处理
+            leaveInfo.setHrApproved(true);
+            leaveInfoService.updateById(leaveInfo);
+        }
+    }
+}
+```
+
+### 2. 条件处理器 (ConditionHandler)
+
+用于判断流程变迁的条件是否满足。
+
+```java
+@Service
+public class LeaveConditionHandler implements ConditionHandler {
+    @Autowired
+    private LeaveInfoService leaveInfoService;
+    
+    @Override
+    public boolean evaluate(String businessId, Transition transition) {
+        LeaveInfo leaveInfo = leaveInfoService.getById(businessId);
+        
+        // 根据变迁编码判断不同的条件
+        switch (transition.getCode()) {
+            case "TO_HR_APPROVE":
+                // 请假天数大于3天需要HR审批
+                return leaveInfo.getDays() > 3;
+            case "TO_DIRECT_APPROVE":
+                // 请假天数小于等于3天直接主管审批
+                return leaveInfo.getDays() <= 3;
+            default:
+                return true;
+        }
+    }
+}
+```
+
+### 3. 变迁处理器 (TransitionHandler)
+
+用于处理流程变迁时的业务逻辑。
+
+```java
+@Service
+public class LeaveTransitionHandler implements TransitionHandler {
+    @Autowired
+    private LeaveInfoService leaveInfoService;
+    
+    @Override
+    public boolean handle(String businessId, Transition transition) {
+        LeaveInfo leaveInfo = leaveInfoService.getById(businessId);
+        
+        // 根据变迁编码执行不同的业务逻辑
+        if ("TO_HR_APPROVE".equals(transition.getCode())) {
+            // 发送通知给HR
+            notifyHR(leaveInfo);
+            return true;
+        } else if ("COMPLETE".equals(transition.getCode())) {
+            // 流程结束时的处理
+            completeLeaveProcess(leaveInfo);
+            return true;
+        }
+        return false;
+    }
+}
+```
+
+### 配置说明
+
+1. 在活动节点配置中：
+   - 后置处理方法：`com.example.handler.LeaveActivityHandler#handle`
+
+2. 在变迁配置中：
+   - 条件判断方法：`com.example.handler.LeaveConditionHandler#evaluate`
+   - 后置处理方法：`com.example.handler.LeaveTransitionHandler#handle`
+
+### 注意事项
+
+1. 处理器类必须使用 Spring 的 `@Service` 或其他组件注解
+2. 方法签名必须与接口定义完全匹配
+3. 建议在处理器中只处理业务逻辑，流程控制由框架负责
+4. 异常处理：
+   - 业务异常请抛出 `BusinessException`
+   - 系统会自动处理异常并记录日志
