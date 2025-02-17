@@ -232,12 +232,12 @@ POST /api/workflow/runtime-tasks/process   # 处理任务
 - dk_history_task：历史任务表
 
 ## 系统展示
-![flow_list.png](example/flow_list.png)
-![flow_config.png](example/flow_config.png)
-![activity_config.png](example/activity_config.png)
-![trans_list.png](example/trans_list.png)
-![leave_list.png](example/leave_list.png)
-![process_view.png](example/process_view.png)
+![flow_list.png](docs/images/example/flow_list.png)
+![flow_config.png](docs/images/example/flow_config.png)
+![activity_config.png](docs/images/example/activity_config.png)
+![trans_list.png](docs/images/example/trans_list.png)
+![leave_list.png](docs/images/example/leave_list.png)
+![process_view.png](docs/images/example/process_view.png)
 
 
 ## 技术支持

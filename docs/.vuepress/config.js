@@ -10,7 +10,7 @@ export default defineUserConfig({
   
   theme: defaultTheme({
     logo: '/images/logo.png',
-    repo: 'zhang_xing_ju/dk-workflow',
+    repo: 'https://gitee.com/zhang_xing_ju/dk-workflow',
     docsDir: 'docs',
     
     navbar: [
@@ -77,6 +77,7 @@ export default defineUserConfig({
           text: '示例',
           children: [
             '/examples/README.md',
+            '/examples/screenshots.md',
             '/examples/leave-process.md',
             '/examples/approval-process.md',
           ]
